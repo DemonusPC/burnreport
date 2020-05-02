@@ -4,23 +4,41 @@ import {
   Box,
   TextInput
 } from "grommet";
+import styled from 'styled-components';
 import SearchForm from "../../containers/SearchForm";
-import { emptyProduct, Product } from "../../util/data/product";
+import { emptyProduct, Product } from "../../util/schema/product";
+import { getProductSearch } from "../../util/data/requests";
+import { calculatePer, displayRound } from "../../util/data/calculations";
+import NutrientTable from "../../containers/NutrientTable";
+import NutrientBar from "../../containers/NutrientBar";
 
-const calculatePer = (value: number, per: number): number => {
-  const one = value / 100;
-  return one * per;
+const PerWrapper = styled(Box)`
+  align-items: center;
+  max-width: 15em;
+`;
+
+const totalMacroInGrams = (product: Product) => {
+  const carbs = product.carbohydrates.total;
+  const fat = product.fat.total;
+  const protein = product.protein.total;
+
+  const total = carbs + fat + protein;
+
+  return total;
 }
 
-const fetchProducts = async (suggestion: string) => {  
-  const request =  await fetch(encodeURI(`http://localhost:8080/search?p=${suggestion}`), {
-    headers: {
-      'origin': 'localhost'
-    }
-  });
-  const json = await request.json();
-  return json;
-}
+const calculate = (value: number, per: number): number => {
+  const result = calculatePer(value, per);
+  return displayRound(result);
+} 
+
+const ProductName = styled(Heading)`
+  width: 500px;
+`;
+
+const Energy = styled(Heading)`
+  font-size: 2em;
+`;
 
 const Products = () => {
   const [state, setState] = useState({
@@ -35,91 +53,44 @@ const Products = () => {
 
     setState({ ...state, per: value });
   };
-
   return (
-      <Box pad="large">
+      <Box pad="large" align="center" >
         <Box>
           <Heading>Product Search</Heading>
         </Box>
-        <Box>
+        <Box pad={{
+          vertical: "medium"
+        }} >
           <SearchForm
             selectedFunction={(product: Product) => {
               console.log(product);
               setState({ ...state, selected: product });
             }}
-            suggestFunction={fetchProducts}
+            suggestFunction={getProductSearch}
           />
         </Box>
-
-        <Box>
-          <Heading level={2}>{state.selected.name}</Heading>
-          <Box direction="row">
-            <Heading level={3}>Per           
+        <Box margin = {{
+          top: "medium"
+        }}>
+          <PerWrapper fill={false} direction="row" alignContent="center" justify="center">
+            <Heading margin={{right: "medium"}} level={3}>Per </Heading>           
           <TextInput
             placeholder="100"
             value={state.per}
             onChange={onChange}
-          />g</Heading>
-
+          />
+           <Heading margin={{left: "small"}} level={3}>g</Heading>
+          </PerWrapper>
+          <Box>
+            <ProductName level={2}>{state.selected.name}</ProductName>
+            <NutrientBar total={totalMacroInGrams(state.selected)} carbohydrates={state.selected.carbohydrates.total} fat={state.selected.fat.total} protein={state.selected.protein.total}  />
+            <Energy level={4}> {calculate(state.selected.energy.kcal, state.per )} kcal / {calculate(state.selected.energy.kj, state.per)} kJ</Energy>
+            <NutrientTable product={state.selected} amount={state.per} />
+          </Box>
             
 
-          </Box>
-          <Box>
-            <Heading level={3}>Energy</Heading>
-            <div>
-              {calculatePer(state.selected.energy.kcal, state.per )} kcal
-            </div>
-            <div>
-              {calculatePer(state.selected.energy.kj, state.per)} kJ
-            </div>
-          </Box>
-          <Box>
-            <Heading level={3}>Carbohydrates</Heading>
-            <div>
-              {calculatePer(state.selected.carbohydrates.total, state.per )} g
-            </div>
-            <div>
-              of which sugar {calculatePer(state.selected.carbohydrates.sugar, state.per )} g
-            </div>
-            <div>
-              added sugar {calculatePer(state.selected.carbohydrates.addedSugar, state.per )} g
-            </div>
-            <div>
-            starch {calculatePer(state.selected.carbohydrates.starch, state.per )} g
-            </div>
-            <div>
-            fiber {calculatePer(state.selected.carbohydrates.fiber, state.per )} g
-            </div>
-          </Box>
-          <Box>
-            <Heading level={3}>Fat</Heading>
-            <div>
-              {calculatePer(state.selected.fat.total, state.per )} g
-            </div>
-            <div>
-              of which saturated {calculatePer(state.selected.fat.saturated, state.per )} g
-            </div>
-            <div>
-              of which monounsaturated {calculatePer(state.selected.fat.monounsaturated, state.per )} g
-            </div>
-            <div>
-              of which trans {calculatePer(state.selected.fat.trans, state.per )} g
-            </div>
-          </Box>
-
-          <Box>
-            <Heading level={3}>Protein</Heading>
-            <div>
-              {calculatePer(state.selected.protein.total, state.per )} g
-            </div>
-          </Box>
-          <Box>
-            <Heading level={3}>Salt</Heading>
-            <div>
-              {calculatePer(state.selected.salt.total, state.per )} g
-            </div>
-          </Box>
         </Box>
+
       </Box>
   );
 };

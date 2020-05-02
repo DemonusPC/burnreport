@@ -1,4 +1,4 @@
-import { Product } from "./data/product";
+import { Product } from "./schema/product";
 
 const data: Array<Product> = [
   {

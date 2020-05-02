@@ -1,5 +1,5 @@
 import React from 'react'; 
-import { Product } from '../../util/data/product';
+import { Product } from '../../util/schema/product';
 import { Box, Heading, Table, TableHeader, TableRow, TableCell, TableBody, Text } from 'grommet';
 
 export interface ReportResult {
@@ -16,11 +16,6 @@ export interface ReportResult {
 
 }
 
-const mapConsumed = (consumed: Product[]) => {
-    return consumed.map((product) => (
-        <div>{product.name}</div>
-    ))
-}
 
 const mapColumns = (columns: Array<string>) => {
     return columns.map((col) => (
@@ -60,7 +55,7 @@ const ReportRender = ({result} : ReportResult) => {
             <Heading>Report</Heading>
     <Heading level={2}>Total Kcal: {result.total.kcal}</Heading>
         <Box>
-        <Table>
+        <Table alignSelf="stretch">
           <TableHeader>
             <TableRow>
             {mapColumns(columns)}

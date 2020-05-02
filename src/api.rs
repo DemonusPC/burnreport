@@ -13,7 +13,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use chrono::prelude::{DateTime, Utc};
 
-pub fn todos(
+pub fn routes(
     pool: SqlitePool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     // GET / -> index.html

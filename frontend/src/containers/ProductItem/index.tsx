@@ -33,30 +33,17 @@ const ProductItem = ({
           </Text>
         </TableCell>
         <TableCell>
-          <Text>
             <Button
               plain={false}
+              size = "small"
               icon={<Close />}
               onClick={deleteFunc}
               color="status-critical"
             />
-          </Text>
+
         </TableCell>
       </TableRow>
   );
 };
-
-// return (
-//     <Box direction="row">
-//         <div>{name}</div>
-//         <Box>            <TextInput
-//         placeholder="type here"
-//         value={amount}
-//         onChange={changeFunc}
-//         /></Box>
-
-//         <Button plain={false} icon={<Close />} onClick={deleteFunc} color="status-critical" />
-//     </Box>
-// )
 
 export default ProductItem;

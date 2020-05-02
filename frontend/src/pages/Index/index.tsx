@@ -11,19 +11,11 @@ import {
   TableBody,
 } from "grommet";
 import SearchForm from "../../containers/SearchForm";
-import { Product } from "../../util/data/product";
+import { Product } from "../../util/schema/product";
 import ProductItem from "../../containers/ProductItem";
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
-
-interface ConsumedProduct {
-  id: number;
-  name: string;
-  amount: number;
-}
-
-interface Report {
-  consumed: ConsumedProduct[]
-}
+import { Report, ConsumedProduct } from "../../util/schema/report";
+import { postReport, getProductSearch } from "../../util/data/requests";
 
 const emptyReport = (): ReportResult => {
   return {
@@ -40,28 +32,6 @@ const emptyReport = (): ReportResult => {
   }
 }
 
-const postReport = async (report: Report): Promise<ReportResult> => {
-    // Default options are marked with *
-
-    const response = await fetch("http://localhost:8080/report", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        origin: "*",
-      },
-      mode: "cors",
-      body: JSON.stringify(report)
-    });
-
-    
-    console.log(response);
-
-    const json = await response.json();
-    console.log(json);
-
-    return json;
-}
-
 const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
   const report : Report = {
     consumed
@@ -71,21 +41,7 @@ const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
     setReport({completed: true, report: json});
   });
   
-  // console.log(report);
 }
-
-const fetchProducts = async (suggestion: string) => {
-  const request = await fetch(
-    encodeURI(`http://localhost:8080/search?p=${suggestion}`),
-    {
-      headers: {
-        origin: "localhost",
-      },
-    }
-  );
-  const json = await request.json();
-  return json;
-};
 
 const emptyConsumed = (): Array<ConsumedProduct> => {
   return [];
@@ -181,7 +137,7 @@ const Index = () => {
           selectedFunction={(product: Product) => {
             addElement(product);
           }}
-          suggestFunction={fetchProducts}
+          suggestFunction={getProductSearch}
         />
       </Box>
 

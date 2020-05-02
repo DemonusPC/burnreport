@@ -1,6 +1,6 @@
 /target
 **/*.rs.bk
-data/
+/data/
 *.db
 .env
 *.db-shm

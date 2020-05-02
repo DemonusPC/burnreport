@@ -26,7 +26,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let db_path = match env::var("DATABASE_URL") {
         Ok(val) => val,
-        Err(e) => panic!("NO DATABASE_URL specified"),
+        Err(e) => panic!("No DATABASE_URL specified"),
     };
 
     let pool = SqlitePool::new(&db_path).await?;
@@ -36,7 +36,7 @@ async fn main() -> Result<(), sqlx::Error> {
     // println!("{:?}", product.len());
 
     // import_file(&pool).await?;
-    let aa = api::todos(pool);
+    let aa = api::routes(pool);
 
     // let cors = warp::cors();
     
