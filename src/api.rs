@@ -1,6 +1,6 @@
 use crate::db::{one_single_product, search_products, single_product};
 use crate::nutrients::TotalAble;
-use crate::products::{Product, ProductSubmission, Report};
+use crate::products::{Product, Report};
 
 use sqlx::SqlitePool;
 
@@ -121,18 +121,50 @@ async fn process_report(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut result: Vec<Product> = vec![];
 
+    // Energy
     let mut total_kcal: f64 = 0.0;
+    let mut total_kj: f64 = 0.0;
+
+    // Carbs
     let mut total_carbs: f64 = 0.0;
+    let mut total_sugar: f64 = 0.0;
+    let mut total_added_sugar: f64 = 0.0;
+    let mut total_fiber: f64 = 0.0;
+    let mut total_starch: f64 = 0.0;
+
+    // Fat
     let mut total_fat: f64 = 0.0;
+    let mut total_saturated: f64 = 0.0;
+    let mut total_monounsaturated: f64 = 0.0;
+    let mut total_trans: f64 = 0.0;
+
+    // Protein
     let mut total_protein: f64 = 0.0;
+
+    // Salt
+    let mut total_salt: f64 = 0.0;
 
     for v in &report.consumed {
         match one_single_product(&pool, v.id(), v.amount()).await {
             Ok(product) => {
                 total_kcal += &product.energy().kcal();
+                total_kj += &product.energy().k_j();
+
                 total_carbs += &product.carbohydrates().total();
+                total_sugar += &product.carbohydrates().sugar();
+                total_added_sugar += &product.carbohydrates().added_sugar();
+                total_fiber += &product.carbohydrates().fiber();
+                total_starch += &product.carbohydrates().starch();
+
                 total_fat += &product.fat().total();
+                total_saturated += &product.fat().saturated();
+                total_monounsaturated += &product.fat().monounsaturated();
+                total_trans += &product.fat().trans();
+
                 total_protein += &product.protein().total();
+
+                total_salt += &product.salt().total();
+
                 result.push(product);
             }
             Err(err) => println!("{:?}", err),
@@ -144,17 +176,11 @@ async fn process_report(
     let reply = json!({
         "timeDone": utc,
         "result": {
-        "total" : {
-            "kcal": total_kcal,
-            "carbohydrates": total_carbs,
-            "fat": total_fat,
-            "protein": total_protein
-        },
+        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt),
          "consumed": result,
         }
     });
 
     Ok(warp::reply::json(&reply))
 }
-
 // SELECT id, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt FROM Food

@@ -49,7 +49,7 @@ pub async fn import_file(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
 pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Product>, sqlx::Error> {
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-    let result = sqlx::query("SELECT * FROM Food WHERE name LIKE $1")
+    let result = sqlx::query("SELECT * FROM Food WHERE name LIKE $1 LIMIT 15")
         .bind(format!("%{}%", term))
         .map(|row: SqliteRow| {
             // let name : String = row.get(0);

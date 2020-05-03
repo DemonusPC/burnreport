@@ -11,7 +11,7 @@ use sqlx::SqlitePool;
 
 use warp::Filter;
 
-// use db::import_file;
+use db::import_file;
 
 use warp::http::StatusCode;
 
@@ -31,19 +31,16 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let pool = SqlitePool::new(&db_path).await?;
 
-    // let product = search_products("Sains").await?;
-
-    // println!("{:?}", product.len());
 
     // import_file(&pool).await?;
     let aa = api::routes(pool);
 
     // let cors = warp::cors();
-    
+
     let cors = warp::cors()
-    .allow_any_origin()
-    .allow_header("content-type")
-    .allow_methods(vec!["GET", "POST", "PUT", "DELETE"]);
+        .allow_any_origin()
+        .allow_header("content-type")
+        .allow_methods(vec!["GET", "POST", "PUT", "DELETE"]);
     // let cors = warp::cors()
     // .allow_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
     // .allow_origin("*")

@@ -1,4 +1,5 @@
 import { Product } from "../schema/product";
+import { FlatProduct } from "../schema/report";
 
 export const calculatePer = (value: number, per: number): number => {
     const one = value / 100;
@@ -51,4 +52,53 @@ export const extractTabularNutrients = (product: Product, amount: number): Array
 
 
     return rows;
+}
+
+export const reportNutrientsToTable = (product: Product) => {
+    if(!product) {
+        return [];
+    }
+    const rows = [];
+    
+    rows.push(asColumn('Carbohydrates', 'total', product.carbohydrates.total));
+    rows.push(asColumn('Carbohydrates', 'sugar', product.carbohydrates.sugar));
+    rows.push(asColumn('Carbohydrates', 'added sugar', product.carbohydrates.addedSugar));
+    rows.push(asColumn('Carbohydrates', 'fiber', product.carbohydrates.fiber));
+    rows.push(asColumn('Carbohydrates', 'starch', product.carbohydrates.starch));
+
+    rows.push(asColumn('Fat', 'total', product.fat.total));
+    rows.push(asColumn('Fat', 'saturated', product.fat.saturated));
+    rows.push(asColumn('Fat', 'monounsaturated', product.fat.monounsaturated));
+    rows.push(asColumn('Fat', 'trans', product.fat.trans));
+
+    rows.push(asColumn('Protein', 'total', product.protein.total));
+
+    rows.push(asColumn('Salt', 'total', product.salt.total));
+
+
+    return rows;
+}
+
+export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
+    const result: Array<FlatProduct> = products.map(product => {
+        return {
+            name: product.name,
+            manufacturer: product.manufacturer,
+            kcal: product.energy.kcal,
+            kj: product.energy.kj,
+            carbohydrates: product.carbohydrates.total,
+            sugar: product.carbohydrates.sugar,
+            addedSugaer: product.carbohydrates.addedSugar,
+            fiber: product.carbohydrates.fiber,
+            starch: product.carbohydrates.starch,
+            fat: product.fat.total,
+            saturated: product.fat.saturated,
+            monounsaturated: product.fat.monounsaturated,
+            trans: product.fat.trans,
+            protein: product.protein.total,
+            salt: product.salt.total
+        }
+    });
+
+    return result;
 }

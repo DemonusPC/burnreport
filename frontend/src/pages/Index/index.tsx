@@ -11,7 +11,7 @@ import {
   TableBody,
 } from "grommet";
 import SearchForm from "../../containers/SearchForm";
-import { Product } from "../../util/schema/product";
+import { Product, emptyProduct } from "../../util/schema/product";
 import ProductItem from "../../containers/ProductItem";
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
 import { Report, ConsumedProduct } from "../../util/schema/report";
@@ -21,12 +21,7 @@ const emptyReport = (): ReportResult => {
   return {
     timeDone: Date.now(),
     result: {
-        total: {
-            kcal: 0,
-            carbohydrates: 0,
-            fat: 0,
-            protein: 0
-        },
+        total: emptyProduct(),
         consumed: []
     }
   }
@@ -78,6 +73,25 @@ const mapProductItems = (
     />
   ));
 };
+
+const fileChosen = (file : any | undefined, setReport: any) => {
+  const reader = new FileReader();
+  reader.onloadend = (e: any) => {
+    const content = reader.result;
+    if(content) {
+      const parsed :ReportResult = JSON.parse(content.toString());
+      console.log(parsed);
+      setReport({
+        completed: true,
+        report: { result: parsed }
+      })
+    }
+    
+    
+  }
+
+  reader.readAsText(file);
+}
 
 const Index = () => {
   const [consumed, setConsumed] = React.useState(emptyConsumed());
@@ -146,6 +160,15 @@ const Index = () => {
           <Button type="submit" primary label="Submit" onClick={submit} />
           <Button type="reset" label="Reset" onClick={reset} />
         </Box>
+      </Box>
+
+      <Box>
+        <Heading>Import from file</Heading>
+        <input type="file" accept=".json" onChange={e => { 
+          if(e.target.files){
+                fileChosen(e.target.files[0], setReport);
+          }
+          }} />
       </Box>
     </Box>
     :

@@ -36,6 +36,36 @@ impl Product {
         };
     }
 
+    pub fn new_from_raw_values(
+        id: i32,
+        name: String,
+        manufacturer: String,
+        kcal: f64,
+        k_j: f64,
+        total_carbs: f64,
+        fiber: f64,
+        sugar: f64,
+        added_sugar: f64,
+        starch: f64,
+        total_fat: f64,
+        saturated: f64,
+        mono: f64,
+        trans: f64,
+        protein: f64,
+        salt: f64,
+    ) -> Product {
+        return Product {
+            id: id,
+            name: name,
+            manufacturer: manufacturer,
+            energy: Energy::new(kcal, k_j),
+            carbohydrates: Carbohydrates::new(total_carbs, fiber, sugar, added_sugar, starch),
+            fat: Fat::new(total_fat, saturated, mono, trans),
+            protein: Protein::new(protein),
+            salt: Salt::new(salt),
+        };
+    }
+
     pub fn id(&self) -> i32 {
         return self.id;
     }

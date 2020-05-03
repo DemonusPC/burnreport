@@ -17,7 +17,7 @@ const PerWrapper = styled(Box)`
   max-width: 15em;
 `;
 
-const totalMacroInGrams = (product: Product) => {
+export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
   const fat = product.fat.total;
   const protein = product.protein.total;
