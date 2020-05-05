@@ -69,3 +69,8 @@ export const emptyProduct = () : Product => {
 
     return result;
 } 
+
+export interface ProductAPIStatus {
+    status: string,
+    id?: number 
+}

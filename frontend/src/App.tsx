@@ -1,26 +1,22 @@
-import React from 'react';
-import Products from './pages/Products';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
+import React from "react";
+import Products from "./pages/Products";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { Grommet } from "grommet";
 import { grommet } from "grommet/themes";
-import Index from './pages/Index';
-import Navigation from './containers/Navigation';
-
-
+import Index from "./pages/Index";
+import Navigation from "./containers/Navigation";
+import AddProduct from "./pages/AddProduct";
 
 const App = () => (
   <>
-      <Router>
+    <Router>
       <Grommet full theme={grommet}>
-      <Navigation />
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
+        <Navigation />
         <Switch>
+          <Route path="/products/add">
+            <AddProduct />
+          </Route>
           <Route path="/products">
             <Products />
           </Route>
@@ -28,10 +24,9 @@ const App = () => (
             <Index />
           </Route>
         </Switch>
-        </Grommet>
+      </Grommet>
     </Router>
   </>
 );
 
 export default App;
-

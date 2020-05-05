@@ -16,6 +16,7 @@ import ProductItem from "../../containers/ProductItem";
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
 import { Report, ConsumedProduct } from "../../util/schema/report";
 import { postReport, getProductSearch } from "../../util/data/requests";
+import styled from "styled-components";
 
 const emptyReport = (): ReportResult => {
   return {
@@ -86,12 +87,14 @@ const fileChosen = (file : any | undefined, setReport: any) => {
         report: { result: parsed }
       })
     }
-    
-    
   }
 
   reader.readAsText(file);
 }
+
+const StyledTable = styled(Table)`
+  min-width: 40%;
+`;
 
 const Index = () => {
   const [consumed, setConsumed] = React.useState(emptyConsumed());
@@ -126,14 +129,14 @@ const Index = () => {
     <Box pad="large">
       <Heading>Create Report</Heading>
       <Box pad={{ bottom: "large" }}>
-        <Table>
+        <StyledTable>
           <TableHeader>
             <TableRow>
               <TableCell key={"name"} scope="col">
                 <Text>Name</Text>
               </TableCell>
               <TableCell key={"amount"} scope="col">
-                <Text>amount (g)</Text>
+                <Text>Amount (g)</Text>
               </TableCell>
               <TableCell key={"delete"} scope="col">
                 <Text></Text>
@@ -143,7 +146,7 @@ const Index = () => {
           <TableBody>
             {mapProductItems(consumed, consumed, setConsumed)}
           </TableBody>
-        </Table>
+        </StyledTable>
       </Box>
 
       <Box pad={{ bottom: "large" }}>

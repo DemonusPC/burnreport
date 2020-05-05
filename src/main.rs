@@ -1,23 +1,18 @@
 use dotenv::dotenv;
 use std::env;
 
+mod config;
 mod api;
-mod db;
-mod file;
 mod nutrients;
 mod products;
 
+use crate::config::setup;
 use sqlx::SqlitePool;
 
 use warp::Filter;
 
-use db::import_file;
-
-use warp::http::StatusCode;
-
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
-    println!("Hello, world!");
     dotenv().ok();
 
     std::env::set_var("RUST_LOG", "info");
@@ -26,12 +21,16 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let db_path = match env::var("DATABASE_URL") {
         Ok(val) => val,
-        Err(e) => panic!("No DATABASE_URL specified"),
+        Err(_e) => panic!("No DATABASE_URL specified"),
     };
 
     let pool = SqlitePool::new(&db_path).await?;
 
+    let db_configured = setup(&pool).await?;
 
+    if !db_configured {
+        panic!("Error while setting up database");
+    }
     // import_file(&pool).await?;
     let aa = api::routes(pool);
 

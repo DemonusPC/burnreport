@@ -2,22 +2,15 @@ use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 
 use crate::products::Product;
 
-use sqlx::row::Row;
-use sqlx::sqlite::SqliteConnection;
-use sqlx::sqlite::SqliteRow;
-use sqlx::Connect;
-
-use crate::file::import_products;
 use crate::nutrients::TotalAble;
+use sqlx::row::Row;
+use sqlx::sqlite::SqliteQueryAs;
+use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
 
-pub async fn import_file(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-    let test = import_products("./data/products.csv");
-    let result = test.unwrap();
-
-    println!("{:?}", result);
-
-    for prod in result {
+pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    for prod in products {
         sqlx::query!(
             r#"
     INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
@@ -40,9 +33,11 @@ pub async fn import_file(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             prod.salt().total()
 
         )
-        .execute(pool)
+        .execute(&mut tx)
         .await?;
     }
+
+    tx.commit().await?;
 
     Ok(())
 }
@@ -136,4 +131,54 @@ pub async fn one_single_product(
         .await?;
 
     Ok(result)
+}
+
+pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i32, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
+VALUES ( $1, $2, $3, $4,$5, $6,$7, $8,$9, $10,$11, $12,$13, $14,$15 )
+        "#,
+        product.name(),
+        product.manufacturer(),
+        product.energy().kcal(),
+        product.energy().k_j(),
+        product.carbohydrates().total(),
+        product.carbohydrates().fiber(),
+        product.carbohydrates().sugar(),
+        product.carbohydrates().added_sugar(),
+        product.carbohydrates().starch(),
+        product.fat().total(),
+        product.fat().saturated(),
+        product.fat().monounsaturated(),
+        product.fat().trans(),
+        product.protein().total(),
+        product.salt().total()
+
+    )
+    .execute(&mut tx)
+    .await?;
+
+    let rec: (i32,) = sqlx::query_as("SELECT last_insert_rowid()")
+        .fetch_one(&mut tx)
+        .await?;
+
+    tx.commit().await?;
+
+    Ok(rec.0)
+}
+
+pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query("DELETE FROM Food WHERE id = ?")
+        .bind(id)
+        .execute(&mut tx)
+        .await?;
+
+    tx.commit().await?;
+
+    Ok(())
 }
