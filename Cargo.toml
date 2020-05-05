@@ -1,5 +1,5 @@
 [package]
-name = "nutrition"
+name = "burnreport"
 version = "0.1.0"
 authors = ["Demonus <pogon.ap@hotmail.com>"]
 edition = "2018"
