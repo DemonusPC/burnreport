@@ -43,6 +43,10 @@ const base : ProductSize = {
   grams: 1,
 };
 
+const urlToPortion = (id: number): string => {
+  return encodeURI(`/products/${id}/portions/add`);
+}
+
 const Products = () => {
   const [state, setState] = useState({
     selected: emptyProduct(),
@@ -142,6 +146,8 @@ const Products = () => {
         >
           <Anchor href="/products/add" label="Add Product" key="addproduct" />
           {state.selected.id !== 0 && (
+            <>
+            <Anchor href={urlToPortion(state.selected.id)} label="Add Portion" key="addproduct" />
             <Button
               fill={false}
               color="status-critical"
@@ -158,6 +164,7 @@ const Products = () => {
                 });
               }}
             />
+            </>
           )}
         </Box>
       </Box>

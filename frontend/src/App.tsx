@@ -7,6 +7,7 @@ import { grommet } from "grommet/themes";
 import Index from "./pages/Index";
 import Navigation from "./containers/Navigation";
 import AddProduct from "./pages/AddProduct";
+import AddProductSize from './pages/AddProductSize';
 
 const App = () => (
   <>
@@ -16,6 +17,9 @@ const App = () => (
         <Switch>
           <Route path="/products/add">
             <AddProduct />
+          </Route>
+          <Route path="/products/:id/portions/add">
+            <AddProductSize />
           </Route>
           <Route path="/products">
             <Products />

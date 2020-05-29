@@ -81,3 +81,9 @@ export interface ProductSize {
     name: string,
     grams: number
 }
+
+export interface Portion {
+    product: number,
+    name: string,
+    grams: number
+}
