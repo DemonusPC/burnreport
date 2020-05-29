@@ -153,7 +153,7 @@ const ReportRender = ({ result }: ReportResult) => {
             {displayRound(result.total.energy.kcal)} kcal /{" "}
             {displayRound(result.total.energy.kj)} kJ
           </Energy>
-          <NutrientTable product={result.total} amount={100} />
+          <NutrientTable product={result.total} amount={100} baseUnit={1} />
         </Box>
 
         <Box>

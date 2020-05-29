@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Heading, Box, TextInput, Button, Anchor } from "grommet";
+import { Heading, Box, TextInput, Button, Anchor, Select } from "grommet";
 import styled from "styled-components";
 import SearchForm from "../../containers/SearchForm";
-import { emptyProduct, Product } from "../../util/schema/product";
-import { getProductSearch, deleteProduct } from "../../util/data/requests";
+import { emptyProduct, Product, ProductSize } from "../../util/schema/product";
+import { getProductSearch, deleteProduct, getProductSizesById } from "../../util/data/requests";
 import { calculatePer, displayRound } from "../../util/data/calculations";
 import NutrientTable from "../../containers/NutrientTable";
 import NutrientBar from "../../containers/NutrientBar";
 
 const PerWrapper = styled(Box)`
   align-items: center;
-  max-width: 15em;
+  /* max-width: 15em; */
 `;
 
 export const totalMacroInGrams = (product: Product) => {
@@ -23,8 +23,8 @@ export const totalMacroInGrams = (product: Product) => {
   return total;
 };
 
-const calculate = (value: number, per: number): number => {
-  const result = calculatePer(value, per);
+const calculate = (value: number, per: number, baseUnit: number): number => {
+  const result = calculatePer(value, per, baseUnit);
   return displayRound(result);
 };
 
@@ -36,10 +36,19 @@ const Energy = styled(Heading)`
   font-size: 2em;
 `;
 
+const base : ProductSize = {
+  id: 0,
+  product: 0,
+  name: "grams",
+  grams: 1,
+};
+
 const Products = () => {
   const [state, setState] = useState({
     selected: emptyProduct(),
     per: 100,
+    unit: base,
+    unitOptions: [base],
   });
 
   const onChange = (event: { target: { value: any } }) => {
@@ -49,6 +58,8 @@ const Products = () => {
 
     setState({ ...state, per: value });
   };
+
+
   return (
     <Box pad="large" align="center">
       <Box>
@@ -61,8 +72,10 @@ const Products = () => {
       >
         <SearchForm
           selectedFunction={(product: Product) => {
-            console.log(product);
+            // This is really ugly. Forces like 8 rerenders
+            // TODO: This needs fixing
             setState({ ...state, selected: product });
+            getProductSizesById(product.id).then((result) => setState({...state, selected: product, unitOptions: [base].concat(result)}) );
           }}
           suggestFunction={getProductSearch}
         />
@@ -82,10 +95,19 @@ const Products = () => {
             Per{" "}
           </Heading>
           <TextInput placeholder="100" value={state.per} onChange={onChange} />
-          <Heading margin={{ left: "small" }} level={3}>
-            g
-          </Heading>
+
+          <Select
+            name="select"
+            placeholder="Select"
+            labelKey="name"
+            value={state.unit}
+            options={state.unitOptions}
+            onChange={({ option }) => {
+              setState({ ...state, unit: option });
+            }}
+          />
         </PerWrapper>
+
         <Box>
           <ProductName level={2}>{state.selected.name}</ProductName>
           <NutrientBar
@@ -96,16 +118,30 @@ const Products = () => {
           />
           <Energy level={4}>
             {" "}
-            {calculate(state.selected.energy.kcal, state.per)} kcal /{" "}
-            {calculate(state.selected.energy.kj, state.per)} kJ
+            {calculate(
+              state.selected.energy.kcal,
+              state.per,
+              state.unit.grams
+            )}{" "}
+            kcal /{" "}
+            {calculate(state.selected.energy.kj, state.per, state.unit.grams)}{" "}
+            kJ
           </Energy>
-          <NutrientTable product={state.selected} amount={state.per} />
+          <NutrientTable
+            product={state.selected}
+            amount={state.per}
+            baseUnit={state.unit.grams}
+          />
         </Box>
 
-        <Box justify="between" alignContent="between" direction="row" margin={{ top: "xlarge" }}>
-        <Anchor href="/products/add" label="Add Product" key="addproduct" />
-        {state.selected.id !== 0 && (
-          
+        <Box
+          justify="between"
+          alignContent="between"
+          direction="row"
+          margin={{ top: "xlarge" }}
+        >
+          <Anchor href="/products/add" label="Add Product" key="addproduct" />
+          {state.selected.id !== 0 && (
             <Button
               fill={false}
               color="status-critical"
@@ -116,12 +152,13 @@ const Products = () => {
                   setState({
                     selected: emptyProduct(),
                     per: 100,
+                    unit: base,
+                    unitOptions: [base],
                   });
                 });
               }}
             />
-          
-        )}
+          )}
         </Box>
       </Box>
     </Box>

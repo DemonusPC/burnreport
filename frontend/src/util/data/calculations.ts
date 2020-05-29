@@ -1,9 +1,9 @@
 import { Product } from "../schema/product";
 import { FlatProduct } from "../schema/report";
 
-export const calculatePer = (value: number, per: number): number => {
+export const calculatePer = (value: number, per: number, baseUnit: number) => {
     const one = value / 100;
-    return one * per;
+    return one * ( per * baseUnit);
 }
 
 
@@ -23,32 +23,32 @@ const asColumn = (macronutrient: string, nutrient: string, amount: number): RawN
     amount
 })
 
-const calculateToDisplay = (value: number, per: number) => {
-    const result = calculatePer(value, per);
+const calculateToDisplay = (value: number, per: number, baseUnit: number) => {
+    const result = calculatePer(value, per, baseUnit);
     return displayRound(result);
 }
 
-export const extractTabularNutrients = (product: Product, amount: number): Array<RawNutrientRow> => {
+export const extractTabularNutrients = (product: Product, amount: number, baseUnit: number): Array<RawNutrientRow> => {
 
     if(!product) {
         return [];
     }
     const rows = [];
     
-    rows.push(asColumn('Carbohydrates', 'total', calculateToDisplay(product.carbohydrates.total, amount)));
-    rows.push(asColumn('Carbohydrates', 'sugar', calculateToDisplay(product.carbohydrates.sugar, amount)));
-    rows.push(asColumn('Carbohydrates', 'added sugar', calculateToDisplay(product.carbohydrates.addedSugar, amount)));
-    rows.push(asColumn('Carbohydrates', 'fiber', calculateToDisplay(product.carbohydrates.fiber, amount)));
-    rows.push(asColumn('Carbohydrates', 'starch', calculateToDisplay(product.carbohydrates.starch, amount)));
+    rows.push(asColumn('Carbohydrates', 'total', calculateToDisplay(product.carbohydrates.total, amount, baseUnit)));
+    rows.push(asColumn('Carbohydrates', 'sugar', calculateToDisplay(product.carbohydrates.sugar, amount, baseUnit)));
+    rows.push(asColumn('Carbohydrates', 'added sugar', calculateToDisplay(product.carbohydrates.addedSugar, amount, baseUnit)));
+    rows.push(asColumn('Carbohydrates', 'fiber', calculateToDisplay(product.carbohydrates.fiber, amount, baseUnit)));
+    rows.push(asColumn('Carbohydrates', 'starch', calculateToDisplay(product.carbohydrates.starch, amount, baseUnit)));
 
-    rows.push(asColumn('Fat', 'total', calculateToDisplay(product.fat.total, amount)));
-    rows.push(asColumn('Fat', 'saturated', calculateToDisplay(product.fat.saturated, amount)));
-    rows.push(asColumn('Fat', 'monounsaturated', calculateToDisplay(product.fat.monounsaturated, amount)));
-    rows.push(asColumn('Fat', 'trans', calculateToDisplay(product.fat.trans, amount)));
+    rows.push(asColumn('Fat', 'total', calculateToDisplay(product.fat.total, amount, baseUnit)));
+    rows.push(asColumn('Fat', 'saturated', calculateToDisplay(product.fat.saturated, amount, baseUnit)));
+    rows.push(asColumn('Fat', 'monounsaturated', calculateToDisplay(product.fat.monounsaturated, amount,baseUnit)));
+    rows.push(asColumn('Fat', 'trans', calculateToDisplay(product.fat.trans, amount, baseUnit)));
 
-    rows.push(asColumn('Protein', 'total', calculateToDisplay(product.protein.total, amount)));
+    rows.push(asColumn('Protein', 'total', calculateToDisplay(product.protein.total, amount, baseUnit)));
 
-    rows.push(asColumn('Salt', 'total', calculateToDisplay(product.salt.total, amount)));
+    rows.push(asColumn('Salt', 'total', calculateToDisplay(product.salt.total, amount, baseUnit)));
 
 
     return rows;
