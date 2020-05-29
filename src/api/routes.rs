@@ -1,9 +1,12 @@
+use crate::api::handlers::delete_product_sizes_handler;
+use crate::api::handlers::insert_product_sizes_handler;
 use crate::api::handlers::delete_single_product_handler;
 use crate::api::handlers::get_single_product_handler;
 use crate::api::handlers::insert_single_product_handler;
 use crate::api::handlers::process_report;
 use crate::api::handlers::products_csv;
 use crate::api::handlers::test;
+use crate::api::handlers::get_product_sizes_handler;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use warp::Filter;
@@ -48,7 +51,10 @@ pub fn routes(
         .or(post_report(pool.clone()))
         .or(post_new_product(pool.clone()))
         .or(delete_single_product(pool.clone()))
-        .or(post_products_csv(pool))
+        .or(post_products_csv(pool.clone()))
+        .or(get_product_sizes(pool.clone()))
+        .or(post_new_product_sizes(pool.clone()))
+        .or(delete_single_product_size(pool.clone()))
 }
 
 fn get_search_product(
@@ -112,4 +118,34 @@ fn post_products_csv(
         .and(warp::filters::multipart::form())
         .and(with_db(pool))
         .and_then(products_csv)
+}
+
+fn get_product_sizes(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / i32 / "sizes")
+        .and(warp::get())
+        .and(with_db(pool))
+        .and_then(get_product_sizes_handler)
+}
+
+fn delete_single_product_size(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / i32 / "sizes" / String)
+        .and(warp::delete())
+        .and(with_db(pool))
+        .and_then(delete_product_sizes_handler)
+}
+
+fn post_new_product_sizes(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / "sizes")
+        .and(warp::post())
+        .and(with_db(pool))
+        // Only accept bodies smaller than 16kb...
+        // .and(warp::body::content_length_limit(1024 * 16))
+        .and(warp::body::json())
+        .and_then(insert_product_sizes_handler)
 }

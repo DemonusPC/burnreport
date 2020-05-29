@@ -22,6 +22,7 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             // warn!("{:?}", "Food table doesn't exist");
             println!("Table doesnt exist");
             create_food_table(pool).await?;
+            create_product_sizes_table(pool).await?;
         }
     }
 
@@ -65,6 +66,27 @@ async fn create_food_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "protein"	REAL NOT NULL DEFAULT 0,
             "salt"	REAL NOT NULL DEFAULT 0
         )
+        "#
+    ).execute(&mut tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok(())
+}
+
+
+async fn create_product_sizes_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS "ProductSizes" (
+            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            "product"	INTEGER NOT NULL,
+            "name"	TEXT NOT NULL,
+            "grams"	REAL NOt NULL,
+            FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
+        );
         "#
     ).execute(&mut tx)
     .await?;
