@@ -44,7 +44,7 @@ const base : ProductSize = {
 };
 
 const urlToPortion = (id: number): string => {
-  return encodeURI(`/products/${id}/portions/add`);
+  return encodeURI(`/products/${id}/portions`);
 }
 
 const Products = () => {

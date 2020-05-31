@@ -104,3 +104,19 @@ export const postPortions = async (portions: Array<Portion>): Promise<ProductAPI
 
   return result;
 }
+
+// /api/products/21/sizes/portion
+
+export const deletePortion = async (id: number, name: string): Promise<ProductAPIStatus> => {
+  const response = await fetch(encodeURI(`/api/products/${id}/sizes/${name}`), {
+    method: 'DELETE',
+    headers: {
+      origin: "*",
+    },
+    mode: "cors",
+  });
+
+  const result: ProductAPIStatus = await response.json();
+
+  return result;
+}
