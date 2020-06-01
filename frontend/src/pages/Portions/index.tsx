@@ -43,7 +43,6 @@ const removeAndDeletePortion = (state: Array<Portion>, name: string, productId: 
 }
 
 const submit = (portions: Array<any>, setSent: any) => {
-  console.log(portions);
   const parsed : Array<Portion> = portions.map((portion: any) => {
     return {
       product: parseInt(portion.product),
@@ -53,7 +52,6 @@ const submit = (portions: Array<any>, setSent: any) => {
   })
 
   postPortions(parsed).then((result: { status: any; }) => {
-    console.log(result.status);
     setSent(true);
   });
 }
@@ -75,7 +73,6 @@ const Portions = () => {
     fetchAndSet();
   }, [id]);
 
-  // console.log(state);
   return (
     <Box pad="large">
       <Box>

@@ -147,7 +147,7 @@ const Products = () => {
           <Anchor href="/products/add" label="Add Product" key="addproduct" />
           {state.selected.id !== 0 && (
             <>
-            <Anchor href={urlToPortion(state.selected.id)} label="Add Portion" key="addproduct" />
+            <Anchor href={urlToPortion(state.selected.id)} label="Portions" key="addproduct" />
             <Button
               fill={false}
               color="status-critical"
