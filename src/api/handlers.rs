@@ -9,7 +9,7 @@ use crate::api::db::single_product;
 use crate::api::db::list_product_sizes;
 use crate::api::{SearchQuery};
 use crate::nutrients::TotalAble;
-use crate::products::{Product, ProductSize, Report};
+use crate::products::{Product, Portion, Report};
 use chrono::prelude::{DateTime, Utc};
 use serde_json::json;
 use sqlx::SqlitePool;
@@ -316,7 +316,7 @@ pub async fn get_product_sizes_handler(
 
 pub async fn insert_product_sizes_handler(
     pool: SqlitePool,
-    products: Vec<ProductSize>
+    products: Vec<Portion>
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let c: Vec<i32> = vec![];
     let result = match insert_product_sizes(&pool, products).await {

@@ -1,6 +1,6 @@
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 
-use crate::products::{Product, ProductSize};
+use crate::products::{Product, Portion};
 
 use crate::nutrients::TotalAble;
 use sqlx::row::Row;
@@ -188,11 +188,11 @@ pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Erro
 
 // List Product sizes
 
-pub async fn list_product_sizes(pool: &SqlitePool, product_id: i32) -> Result<Vec<ProductSize>, sqlx::Error> {
+pub async fn list_product_sizes(pool: &SqlitePool, product_id: i32) -> Result<Vec<Portion>, sqlx::Error> {
     let result = sqlx::query("SELECT id, product, name, grams FROM ProductSizes WHERE product = $1")
         .bind(product_id)
         .map(|row: SqliteRow| {
-            ProductSize::new(row.get(0), row.get(1), row.get(2), row.get(3))
+            Portion::new(row.get(0), row.get(1), row.get(2), row.get(3))
         })
         .fetch_all(pool)
         .await?;
@@ -201,7 +201,7 @@ pub async fn list_product_sizes(pool: &SqlitePool, product_id: i32) -> Result<Ve
 
 // Create a product Size
 
-pub async fn insert_product_sizes(pool: &SqlitePool, product_sizes: Vec<ProductSize>) -> Result<bool, sqlx::Error> {
+pub async fn insert_product_sizes(pool: &SqlitePool, product_sizes: Vec<Portion>) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
     
     for size in product_sizes {

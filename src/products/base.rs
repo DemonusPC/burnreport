@@ -127,7 +127,7 @@ pub struct Report {
 
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ProductSize {
+pub struct Portion {
     #[serde(skip_deserializing)]
     id: i32,
     product: i32,
@@ -135,9 +135,9 @@ pub struct ProductSize {
     grams: f64,
 }
 
-impl ProductSize {
+impl Portion {
     pub fn new(id: i32, product: i32, name: String, grams: f64) -> Self {
-        ProductSize {
+        Portion {
             id: id,
             product: product,
             name: name,
@@ -162,9 +162,9 @@ impl ProductSize {
     }
 }
 
-impl Default for ProductSize {
+impl Default for Portion {
     fn default() -> Self { 
-        ProductSize {
+        Portion {
             id: 0,
             product: -1,
             name: "".to_owned(),

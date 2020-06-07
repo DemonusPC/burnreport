@@ -123,7 +123,7 @@ fn post_products_csv(
 fn get_product_sizes(
     pool: SqlitePool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("api" / "products" / i32 / "sizes")
+    warp::path!("api" / "products" / i32 / "portions")
         .and(warp::get())
         .and(with_db(pool))
         .and_then(get_product_sizes_handler)
@@ -132,7 +132,7 @@ fn get_product_sizes(
 fn delete_single_product_size(
     pool: SqlitePool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("api" / "products" / i32 / "sizes" / String)
+    warp::path!("api" / "products" / i32 / "portions" / String)
         .and(warp::delete())
         .and(with_db(pool))
         .and_then(delete_product_sizes_handler)
@@ -141,7 +141,7 @@ fn delete_single_product_size(
 fn post_new_product_sizes(
     pool: SqlitePool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("api" / "products" / "sizes")
+    warp::path!("api" / "products" / "portions")
         .and(warp::post())
         .and(with_db(pool))
         // Only accept bodies smaller than 16kb...
