@@ -81,7 +81,7 @@ export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
 }
 
 export const getProductSizesById = async (id: number) => {
-  const request =  await fetch(encodeURI(`/api/products/${id}/sizes`));
+  const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
 
   const result : Array<ProductSize> = await request.json();
 
@@ -90,7 +90,7 @@ export const getProductSizesById = async (id: number) => {
 
 export const postPortions = async (portions: Array<Portion>): Promise<ProductAPIStatus> => {
   console.log(portions);
-  const response = await fetch(`/api/products/sizes`, {
+  const response = await fetch(`/api/products/portions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export const postPortions = async (portions: Array<Portion>): Promise<ProductAPI
 // /api/products/21/sizes/portion
 
 export const deletePortion = async (id: number, name: string): Promise<ProductAPIStatus> => {
-  const response = await fetch(encodeURI(`/api/products/${id}/sizes/${name}`), {
+  const response = await fetch(encodeURI(`/api/products/${id}/portions/${name}`), {
     method: 'DELETE',
     headers: {
       origin: "*",

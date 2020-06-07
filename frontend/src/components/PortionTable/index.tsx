@@ -1,8 +1,12 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Table, TableHeader, TableRow, TableCell, TableBody, Text, Button } from 'grommet';
 import { Portion } from '../../util/schema/product';
 import { Close } from "grommet-icons";
 
+const FullTAble = styled(Table)`
+  width: 100%;
+`;
 
 const mapPortionItems = (portions: Portion[], setState: any, productId: number, removeFunction: any) => {
     return portions.map((portion) => (
@@ -40,7 +44,7 @@ const PortionTable = ({productId, portions, stateSetter, stateReducer} : Portion
 
 
     return (
-        <Table>
+        <FullTAble>
         <TableHeader>
           <TableRow>
             <TableCell key={"name"} scope="col">
@@ -55,7 +59,7 @@ const PortionTable = ({productId, portions, stateSetter, stateReducer} : Portion
           </TableRow>
         </TableHeader>
         <TableBody>{mapPortionItems(portions, stateSetter, productId, stateReducer)}</TableBody>
-      </Table>
+      </FullTAble>
     )
 };
 

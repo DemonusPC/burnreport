@@ -75,11 +75,11 @@ const Portions = () => {
 
   return (
     <Box pad="large">
-      <Box>
+      <Box width="50%" margin={{bottom: "large"}}>
         <Heading>Current Portions</Heading>
         <PortionTable portions={current} stateSetter={setCurrent} productId={id} stateReducer={removeAndDeletePortion} />
       </Box>
-      <Box>
+      <Box width="50%">
         <Heading>Add Portion Sizes</Heading>
         <PortionTable portions={state} stateSetter={setState} productId={id} stateReducer={removePortion} />
 
