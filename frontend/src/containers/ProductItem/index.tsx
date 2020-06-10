@@ -24,6 +24,8 @@ interface ProductItemProps {
   amount: number;
   changeFunc: (event: any) => void;
   deleteFunc: () => void;
+  unit: ProductSize;
+  unitOptions: Array<ProductSize>;
 }
 
 const base: ProductSize = {
@@ -39,6 +41,8 @@ const ProductItem = ({
   amount,
   changeFunc,
   deleteFunc,
+  unit,
+  unitOptions
 }: ProductItemProps) => {
   const [portions, setPortions] = useState({
     unitOptions: [base],
@@ -77,8 +81,8 @@ const ProductItem = ({
               name="select"
               placeholder="Select"
               labelKey="name"
-              value={chosen}
-              options={portions.unitOptions}
+              value={unit}
+              options={unitOptions}
               onChange={({ option }) => {
                 // setState({ ...state, unit: option });
                 setChosen(option);
