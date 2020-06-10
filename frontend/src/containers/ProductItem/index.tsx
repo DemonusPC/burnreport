@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -26,6 +26,7 @@ interface ProductItemProps {
   deleteFunc: () => void;
   unit: ProductSize;
   unitOptions: Array<ProductSize>;
+  setUnit: any;
 }
 
 const base: ProductSize = {
@@ -42,25 +43,19 @@ const ProductItem = ({
   changeFunc,
   deleteFunc,
   unit,
-  unitOptions
+  unitOptions,
+  setUnit
 }: ProductItemProps) => {
-  const [portions, setPortions] = useState({
-    unitOptions: [base],
-  });
 
-  const [chosen, setChosen] = useState(base);
+  // useEffect(() => {
+  //   const fetchAndSet = async () => {
+  //     const serverPortions = await getProductSizesById(id);
 
-  useEffect(() => {
-    const fetchAndSet = async () => {
-      const serverPortions = await getProductSizesById(id);
+  //     setPortions({ unitOptions: [base].concat(serverPortions) });
+  //   };
 
-      setPortions({ unitOptions: [base].concat(serverPortions) });
-    };
-
-    fetchAndSet();
-  }, [id]);
-
-  console.log(portions);
+  //   fetchAndSet();
+  // }, [id]);
 
   return (
     <TableRow key={id}>
@@ -85,7 +80,7 @@ const ProductItem = ({
               options={unitOptions}
               onChange={({ option }) => {
                 // setState({ ...state, unit: option });
-                setChosen(option);
+                setUnit(option);
               }}
             />
           </PerWrapper>

@@ -59,10 +59,10 @@ const baseUnit: ProductSize = {
   grams: 1,
 };
 
+
 // Add Product Items
 const addConsumedProduct = (
   product: Product,
-  state: Map<number, ConsumedRaw>,
   setState: any
 ) => {
   const boxedProduct: ConsumedRaw = {
@@ -73,19 +73,22 @@ const addConsumedProduct = (
     unitOptions: [baseUnit],
   };
 
-  const newState = new Map(state);
-  newState.set(product.id, boxedProduct);
-  setState(newState);
+  setState((prevState : any) => {
+    const newState = new Map(prevState);
+    newState.set(product.id, boxedProduct);
+    return newState;
+  });
 };
 // Remove Product Items
 const deleteConsumedProduct = (
   productId: number,
-  state: Map<number, ConsumedRaw>,
   setState: any
 ) => {
-  const newState = new Map(state);
-  newState.delete(productId);
-  setState(newState);
+  setState((prevState : any) => {
+    const newState = new Map(prevState);
+    newState.delete(productId);
+    return newState;
+  });
 };
 
 // ProductItem Operations
@@ -94,31 +97,40 @@ const deleteConsumedProduct = (
 const changeProductAmount = (
   productId: number,
   amount: number,
-  state: Map<number, ConsumedRaw>,
   setState: any
 ) => {
-  const newState = new Map(state);
-  const target = state.get(productId);
-  if (target) {
-    target.amount = amount;
-    newState.set(productId, target);
-    setState(newState);
-  }
+  
+  setState((prevState : any) => {
+    const target = prevState.get(productId);
+    if (target) {
+      const newState = new Map(prevState);
+      target.amount = amount;
+      newState.set(productId, target);
+      return newState;
+    }
+    return prevState;
+  });
+
 };
 
-// Change Uni
+// Change Unit
 const changeProductUnit = (
   productId: number,
   unit: ProductSize,
-  state: Map<number, ConsumedRaw>,
   setState: any
 ) => {
-  const target = state.get(productId);
-  if (target) {
-    target.unit = unit;
-    state.set(productId, target);
-    setState(state);
-  }
+  setState((prevState : any) => {
+    const target = prevState.get(productId);
+    if (target) {
+      const newState = new Map(prevState);
+      target.unit = unit;
+      newState.set(productId, target);
+      return newState;
+    }
+    return prevState;
+  });
+  
+
 };
 
 // Produyct Item Mapping
@@ -133,13 +145,16 @@ const mapProductItems = (state: any, setState: any) => {
       name={product.name}
       amount={product.amount}
       changeFunc={(event) => {
-        changeProductAmount(product.id, +event.target.value, state, setState);
+        changeProductAmount(product.id, +event.target.value, setState);
       }}
       deleteFunc={() => {
-        deleteConsumedProduct(product.id, state, setState);
+        deleteConsumedProduct(product.id, setState);
       }}
       unit={product.unit}
       unitOptions={product.unitOptions}
+      setUnit={((option: ProductSize) => {
+        changeProductUnit(product.id, option, setState)
+      } )}
     />
   ));
 };
@@ -174,7 +189,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
       <Box pad={{ bottom: "large" }}>
         <SearchForm
           selectedFunction={(product: Product) => {
-            addConsumedProduct(product, state, setState);
+            addConsumedProduct(product, setState);
           }}
           suggestFunction={getProductSearch}
         />
