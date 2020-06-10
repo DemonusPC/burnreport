@@ -2,51 +2,29 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box, Heading, TableHeader, Table, Text, TableRow, TableCell, TableBody, Button } from 'grommet';
 import SearchForm from '../SearchForm';
-import { Product } from '../../util/schema/product';
+import { Product, ProductSize } from '../../util/schema/product';
 import { getProductSearch, postReport } from '../../util/data/requests';
-import { ConsumedProduct, Report } from '../../util/schema/report';
+import { ConsumedProduct, Report, ConsumedRaw } from '../../util/schema/report';
 import ProductItem from '../ProductItem';
 
 
-const emptyConsumed = (): Array<ConsumedProduct> => {
-  return [];
-};
+const emptyState = () : Map<number, ConsumedRaw> => {
+  return new Map();
+}
+
+const boxConsumedProduct = (raw: ConsumedRaw) : ConsumedProduct => {
+  const amount = raw.amount * raw.unit.grams;
+  return {
+    id: raw.id,
+    name: raw.name,
+    amount: amount
+  }
+}
 
 const StyledTable = styled(Table)`
   min-width: 40%;
 `;
 
-const mapProductItems = (
-  products: ConsumedProduct[],
-  values: ConsumedProduct[],
-  setFunction: any
-) => {
-  return products.map((product) => (
-    <ProductItem
-      key={product.id}
-      id={product.id}
-      name={product.name}
-      amount={product.amount}
-      changeFunc={(event) => {
-        const result = values.map((pp) => {
-          if (pp.id === product.id) {
-            return {
-              id: pp.id,
-              name: pp.name,
-              amount: +event.target.value,
-            };
-          }
-          return pp;
-        });
-        setFunction(result);
-      }}
-      deleteFunc={() => {
-        const result = values.filter((p) => p.id !== product.id);
-        setFunction(result);
-      }}
-    />
-  ));
-};
 
 const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
   const report : Report = {
@@ -63,27 +41,102 @@ interface ReportFormProps {
 }
 
 
-const ReportForm = ({setReportFunction} : ReportFormProps)  => {
+// Data Operations
 
-  const [consumed, setConsumed] = React.useState(emptyConsumed());
+// Report Opertaions
 
-  const addElement = (product: Product) => {
-    if(consumed.some(c => c.id === product.id)){
-      return;
-    }
-    const result = consumed.concat([
-      { id: product.id, name: product.name, amount: 100 },
-    ]);
-    setConsumed(result);
+const baseUnit : ProductSize = {
+  id: 0,
+  product: 0,
+  name: "grams",
+  grams: 1,
+}
+
+// Add Product Items
+const addConsumedProduct = (product: Product, state: Map<number, ConsumedRaw>, setState: any) => {
+  const boxedProduct : ConsumedRaw = {
+    id: product.id,
+    name: product.name,
+    amount: 100,
+    unit: baseUnit,
+    unitOptions: [baseUnit]
   };
 
+  const newState = new Map(state);
+  newState.set(product.id, boxedProduct);
+  setState(newState);
+}
+// Remove Product Items
+const deleteConsumedProduct = (productId: number, state: Map<number, ConsumedRaw>, setState: any ) => {
+  const newState = new Map(state);
+  newState.delete(productId);
+  setState(newState);
+}
+
+// ProductItem Operations
+
+// ChangeAmount
+const changeProductAmount = (productId: number, amount: number, state: Map<number, ConsumedRaw>, setState: any) => {
+  const newState = new Map(state);
+  const target = state.get(productId);
+  if(target) {
+    target.amount = amount;
+    newState.set(productId, target);
+    setState(newState);
+  }
+}
+
+// Change Uni
+const changeProductUnit = (productId: number, unit: ProductSize, state: Map<number, ConsumedRaw>, setState: any) => {
+  const target = state.get(productId);
+  if(target) {
+    target.unit = unit;
+    state.set(productId, target);
+    setState(state);
+  }
+}
+
+
+
+// Produyct Item Mapping 
+
+const mapProductItems = (
+  state: any,
+  setState: any
+) => {
+  // This is quite inefficient
+  const rawProducts: Array<ConsumedRaw> = Array.from(state.values());
+  return rawProducts.map((product: ConsumedRaw) => (
+    <ProductItem
+      key={product.id}
+      id={product.id}
+      name={product.name}
+      amount={product.amount}
+      changeFunc={(event) => {
+        changeProductAmount(product.id,+event.target.value, state, setState);
+
+      }}
+      deleteFunc={() => {
+        deleteConsumedProduct(product.id, state, setState);
+      }}
+    />
+  ));
+};
+
+const ReportForm = ({setReportFunction} : ReportFormProps)  => {
+  const [state, setState] = React.useState(emptyState());
   const submit = () => {
-    sendReport(consumed, setReportFunction);
+
+    const rawProducts: Array<ConsumedRaw> = Array.from(state.values());
+    const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
+    sendReport(boxed, setReportFunction);
   }
   
   const reset = () => {
-    setConsumed(emptyConsumed());
+    setState(emptyState());
   }
+
+  console.log(state);
    
     return (
         <Box>
@@ -96,7 +149,7 @@ const ReportForm = ({setReportFunction} : ReportFormProps)  => {
                   <Text>Name</Text>
                 </TableCell>
                 <TableCell key={"amount"} scope="col">
-                  <Text>Amount (g)</Text>
+                  <Text>Amount</Text>
                 </TableCell>
                 <TableCell key={"delete"} scope="col">
                   <Text></Text>
@@ -104,7 +157,7 @@ const ReportForm = ({setReportFunction} : ReportFormProps)  => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mapProductItems(consumed, consumed, setConsumed)}
+              {mapProductItems(state, setState)}
             </TableBody>
           </StyledTable>
         </Box>
@@ -112,7 +165,7 @@ const ReportForm = ({setReportFunction} : ReportFormProps)  => {
         <Box pad={{ bottom: "large" }}>
           <SearchForm
             selectedFunction={(product: Product) => {
-              addElement(product);
+              addConsumedProduct(product, state, setState);
             }}
             suggestFunction={getProductSearch}
           />
