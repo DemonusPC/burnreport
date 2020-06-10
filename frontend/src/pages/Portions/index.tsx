@@ -73,6 +73,7 @@ const Portions = () => {
     fetchAndSet();
   }, [id]);
 
+  console.log(current);
   return (
     <Box pad="large">
       <Box width="50%" margin={{bottom: "large"}}>

@@ -1,14 +1,37 @@
-import React from "react";
-import { Button, TextInput, TableRow, TableCell, Text } from "grommet";
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import {
+  Button,
+  Box,
+  TextInput,
+  TableRow,
+  TableCell,
+  Text,
+  Select,
+} from "grommet";
 import { Close } from "grommet-icons";
+import { ProductSize } from "../../util/schema/product";
+import { getProductSizesById } from "../../util/data/requests";
+
+const PerWrapper = styled(Box)`
+  align-items: center;
+  /* max-width: 15em; */
+`;
 
 interface ProductItemProps {
-  id: number,
+  id: number;
   name: string;
   amount: number;
   changeFunc: (event: any) => void;
   deleteFunc: () => void;
 }
+
+const base: ProductSize = {
+  id: 0,
+  product: 0,
+  name: "grams",
+  grams: 1,
+};
 
 const ProductItem = ({
   id,
@@ -17,32 +40,63 @@ const ProductItem = ({
   changeFunc,
   deleteFunc,
 }: ProductItemProps) => {
+  const [portions, setPortions] = useState({
+    unitOptions: [base],
+  });
+
+  const [chosen, setChosen] = useState(base);
+
+  useEffect(() => {
+    const fetchAndSet = async () => {
+      const serverPortions = await getProductSizesById(id);
+
+      setPortions({ unitOptions: [base].concat(serverPortions) });
+    };
+
+    fetchAndSet();
+  }, [id]);
+
+  console.log(portions);
+
   return (
+    <TableRow key={id}>
+      <TableCell>
+        <Text>{name}</Text>
+      </TableCell>
+      <TableCell>
+        <Text>
+          <PerWrapper
+            fill={false}
+            direction="row"
+            alignContent="center"
+            justify="center"
+          >
+            <TextInput placeholder="0.0" value={amount} onChange={changeFunc} />
 
-      <TableRow key={id}>
-        <TableCell>
-          <Text>{name}</Text>
-        </TableCell>
-        <TableCell>
-          <Text>
-            <TextInput
-              placeholder="type here"
-              value={amount}
-              onChange={changeFunc}
+            <Select
+              name="select"
+              placeholder="Select"
+              labelKey="name"
+              value={chosen}
+              options={portions.unitOptions}
+              onChange={({ option }) => {
+                // setState({ ...state, unit: option });
+                setChosen(option);
+              }}
             />
-          </Text>
-        </TableCell>
-        <TableCell>
-            <Button
-              plain={false}
-              size = "small"
-              icon={<Close />}
-              onClick={deleteFunc}
-              color="status-critical"
-            />
-
-        </TableCell>
-      </TableRow>
+          </PerWrapper>
+        </Text>
+      </TableCell>
+      <TableCell>
+        <Button
+          plain={false}
+          size="small"
+          icon={<Close />}
+          onClick={deleteFunc}
+          color="status-critical"
+        />
+      </TableCell>
+    </TableRow>
   );
 };
 
