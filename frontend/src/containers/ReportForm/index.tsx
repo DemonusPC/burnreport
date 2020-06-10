@@ -13,7 +13,7 @@ import {
 } from "grommet";
 import SearchForm from "../SearchForm";
 import { Product, ProductSize } from "../../util/schema/product";
-import { getProductSearch, postReport } from "../../util/data/requests";
+import { getProductSearch, postReport, getProductSizesById } from "../../util/data/requests";
 import { ConsumedProduct, Report, ConsumedRaw } from "../../util/schema/report";
 import ProductItem from "../ProductItem";
 
@@ -129,9 +129,25 @@ const changeProductUnit = (
     }
     return prevState;
   });
-  
-
 };
+
+// Get options for product
+const getProductUnitOptions = async (productId: number, setState: any) => {
+  const serverPortions = await getProductSizesById(productId);
+
+  setState((prevState : any) => {
+    const target : ConsumedRaw = prevState.get(productId);
+    if(target){
+      const newState = new Map(prevState);
+      target.unitOptions = [baseUnit].concat(serverPortions);
+      newState.set(productId, target);
+      return newState;
+    }
+
+    return prevState;
+  });
+}
+
 
 // Produyct Item Mapping
 
@@ -190,6 +206,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
         <SearchForm
           selectedFunction={(product: Product) => {
             addConsumedProduct(product, setState);
+            getProductUnitOptions(product.id, setState);
           }}
           suggestFunction={getProductSearch}
         />

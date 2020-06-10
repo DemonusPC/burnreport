@@ -11,11 +11,9 @@ import {
 } from "grommet";
 import { Close } from "grommet-icons";
 import { ProductSize } from "../../util/schema/product";
-import { getProductSizesById } from "../../util/data/requests";
 
 const PerWrapper = styled(Box)`
   align-items: center;
-  /* max-width: 15em; */
 `;
 
 interface ProductItemProps {
@@ -29,13 +27,6 @@ interface ProductItemProps {
   setUnit: any;
 }
 
-const base: ProductSize = {
-  id: 0,
-  product: 0,
-  name: "grams",
-  grams: 1,
-};
-
 const ProductItem = ({
   id,
   name,
@@ -46,16 +37,6 @@ const ProductItem = ({
   unitOptions,
   setUnit
 }: ProductItemProps) => {
-
-  // useEffect(() => {
-  //   const fetchAndSet = async () => {
-  //     const serverPortions = await getProductSizesById(id);
-
-  //     setPortions({ unitOptions: [base].concat(serverPortions) });
-  //   };
-
-  //   fetchAndSet();
-  // }, [id]);
 
   return (
     <TableRow key={id}>
@@ -79,7 +60,6 @@ const ProductItem = ({
               value={unit}
               options={unitOptions}
               onChange={({ option }) => {
-                // setState({ ...state, unit: option });
                 setUnit(option);
               }}
             />
