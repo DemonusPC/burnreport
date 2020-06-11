@@ -89,7 +89,6 @@ export const getProductSizesById = async (id: number) => {
 }
 
 export const postPortions = async (portions: Array<Portion>): Promise<ProductAPIStatus> => {
-  console.log(portions);
   const response = await fetch(`/api/products/portions`, {
     method: 'POST',
     headers: {

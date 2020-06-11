@@ -22,7 +22,6 @@ const fileChosen = (file: any | undefined, setReport: any) => {
     const content = reader.result;
     if (content) {
       const parsed: ReportResult = JSON.parse(content.toString());
-      console.log(parsed);
       setReport({
         completed: true,
         report: { result: parsed },

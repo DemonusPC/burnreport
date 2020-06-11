@@ -178,8 +178,6 @@ const mapProductItems = (state: any, setState: any) => {
 const ReportForm = ({ setReportFunction }: ReportFormProps) => {
   const [state, setState] = React.useState(emptyState());
 
-  console.log(state);
-
   return (
     <Box>
       <Heading>Create Report</Heading>
