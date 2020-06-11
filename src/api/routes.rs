@@ -37,8 +37,9 @@ pub fn routes(
     
     let products = warp::get().and(warp::path!("products")).and(warp::fs::file("./frontend/build/index.html"));
     let products_add = warp::get().and(warp::path!("products" / "add")).and(warp::fs::file("./frontend/build/index.html"));
+    let product_portions = warp::get().and(warp::path!("products" / .. )).and(warp::fs::file("./frontend/build/index.html"));
 
-    let frontend = index.or(products).or(products_add);
+    let frontend = index.or(products).or(products_add).or(product_portions);
 
     //  GET /...
     // e.g. /favicon.ico -> favicon.ico
