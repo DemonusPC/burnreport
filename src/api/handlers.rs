@@ -1,15 +1,15 @@
 use crate::api::db::delete_portion;
-use crate::api::db::insert_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
+use crate::api::db::insert_portion;
 use crate::api::db::insert_product;
+use crate::api::db::list_portions;
 use crate::api::db::one_single_product;
 use crate::api::db::search_products;
 use crate::api::db::single_product;
-use crate::api::db::list_portions;
-use crate::api::{SearchQuery};
+use crate::api::SearchQuery;
 use crate::nutrients::TotalAble;
-use crate::products::{Product, Portion, Report};
+use crate::products::{Portion, Product, Report};
 use chrono::prelude::{DateTime, Utc};
 use serde_json::json;
 use sqlx::SqlitePool;
@@ -293,8 +293,6 @@ pub async fn products_csv(
     Ok(warp::reply::with_status(base_reply, StatusCode::OK))
 }
 
-
-
 pub async fn get_product_sizes_handler(
     product_id: i32,
     pool: SqlitePool,
@@ -316,7 +314,7 @@ pub async fn get_product_sizes_handler(
 
 pub async fn insert_product_sizes_handler(
     pool: SqlitePool,
-    products: Vec<Portion>
+    products: Vec<Portion>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let c: Vec<i32> = vec![];
     let result = match insert_portion(&pool, products).await {

@@ -125,7 +125,6 @@ pub struct Report {
     pub consumed: Vec<ProductSubmission>,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Portion {
     #[serde(skip_deserializing)]
@@ -141,7 +140,7 @@ impl Portion {
             id: id,
             product: product,
             name: name,
-            grams: grams
+            grams: grams,
         }
     }
 
@@ -163,13 +162,12 @@ impl Portion {
 }
 
 impl Default for Portion {
-    fn default() -> Self { 
+    fn default() -> Self {
         Portion {
             id: 0,
             product: -1,
             name: "".to_owned(),
-            grams: 0.0
-
+            grams: 0.0,
         }
     }
 }

@@ -1,8 +1,8 @@
 use dotenv::dotenv;
 use std::env;
 
-mod config;
 mod api;
+mod config;
 mod nutrients;
 mod products;
 
