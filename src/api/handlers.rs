@@ -1,12 +1,12 @@
-use crate::api::db::delete_product_size;
-use crate::api::db::insert_product_sizes;
+use crate::api::db::delete_portion;
+use crate::api::db::insert_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
 use crate::api::db::insert_product;
 use crate::api::db::one_single_product;
 use crate::api::db::search_products;
 use crate::api::db::single_product;
-use crate::api::db::list_product_sizes;
+use crate::api::db::list_portions;
 use crate::api::{SearchQuery};
 use crate::nutrients::TotalAble;
 use crate::products::{Product, Portion, Report};
@@ -300,7 +300,7 @@ pub async fn get_product_sizes_handler(
     pool: SqlitePool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let c: Vec<i32> = vec![];
-    let result = match list_product_sizes(&pool, product_id).await {
+    let result = match list_portions(&pool, product_id).await {
         Ok(res) => {
             let cc = warp::reply::json(&res);
             warp::reply::with_status(cc, StatusCode::OK)
@@ -319,7 +319,7 @@ pub async fn insert_product_sizes_handler(
     products: Vec<Portion>
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let c: Vec<i32> = vec![];
-    let result = match insert_product_sizes(&pool, products).await {
+    let result = match insert_portion(&pool, products).await {
         Ok(res) => {
             let cc = warp::reply::json(&res);
             warp::reply::with_status(cc, StatusCode::OK)
@@ -339,7 +339,7 @@ pub async fn delete_product_sizes_handler(
     name: String,
     pool: SqlitePool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    match delete_product_size(&pool, id, &name).await {
+    match delete_portion(&pool, id, &name).await {
         Ok(res) => {
             let json = json!({
                 "status": "DELETED",

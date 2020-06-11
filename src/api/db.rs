@@ -184,12 +184,10 @@ pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Erro
 }
 
 
-// Product Sizes
+// Portions
 
-// List Product sizes
-
-pub async fn list_product_sizes(pool: &SqlitePool, product_id: i32) -> Result<Vec<Portion>, sqlx::Error> {
-    let result = sqlx::query("SELECT id, product, name, grams FROM ProductSizes WHERE product = $1")
+pub async fn list_portions(pool: &SqlitePool, product_id: i32) -> Result<Vec<Portion>, sqlx::Error> {
+    let result = sqlx::query("SELECT id, product, name, grams FROM Portions WHERE product = $1")
         .bind(product_id)
         .map(|row: SqliteRow| {
             Portion::new(row.get(0), row.get(1), row.get(2), row.get(3))
@@ -199,15 +197,13 @@ pub async fn list_product_sizes(pool: &SqlitePool, product_id: i32) -> Result<Ve
     Ok(result)
 }
 
-// Create a product Size
-
-pub async fn insert_product_sizes(pool: &SqlitePool, product_sizes: Vec<Portion>) -> Result<bool, sqlx::Error> {
+pub async fn insert_portion(pool: &SqlitePool, product_sizes: Vec<Portion>) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
     
     for size in product_sizes {
         sqlx::query!(
             r#"
-            INSERT INTO "main"."ProductSizes"
+            INSERT INTO "main"."Portions"
             ("product", "name", "grams")
             VALUES ($1, $2, $3);
             "#,
@@ -224,12 +220,10 @@ pub async fn insert_product_sizes(pool: &SqlitePool, product_sizes: Vec<Portion>
     Ok(true)
 }
 
-// Delete a product Size
-
-pub async fn delete_product_size(pool: &SqlitePool, product: i32, name: &str) -> Result<u64, sqlx::Error> {
+pub async fn delete_portion(pool: &SqlitePool, product: i32, name: &str) -> Result<u64, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
-    let rows_deleted : u64 = sqlx::query("DELETE FROM ProductSizes WHERE product = $1 AND name = $2")
+    let rows_deleted : u64 = sqlx::query("DELETE FROM Portions WHERE product = $1 AND name = $2")
         .bind(product)
         .bind(name)
         .execute(&mut tx)
