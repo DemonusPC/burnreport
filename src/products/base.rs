@@ -124,3 +124,50 @@ impl ProductSubmission {
 pub struct Report {
     pub consumed: Vec<ProductSubmission>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Portion {
+    #[serde(skip_deserializing)]
+    id: i32,
+    product: i32,
+    name: String,
+    grams: f64,
+}
+
+impl Portion {
+    pub fn new(id: i32, product: i32, name: String, grams: f64) -> Self {
+        Portion {
+            id: id,
+            product: product,
+            name: name,
+            grams: grams,
+        }
+    }
+
+    pub fn id(&self) -> i32 {
+        self.id
+    }
+
+    pub fn product(&self) -> i32 {
+        self.product
+    }
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn grams(&self) -> f64 {
+        self.grams
+    }
+}
+
+impl Default for Portion {
+    fn default() -> Self {
+        Portion {
+            id: 0,
+            product: -1,
+            name: "".to_owned(),
+            grams: 0.0,
+        }
+    }
+}

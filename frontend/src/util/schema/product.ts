@@ -74,3 +74,16 @@ export interface ProductAPIStatus {
     status: string,
     id?: number 
 }
+
+export interface ProductSize {
+    id: number,
+    product: number,
+    name: string,
+    grams: number
+}
+
+export interface Portion {
+    product: number,
+    name: string,
+    grams: number
+}

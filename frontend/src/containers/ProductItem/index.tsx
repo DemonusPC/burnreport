@@ -1,13 +1,30 @@
 import React from "react";
-import { Button, TextInput, TableRow, TableCell, Text } from "grommet";
+import styled from "styled-components";
+import {
+  Button,
+  Box,
+  TextInput,
+  TableRow,
+  TableCell,
+  Text,
+  Select,
+} from "grommet";
 import { Close } from "grommet-icons";
+import { ProductSize } from "../../util/schema/product";
+
+const PerWrapper = styled(Box)`
+  align-items: center;
+`;
 
 interface ProductItemProps {
-  id: number,
+  id: number;
   name: string;
   amount: number;
   changeFunc: (event: any) => void;
   deleteFunc: () => void;
+  unit: ProductSize;
+  unitOptions: Array<ProductSize>;
+  setUnit: any;
 }
 
 const ProductItem = ({
@@ -16,33 +33,49 @@ const ProductItem = ({
   amount,
   changeFunc,
   deleteFunc,
+  unit,
+  unitOptions,
+  setUnit
 }: ProductItemProps) => {
+
   return (
+    <TableRow key={id}>
+      <TableCell>
+        <Text>{name}</Text>
+      </TableCell>
+      <TableCell>
+        <Text>
+          <PerWrapper
+            fill={false}
+            direction="row"
+            alignContent="center"
+            justify="center"
+          >
+            <TextInput placeholder="0.0" value={amount} onChange={changeFunc} />
 
-      <TableRow key={id}>
-        <TableCell>
-          <Text>{name}</Text>
-        </TableCell>
-        <TableCell>
-          <Text>
-            <TextInput
-              placeholder="type here"
-              value={amount}
-              onChange={changeFunc}
+            <Select
+              name="select"
+              placeholder="Select"
+              labelKey="name"
+              value={unit}
+              options={unitOptions}
+              onChange={({ option }) => {
+                setUnit(option);
+              }}
             />
-          </Text>
-        </TableCell>
-        <TableCell>
-            <Button
-              plain={false}
-              size = "small"
-              icon={<Close />}
-              onClick={deleteFunc}
-              color="status-critical"
-            />
-
-        </TableCell>
-      </TableRow>
+          </PerWrapper>
+        </Text>
+      </TableCell>
+      <TableCell>
+        <Button
+          plain={false}
+          size="small"
+          icon={<Close />}
+          onClick={deleteFunc}
+          color="status-critical"
+        />
+      </TableCell>
+    </TableRow>
   );
 };
 

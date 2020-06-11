@@ -1,4 +1,4 @@
-import { Product, ProductAPIStatus } from "../schema/product";
+import { Product, ProductAPIStatus, ProductSize, Portion } from "../schema/product";
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
 
@@ -73,6 +73,46 @@ export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
     },
     mode: "cors",
     body: data
+  });
+
+  const result: ProductAPIStatus = await response.json();
+
+  return result;
+}
+
+export const getProductSizesById = async (id: number) => {
+  const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
+
+  const result : Array<ProductSize> = await request.json();
+
+  return result;
+}
+
+export const postPortions = async (portions: Array<Portion>): Promise<ProductAPIStatus> => {
+  const response = await fetch(`/api/products/portions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      origin: "*",
+    },
+    mode: "cors",
+    body: JSON.stringify(portions)
+  });
+
+  const result: ProductAPIStatus = await response.json();
+
+  return result;
+}
+
+// /api/products/21/sizes/portion
+
+export const deletePortion = async (id: number, name: string): Promise<ProductAPIStatus> => {
+  const response = await fetch(encodeURI(`/api/products/${id}/portions/${name}`), {
+    method: 'DELETE',
+    headers: {
+      origin: "*",
+    },
+    mode: "cors",
   });
 
   const result: ProductAPIStatus = await response.json();

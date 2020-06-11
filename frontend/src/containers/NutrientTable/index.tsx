@@ -19,7 +19,8 @@ import NutrientTableRow from "../../components/NutrientTableRow";
 
 interface NutrientTableProps {
   product: Product;
-  amount: number
+  amount: number;
+  baseUnit: number;
 }
 const columns = [
   {
@@ -39,7 +40,7 @@ const columns = [
 
 const mapExtractedRows = (rows: Array<RawNutrientRow>) => {
   return rows.map((row) => (
-    <NutrientTableRow row={row} />
+    <NutrientTableRow key={`${row.macronutrient}-${row.nutrient}`} row={row} />
   ));
 };
 
@@ -47,8 +48,8 @@ const TableWidth = styled(Table)`
   min-width: 100%;
 `;
 
-const NutrientTable = ({ product, amount }: NutrientTableProps) => {
-  const rows = extractTabularNutrients(product, amount);
+const NutrientTable = ({ product, amount, baseUnit }: NutrientTableProps) => {
+  const rows = extractTabularNutrients(product, amount, baseUnit);
   return (
       <TableWidth alignSelf="stretch">
         <TableHeader>

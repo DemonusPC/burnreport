@@ -1,5 +1,8 @@
+use crate::api::handlers::delete_product_sizes_handler;
 use crate::api::handlers::delete_single_product_handler;
+use crate::api::handlers::get_product_sizes_handler;
 use crate::api::handlers::get_single_product_handler;
+use crate::api::handlers::insert_product_sizes_handler;
 use crate::api::handlers::insert_single_product_handler;
 use crate::api::handlers::process_report;
 use crate::api::handlers::products_csv;
@@ -31,24 +34,35 @@ pub fn routes(
     let index = warp::get()
         .and(warp::path::end())
         .and(warp::fs::file("./frontend/build/index.html"));
-    
-    let products = warp::get().and(warp::path!("products")).and(warp::fs::file("./frontend/build/index.html"));
-    let products_add = warp::get().and(warp::path!("products" / "add")).and(warp::fs::file("./frontend/build/index.html"));
 
-    let frontend = index.or(products).or(products_add);
+    let products = warp::get()
+        .and(warp::path!("products"))
+        .and(warp::fs::file("./frontend/build/index.html"));
+    let products_add = warp::get()
+        .and(warp::path!("products" / "add"))
+        .and(warp::fs::file("./frontend/build/index.html"));
+    let product_portions = warp::get()
+        .and(warp::path!("products" / ..))
+        .and(warp::fs::file("./frontend/build/index.html"));
+
+    let frontend = index.or(products).or(products_add).or(product_portions);
 
     //  GET /...
     // e.g. /favicon.ico -> favicon.ico
     // e.g. /static/js/main.chunk.js -> /static/js/main.chunk.js
     let assets = warp::get().and(warp::fs::dir("./frontend/build"));
 
-    frontend.or(get_search_product(pool.clone()))
+    frontend
+        .or(get_search_product(pool.clone()))
         .or(get_single_product(pool.clone()))
         .or(assets)
         .or(post_report(pool.clone()))
         .or(post_new_product(pool.clone()))
         .or(delete_single_product(pool.clone()))
-        .or(post_products_csv(pool))
+        .or(post_products_csv(pool.clone()))
+        .or(get_product_sizes(pool.clone()))
+        .or(post_new_product_sizes(pool.clone()))
+        .or(delete_single_product_size(pool.clone()))
 }
 
 fn get_search_product(
@@ -112,4 +126,34 @@ fn post_products_csv(
         .and(warp::filters::multipart::form())
         .and(with_db(pool))
         .and_then(products_csv)
+}
+
+fn get_product_sizes(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / i32 / "portions")
+        .and(warp::get())
+        .and(with_db(pool))
+        .and_then(get_product_sizes_handler)
+}
+
+fn delete_single_product_size(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / i32 / "portions" / String)
+        .and(warp::delete())
+        .and(with_db(pool))
+        .and_then(delete_product_sizes_handler)
+}
+
+fn post_new_product_sizes(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "products" / "portions")
+        .and(warp::post())
+        .and(with_db(pool))
+        // Only accept bodies smaller than 16kb...
+        // .and(warp::body::content_length_limit(1024 * 16))
+        .and(warp::body::json())
+        .and_then(insert_product_sizes_handler)
 }

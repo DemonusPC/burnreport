@@ -1,12 +1,15 @@
+use crate::api::db::delete_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
+use crate::api::db::insert_portion;
 use crate::api::db::insert_product;
+use crate::api::db::list_portions;
 use crate::api::db::one_single_product;
 use crate::api::db::search_products;
 use crate::api::db::single_product;
 use crate::api::SearchQuery;
 use crate::nutrients::TotalAble;
-use crate::products::{Product, Report};
+use crate::products::{Portion, Product, Report};
 use chrono::prelude::{DateTime, Utc};
 use serde_json::json;
 use sqlx::SqlitePool;
@@ -288,4 +291,66 @@ pub async fn products_csv(
 
     let base_reply = warp::reply::json(&json);
     Ok(warp::reply::with_status(base_reply, StatusCode::OK))
+}
+
+pub async fn get_product_sizes_handler(
+    product_id: i32,
+    pool: SqlitePool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let c: Vec<i32> = vec![];
+    let result = match list_portions(&pool, product_id).await {
+        Ok(res) => {
+            let cc = warp::reply::json(&res);
+            warp::reply::with_status(cc, StatusCode::OK)
+        }
+        Err(_err) => {
+            let r = warp::reply::json(&c);
+            warp::reply::with_status(r, StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    Ok(result)
+}
+
+pub async fn insert_product_sizes_handler(
+    pool: SqlitePool,
+    products: Vec<Portion>,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let c: Vec<i32> = vec![];
+    let result = match insert_portion(&pool, products).await {
+        Ok(res) => {
+            let cc = warp::reply::json(&res);
+            warp::reply::with_status(cc, StatusCode::OK)
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            let r = warp::reply::json(&c);
+            warp::reply::with_status(r, StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    Ok(result)
+}
+
+pub async fn delete_product_sizes_handler(
+    id: i32,
+    name: String,
+    pool: SqlitePool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    match delete_portion(&pool, id, &name).await {
+        Ok(res) => {
+            let json = json!({
+                "status": "DELETED",
+                "id": id,
+                "rows": res
+            });
+
+            let base_reply = warp::reply::json(&json);
+            Ok(warp::reply::with_status(base_reply, StatusCode::OK))
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            Err(warp::reject::reject())
+        }
+    }
 }

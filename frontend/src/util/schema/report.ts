@@ -1,3 +1,13 @@
+import { ProductSize } from "./product";
+
+export interface ConsumedRaw {
+    id: number;
+    name: string;
+    amount: number
+    unit: ProductSize,
+    unitOptions: Array<ProductSize>
+}
+
 export interface ConsumedProduct {
     id: number;
     name: string;

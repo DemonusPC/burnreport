@@ -1,45 +1,46 @@
-//  check for table 
+//  check for table
 // SELECT name FROM sqlite_master WHERE type='table' AND name='Food';
 
-// Get column metadata 
+// Get column metadata
 // PRAGMA table_info('Food');
 
+use sqlx::row::Row;
 use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
-use sqlx::row::Row;
-
 
 struct TableMeta {
-    pub name: String
+    pub name: String,
 }
 
-pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
-    match db_existance_check(pool).await {
-        Ok(_v) => {
-            return Ok(true);
-        },
-        Err(_err) => {
-            // warn!("{:?}", "Food table doesn't exist");
-            println!("Table doesnt exist");
-            create_food_table(pool).await?;
-        }
-    }
-
-    Ok(true)
-}
-
-async fn db_existance_check(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+async fn check_if_table_exists(pool: &SqlitePool, table_name: &str) -> Result<(), sqlx::Error> {
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-    let _result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='Food'")
-        .map(|row: SqliteRow| {
-            TableMeta {
-                name: row.get(0),
-            }
-        })
+    let _result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name=$1")
+        .bind(table_name)
+        .map(|row: SqliteRow| TableMeta { name: row.get(0) })
         .fetch_one(pool)
         .await?;
 
     Ok(())
+}
+
+pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
+    match check_if_table_exists(pool, "Food").await {
+        Ok(_v) => println!("Food table exists"),
+        Err(err) => {
+            println!("Check table for Food failed with error: {}", err);
+            create_food_table(pool).await?;
+        }
+    }
+
+    match check_if_table_exists(pool, "Portions").await {
+        Ok(_v) => println!("Portions table exists"),
+        Err(err) => {
+            println!("Check table for Portions failed with error: {}", err);
+            create_portions_table(pool).await?;
+        }
+    }
+
+    Ok(true)
 }
 
 async fn create_food_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
@@ -66,7 +67,29 @@ async fn create_food_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "salt"	REAL NOT NULL DEFAULT 0
         )
         "#
-    ).execute(&mut tx)
+    )
+    .execute(&mut tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok(())
+}
+
+async fn create_portions_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS "Portions" (
+            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            "product"	INTEGER NOT NULL,
+            "name"	TEXT NOT NULL,
+            "grams"	REAL NOt NULL,
+            FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
+        );
+        "#
+    )
+    .execute(&mut tx)
     .await?;
     tx.commit().await?;
 

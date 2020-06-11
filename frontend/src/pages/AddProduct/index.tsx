@@ -71,7 +71,6 @@ const fileChosen = (file: any | undefined, setReport: any) => {
   reader.onloadend = (e: any) => {
     const content = reader.result;
     if (content) {
-      // console.log(content);
       const form = new FormData();
       form.append("file", content.toString());
 
@@ -96,7 +95,6 @@ const AddProduct = () => {
             onSubmit={(event: any) => {
               const product = toProduct(event.value);
               postProduct(product).then((result) => {
-                console.log(result.status);
                 setSent(true);
               });
             }}
