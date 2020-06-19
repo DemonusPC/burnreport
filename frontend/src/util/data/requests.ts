@@ -2,6 +2,12 @@ import { Product, ProductAPIStatus, ProductSize, Portion } from "../schema/produ
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
 
+
+export interface RestResult<T> {
+  status: boolean;
+  data?: T;
+}
+
 export const getProductSearch = async (suggestion: string): Promise<Array<Product>> => {
     const request =  await fetch(encodeURI(`/api/search?p=${suggestion}`));
 
@@ -82,13 +88,13 @@ export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
 
 export const getProductSizesById = async (id: number) => {
   const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
-
+  
   const result : Array<ProductSize> = await request.json();
 
   return result;
 }
 
-export const postPortions = async (portions: Array<Portion>): Promise<ProductAPIStatus> => {
+export const postPortions = async (portions: Array<Portion>): Promise<RestResult<ProductAPIStatus>> => {
   const response = await fetch(`/api/products/portions`, {
     method: 'POST',
     headers: {
@@ -99,7 +105,19 @@ export const postPortions = async (portions: Array<Portion>): Promise<ProductAPI
     body: JSON.stringify(portions)
   });
 
-  const result: ProductAPIStatus = await response.json();
+  if(response.status !== 200) {
+    const result : RestResult<ProductAPIStatus> = {
+      status: false
+    }
+    return result; 
+  }
+
+  const jsonData : ProductAPIStatus = await response.json();
+
+  const result : RestResult<ProductAPIStatus> = {
+    status: true,
+    data: jsonData
+  }
 
   return result;
 }

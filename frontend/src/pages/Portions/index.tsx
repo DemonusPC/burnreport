@@ -88,7 +88,7 @@ const Portions = () => {
                 product={id}
                 selectedFunction={async (portion: Portion) => {
                   const submitResult = await submit([portion]);
-                  if (submitResult) {
+                  if (submitResult.status) {
                     cogoToast.success("Portion added");
                     await refreshPortions(id, setCurrent);
                   } else {
