@@ -2,7 +2,7 @@ import React from "react";
 import { Box, TextInput, Form, Button, FormField } from "grommet";
 import { Portion } from "../../util/schema/product";
 
-import { AddCircle, Clear } from "grommet-icons";
+import { AddCircle } from "grommet-icons";
 
 interface PortionFormProps {
   product: number;
@@ -28,19 +28,18 @@ const PortionForm = ({ product, selectedFunction }: PortionFormProps) => {
         }
       }}
     >
-      <Box direction="row" pad={{top: "large", bottom:"large"}} gap="medium">
+      <Box direction="row" gap="medium">
         <Box direction="row" gap="xsmall">
         <FormField name={"name"} label={"Name"} required>
           <TextInput name={"name"} plain={false} />
         </FormField>
 
-        <FormField name={"portion"} label={"portion (in grams)"} required>
+        <FormField name={"portion"} label={"Portion (in grams)"} required>
           <TextInput name={"portion"} plain={false} />
         </FormField>
         </Box>
         <Box direction="row" align="center" margin={{top: "medium"}} gap="xsmall">
-        <Button type="submit" icon={<AddCircle />} plain={false} />
-        <Button type="reset" icon={<Clear />} plain={false} />
+        <Button primary type="submit" icon={<AddCircle />} label="Add" />
         </Box>
       </Box>
     </Form>

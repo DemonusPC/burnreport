@@ -1,22 +1,23 @@
 {
   "name": "frontend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
     "axios": "^0.19.2",
+    "cogo-toast": "^4.2.3",
     "file-saver": "^2.0.2",
-    "grommet": "^2.13.0",
+    "grommet": "^2.14.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.1",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --env=jsdom-fourteen",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -36,15 +37,18 @@
   },
   "proxy": "http://localhost:8080",
   "devDependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
+    "@testing-library/jest-dom": "^5.11.2",
+    "@testing-library/react": "^10.4.7",
+    "@testing-library/user-event": "^12.1.0",
     "@types/file-saver": "^2.0.1",
-    "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.44",
-    "@types/react": "^16.9.35",
+    "@types/jest": "^26.0.8",
+    "@types/node": "^14.0.27",
+    "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
-    "@types/styled-components": "^5.1.0"
+    "@types/styled-components": "^5.1.2",
+    "history": "^5.0.0",
+    "jest-styled-components": "^7.0.2",
+    "msw": "^0.20.1"
   }
 }

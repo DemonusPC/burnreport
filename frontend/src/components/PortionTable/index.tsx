@@ -19,14 +19,15 @@ const mapPortionItems = (portions: Portion[], setState: any, productId: number, 
         </TableCell>
         <TableCell>
           <Button
-            plain={false}
-            size="small"
+            plain={true}
+            hoverIndicator={true}
+            size="medium"
             icon={<Close />}
             onClick={() => {
               const state = removeFunction(portions, portion.name, productId);
               setState(state);
             }}
-            color="status-critical"
+            // color="status-critical"
           />
         </TableCell>
       </TableRow>
@@ -47,13 +48,13 @@ const PortionTable = ({productId, portions, stateSetter, stateReducer} : Portion
         <FullTAble>
         <TableHeader>
           <TableRow>
-            <TableCell key={"name"} scope="col">
+            <TableCell key={"name"} scope="col" size="1/2">
               <Text>Name</Text>
             </TableCell>
             <TableCell key={"amount"} scope="col">
-              <Text>portion size in grams</Text>
+              <Text>Mass (grams)</Text>
             </TableCell>
-            <TableCell key={"delete"} scope="col">
+            <TableCell key={"delete"} scope="col" size="xxsmall">
               <Text></Text>
             </TableCell>
           </TableRow>
