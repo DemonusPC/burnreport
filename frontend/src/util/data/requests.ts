@@ -88,7 +88,6 @@ export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
 
 export const getProductSizesById = async (id: number) => {
   const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
-  
   const result : Array<ProductSize> = await request.json();
 
   return result;
