@@ -4,8 +4,6 @@ import {
   Button,
   Box,
   TextInput,
-  TableRow,
-  TableCell,
   Text,
   Select,
 } from "grommet";
@@ -15,6 +13,14 @@ import { ProductSize } from "../../util/schema/product";
 const PerWrapper = styled(Box)`
   align-items: center;
 `;
+
+const shortName = (name: string) : string => {
+  const max = 28
+  if(name.length > max) {
+    return name.slice(0, max - 3) + "...";
+  }
+  return name;
+}
 
 interface ProductItemProps {
   id: number;
@@ -39,17 +45,21 @@ const ProductItem = ({
 }: ProductItemProps) => {
 
   return (
-    <TableRow key={id}>
-      <TableCell>
-        <Text>{name}</Text>
-      </TableCell>
-      <TableCell>
-        <Text>
+    <Box elevation="medium" pad="medium" margin={{bottom: "large"}} border="all" key={id}>
+      <Box  direction="row" alignContent="center" justify="between">
+        <Text weight="bold">{shortName(name)}</Text>
+        <Button
+          plain={true}
+          icon={<Close />}
+          onClick={deleteFunc}
+        />
+        </Box>
+
           <PerWrapper
-            fill={false}
             direction="row"
             alignContent="center"
             justify="center"
+            margin={{top: "medium"}}
           >
             <TextInput placeholder="0.0" value={amount} onChange={changeFunc} />
 
@@ -64,18 +74,8 @@ const ProductItem = ({
               }}
             />
           </PerWrapper>
-        </Text>
-      </TableCell>
-      <TableCell>
-        <Button
-          plain={false}
-          size="small"
-          icon={<Close />}
-          onClick={deleteFunc}
-          color="status-critical"
-        />
-      </TableCell>
-    </TableRow>
+
+    </Box>
   );
 };
 

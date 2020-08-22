@@ -3,12 +3,6 @@ import styled from "styled-components";
 import {
   Box,
   Heading,
-  TableHeader,
-  Table,
-  Text,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
 } from "grommet";
 import SearchForm from "../SearchForm";
@@ -30,8 +24,10 @@ const boxConsumedProduct = (raw: ConsumedRaw): ConsumedProduct => {
   };
 };
 
-const StyledTable = styled(Table)`
-  min-width: 40%;
+const StyledList= styled.ul`
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 `;
 
 const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
@@ -182,22 +178,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
     <Box>
       <Heading>Create Report</Heading>
       <Box pad={{ bottom: "large" }}>
-        <StyledTable>
-          <TableHeader>
-            <TableRow>
-              <TableCell key={"name"} scope="col">
-                <Text>Name</Text>
-              </TableCell>
-              <TableCell key={"amount"} scope="col">
-                <Text>Amount</Text>
-              </TableCell>
-              <TableCell key={"delete"} scope="col">
-                <Text></Text>
-              </TableCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>{mapProductItems(state, setState)}</TableBody>
-        </StyledTable>
+          {mapProductItems(state, setState)}
       </Box>
 
       <Box pad={{ bottom: "large" }}>
