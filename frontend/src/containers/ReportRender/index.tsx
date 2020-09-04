@@ -27,9 +27,6 @@ const Energy = styled(Heading)`
   font-size: 2em;
 `;
 
-const ProductName = styled(Heading)`
-  width: 500px;
-`;
 
 const mapConsumed = (consumed: Product[]) => {
   return consumed.map((product: Product) => (
@@ -43,7 +40,7 @@ const ReportRender = ({ result }: ReportResult) => {
     <Box>
       <Heading>Report</Heading>
       <Box direction="column">
-          <ProductName level={2}>Total consumed</ProductName>
+          <Heading level={2}>Total consumed</Heading>
           <NutrientBar
             total={totalMacroInGrams(result.total)}
             carbohydrates={result.total.carbohydrates.total}
@@ -51,13 +48,11 @@ const ReportRender = ({ result }: ReportResult) => {
             protein={result.total.protein.total}
           />
           <Energy level={4}>
-            {" "}
-            {displayRound(result.total.energy.kcal)} kcal /{" "}
-            {displayRound(result.total.energy.kj)} kJ
+            {displayRound(result.total.energy.kcal)} kcal
           </Energy>
           <NutrientTable product={result.total} amount={100} baseUnit={1} />
 
-          <ProductName level={2}>Products consumed</ProductName>
+          <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>
             {mapConsumed(result.consumed)}
           </Accordion>
