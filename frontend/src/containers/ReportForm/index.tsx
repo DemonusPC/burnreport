@@ -24,12 +24,6 @@ const boxConsumedProduct = (raw: ConsumedRaw): ConsumedProduct => {
   };
 };
 
-const StyledList= styled.ul`
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-`;
-
 const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
   const report: Report = {
     consumed,

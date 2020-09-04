@@ -3,7 +3,7 @@ import { Product } from "../../util/schema/product";
 import {
   Box,
   Heading,
-  DataTable,
+  Accordion,
   Button,
 } from "grommet";
 import { saveAs } from 'file-saver';
@@ -12,8 +12,8 @@ import styled from "styled-components";
 import NutrientTable from "../NutrientTable";
 import NutrientBar from "../NutrientBar";
 import { totalMacroInGrams } from "../../pages/Products";
-import { displayRound, flattenProductList } from "../../util/data/calculations";
-import { FlatProduct } from "../../util/schema/report";
+import { displayRound } from "../../util/data/calculations";
+import ConsumedItem from "../ConsumedItem";
 
 export interface ReportResult {
   timeDone: number;
@@ -31,115 +31,18 @@ const ProductName = styled(Heading)`
   width: 500px;
 `;
 
-const cols = [
-  {
-    property: "name",
-    header: "Name",
-    primary: true,
-  },
-  {
-    property: "manufacturer",
-    header: "Manufacturer",
-  },
-  {
-    property: "kcal",
-    header: "Energy (kcal)",
-    render: (datum: FlatProduct) =>  displayRound(datum.kcal),
-    // align: 'end',
-  },
-  {
-    property: "kj",
-    header: "Energy (kJ)",
-    render: (datum: FlatProduct) =>  displayRound(datum.kj)
-    // align: 'end',
-  },
-  {
-    property: "carbohydrates",
-    header: "Catbohydrates",
-    render: (datum: FlatProduct) =>  displayRound(datum.carbohydrates)
-    // align: 'end',
-  },
-  {
-    property: "sugaer",
-    header: "Sugar",
-    render: (datum: FlatProduct) =>  displayRound(datum.sugar)
-    // align: 'end',
-  },
-  {
-    property: "addedSugaer",
-    header: "Added Sugar",
-    render: (datum: FlatProduct) =>  displayRound(datum.addedSugaer)
-    // align: 'end',
-  },
-  {
-    property: "fiber",
-    header: "Fiber",
-    render: (datum: FlatProduct) =>  displayRound(datum.fiber)
-    // align: 'end',
-  },
-  {
-    property: "starch",
-    header: "Starch",
-    render: (datum: FlatProduct) =>  displayRound(datum.starch)
-    // align: 'end',
-  },
-  {
-    property: "fat",
-    header: "Fat",
-    render:  (datum: FlatProduct) =>  displayRound(datum.fat)
-    // align: 'end',
-  },
-  {
-    property: "saturated",
-    header: "Saturated",
-    render: (datum: FlatProduct) =>  displayRound(datum.saturated)
-    // align: 'end',
-  },
-  {
-    property: "monounsaturated",
-    header: "Monounsaturated",
-    render: (datum: FlatProduct) =>  displayRound(datum.monounsaturated)
-    // align: 'end',
-  },
-  {
-    property: "trans",
-    header: "Trans",
-    render: (datum: FlatProduct) =>  displayRound(datum.trans)
-    // align: 'end',
-  },
-  {
-    property: "protein",
-    header: "Protein",
-    render: (datum: FlatProduct) =>  displayRound(datum.protein)
-    // align: 'end',
-  },
-  {
-    property: "salt",
-    header: "Salt",
-    render: (datum: FlatProduct) =>  displayRound(datum.salt)
-    // align: 'end',
-  },
-];
-
-interface StateProps {
-  property: string;
-  direction: "asc" | "desc";
-}
-
-const starterProps = () : StateProps => {
-  return {
-    property: "name",
-    direction: "asc"
-  }
+const mapConsumed = (consumed: Product[]) => {
+  return consumed.map((product: Product) => (
+    <ConsumedItem {...product} />
+  ))
 }
 
 const ReportRender = ({ result }: ReportResult) => {
-  const [sort, setSort] = React.useState(starterProps());
   return (
     <>
     <Box>
       <Heading>Report</Heading>
-      <Box direction="row-responsive">
+      <Box direction="column">
         <Box margin={{ right: "xlarge" }}>
           <ProductName level={2}>Total consumed</ProductName>
           <NutrientBar
@@ -158,13 +61,9 @@ const ReportRender = ({ result }: ReportResult) => {
 
         <Box>
           <ProductName level={2}>Products consumed</ProductName>
-          <DataTable
-            columns={cols}
-            data={flattenProductList(result.consumed)}
-            sort={sort}
-            onSort={setSort}
-            resizeable
-          />
+          <Accordion multiple>
+            {mapConsumed(result.consumed)}
+          </Accordion>
         </Box>
       </Box>
     </Box>
