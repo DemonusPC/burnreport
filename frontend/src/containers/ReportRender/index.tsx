@@ -43,7 +43,6 @@ const ReportRender = ({ result }: ReportResult) => {
     <Box>
       <Heading>Report</Heading>
       <Box direction="column">
-        <Box margin={{ right: "xlarge" }}>
           <ProductName level={2}>Total consumed</ProductName>
           <NutrientBar
             total={totalMacroInGrams(result.total)}
@@ -57,14 +56,11 @@ const ReportRender = ({ result }: ReportResult) => {
             {displayRound(result.total.energy.kj)} kJ
           </Energy>
           <NutrientTable product={result.total} amount={100} baseUnit={1} />
-        </Box>
 
-        <Box>
           <ProductName level={2}>Products consumed</ProductName>
           <Accordion multiple>
             {mapConsumed(result.consumed)}
           </Accordion>
-        </Box>
       </Box>
     </Box>
     <Box margin={{
