@@ -15,6 +15,10 @@ import {
 } from "../../util/data/requests";
 import PortionTable from "../../components/PortionTable";
 
+interface IdParams {
+  id: string
+}
+
 const emptyState = (): Array<Portion> => {
   return [];
 };
@@ -51,11 +55,11 @@ const refreshPortions = async (id: number, setState: any) => {
 const Portions = () => {
   const [current, setCurrent] = useState(emptyState());
   const [adding, setAdding] = useState(false);
-  const { id } = useParams();
+  const { id } = useParams<IdParams>();
 
   useEffect(() => {
     const fetchAndSet = async () => {
-      const portions = await getProductSizesById(id);
+      const portions = await getProductSizesById(Number.parseInt(id));
 
       setCurrent(portions);
     };
@@ -70,7 +74,7 @@ const Portions = () => {
         <PortionTable
           portions={current}
           stateSetter={setCurrent}
-          productId={id}
+          productId={Number.parseInt(id)}
           stateReducer={removeAndDeletePortion}
         />
         <Box margin={{ top: "large" }}>
@@ -85,12 +89,12 @@ const Portions = () => {
           ) : (
             <>
               <PortionForm
-                product={id}
+                product={Number.parseInt(id)}
                 selectedFunction={async (portion: Portion) => {
                   const submitResult = await submit([portion]);
                   if (submitResult.status) {
                     cogoToast.success("Portion added");
-                    await refreshPortions(id, setCurrent);
+                    await refreshPortions(Number.parseInt(id), setCurrent);
                   } else {
                     cogoToast.error("Failed to add portion");
                   }
