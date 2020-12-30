@@ -10,6 +10,7 @@ const Navigation = () => (
     <Nav direction="row">
         <Link to="/"><Anchor label={"Report"} key={"report"} /></Link>
         <Link to="/products"><Anchor href={"/products"} label={"Products"} key={"products"} /></Link>
+        <Link to="/body"><Anchor href={"/body"} label={"Body"} key={"body"} /></Link>
     </Nav>
     </Header>
 );
