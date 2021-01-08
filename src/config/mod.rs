@@ -4,8 +4,8 @@
 // Get column metadata
 // PRAGMA table_info('Food');
 
-use sqlx::row::Row;
 use sqlx::sqlite::SqliteRow;
+use sqlx::Row;
 use sqlx::SqlitePool;
 
 struct TableMeta {

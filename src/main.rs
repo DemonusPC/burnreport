@@ -24,7 +24,7 @@ async fn main() -> Result<(), sqlx::Error> {
         Err(_e) => panic!("No DATABASE_URL specified"),
     };
 
-    let pool = SqlitePool::new(&db_path).await?;
+    let pool = SqlitePool::connect(&db_path).await?;
 
     let db_configured = setup(&pool).await?;
 
