@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Navigation from "./containers/Navigation";
 import AddProduct from "./pages/AddProduct";
 import Portions from './pages/Portions';
+import Body from "./pages/Body";
 
 const App = () => (
   <>
@@ -15,6 +16,9 @@ const App = () => (
       <Grommet full theme={grommet}>
         <Navigation />
         <Switch>
+          <Route path="/body">
+            <Body />
+          </Route>
           <Route path="/products/add">
             <AddProduct />
           </Route>
