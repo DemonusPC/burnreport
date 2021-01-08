@@ -1,3 +1,4 @@
+import { TimeSeriesData } from "../schema/body";
 import { Product } from "../schema/product";
 import { FlatProduct } from "../schema/report";
 
@@ -101,4 +102,10 @@ export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
     });
 
     return result;
+}
+
+export const valuesToChartData = (data: Array<TimeSeriesData>) => {
+    return data.map(value => {
+        return {x: value.date, y: value.value};
+    });
 }
