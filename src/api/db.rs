@@ -244,7 +244,7 @@ pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Erro
     let mut fat: Vec<TimeSeriesData> = vec![];
 
 
-    let rows = sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date ASC LIMIT 30;").fetch_all(pool).await?;
+    let rows = sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date DESC LIMIT 30;").fetch_all(pool).await?;
 
     for row in rows {
         mass.push(TimeSeriesData::new( row.get(0), row.get(1)));
