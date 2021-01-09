@@ -251,9 +251,9 @@ pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Erro
         fat.push(TimeSeriesData::new( row.get(0), row.get(2)));
     }
 
-    let today = chrono::Utc::today().naive_utc();
+    let today = chrono::Utc::today();
 
-    let today_mass: f32 = match mass.first() {
+    let today_mass: f64 = match mass.first() {
         Some(v) => {
             let mut r = 0.0;
             if today.ordinal() == v.date.ordinal() {
@@ -264,7 +264,7 @@ pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Erro
         None => 0.0
     };
 
-    let today_fat: f32 = match fat.first() {
+    let today_fat: f64 = match fat.first() {
         Some(v) => {
             let mut r = 0.0;
             if today.ordinal() == v.date.ordinal() {

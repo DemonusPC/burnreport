@@ -7,6 +7,7 @@ use crate::api::db::list_portions;
 use crate::api::db::one_single_product;
 use crate::api::db::search_products;
 use crate::api::db::single_product;
+use crate::api::db::body_overview;
 use crate::api::SearchQuery;
 use crate::nutrients::TotalAble;
 use crate::products::{Portion, Product, Report};
@@ -353,4 +354,24 @@ pub async fn delete_product_sizes_handler(
             Err(warp::reject::reject())
         }
     }
+}
+
+
+pub async fn get_body_overview_handler(
+    pool: SqlitePool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let c: Vec<i32> = vec![];
+    let result = match body_overview(&pool).await {
+        Ok(res) => {
+            let cc = warp::reply::json(&res);
+            warp::reply::with_status(cc, StatusCode::OK)
+        }
+        Err(err) => {
+            let r = warp::reply::json(&c);
+            log::error!("Cannot get body overview with error: {}", err);
+            warp::reply::with_status(r, StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    Ok(result)
 }

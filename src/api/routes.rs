@@ -7,6 +7,7 @@ use crate::api::handlers::insert_single_product_handler;
 use crate::api::handlers::process_report;
 use crate::api::handlers::products_csv;
 use crate::api::handlers::test;
+use crate::api::handlers::get_body_overview_handler;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use warp::Filter;
@@ -44,6 +45,9 @@ pub fn routes(
     let product_portions = warp::get()
         .and(warp::path!("products" / ..))
         .and(warp::fs::file("./frontend/build/index.html"));
+    let products = warp::get()
+        .and(warp::path!("body"))
+        .and(warp::fs::file("./frontend/build/index.html"));
 
     let frontend = index.or(products).or(products_add).or(product_portions);
 
@@ -63,6 +67,7 @@ pub fn routes(
         .or(get_product_sizes(pool.clone()))
         .or(post_new_product_sizes(pool.clone()))
         .or(delete_single_product_size(pool.clone()))
+        .or(get_body_overview(pool.clone()))
 }
 
 fn get_search_product(
@@ -156,4 +161,13 @@ fn post_new_product_sizes(
         // .and(warp::body::content_length_limit(1024 * 16))
         .and(warp::body::json())
         .and_then(insert_product_sizes_handler)
+}
+
+fn get_body_overview(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "body" / "overview")
+        .and(warp::get())
+        .and(with_db(pool))
+        .and_then(get_body_overview_handler)
 }

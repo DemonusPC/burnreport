@@ -1,15 +1,15 @@
 use serde_derive::{Deserialize, Serialize};
-use chrono::NaiveDate;
+use chrono::{DateTime, NaiveDate, Utc};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimeSeriesData {
-    pub date: NaiveDate,
-    pub value: f32
+    pub date: DateTime<Utc>,
+    pub value: f64
 }
 
 impl TimeSeriesData {
-    pub fn new(date: NaiveDate, value: f32) -> Self {
+    pub fn new(date: DateTime<Utc>, value: f64) -> Self {
         Self {
             date,
             value
@@ -20,12 +20,12 @@ impl TimeSeriesData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Overview {
-    mass: f32,
-    fat: f32
+    mass: f64,
+    fat: f64
 }
 
 impl Overview {
-    pub fn new(mass: f32, fat: f32) -> Self {
+    pub fn new(mass: f64, fat: f64) -> Self {
         Self {
             mass,
             fat
@@ -76,12 +76,12 @@ impl BodyOverview {
         }
     }
 
-    pub fn today_mass(mut self, mass: f32) -> Self {
+    pub fn today_mass(mut self, mass: f64) -> Self {
         self.today.mass = mass;
         self
     }
 
-    pub fn today_fat(mut self, fat: f32) -> Self {
+    pub fn today_fat(mut self, fat: f64) -> Self {
         self.today.fat = fat;
         self
     }
