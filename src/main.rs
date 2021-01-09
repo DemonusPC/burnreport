@@ -5,6 +5,7 @@ mod api;
 mod config;
 mod nutrients;
 mod products;
+mod body;
 
 use crate::config::setup;
 use sqlx::SqlitePool;

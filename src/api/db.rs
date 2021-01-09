@@ -1,8 +1,9 @@
-use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
+use crate::{body::{BodyOverview, Monthly, Overview, TimeSeriesData}, nutrients::{Carbohydrates, Energy, Fat, Protein, Salt}};
 
 use crate::products::{Portion, Product};
 
 use crate::nutrients::TotalAble;
+use chrono::Datelike;
 use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
 use sqlx::{sqlite::SqliteDone, Row};
@@ -236,3 +237,47 @@ pub async fn delete_portion(
 
 // Modify a product Size
 // TODO: Add functionality for modifying product sizes
+
+
+pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Error> {
+    let mut mass: Vec<TimeSeriesData> = vec![];
+    let mut fat: Vec<TimeSeriesData> = vec![];
+
+
+    let rows = sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date ASC LIMIT 30;").fetch_all(pool).await?;
+
+    for row in rows {
+        mass.push(TimeSeriesData::new( row.get(0), row.get(1)));
+        fat.push(TimeSeriesData::new( row.get(0), row.get(2)));
+    }
+
+    let today = chrono::Utc::today().naive_utc();
+
+    let today_mass: f32 = match mass.first() {
+        Some(v) => {
+            let mut r = 0.0;
+            if today.ordinal() == v.date.ordinal() {
+                r = v.value;
+            }
+            r
+        },
+        None => 0.0
+    };
+
+    let today_fat: f32 = match fat.first() {
+        Some(v) => {
+            let mut r = 0.0;
+            if today.ordinal() == v.date.ordinal() {
+                r = v.value;
+            }
+            r
+        },
+        None => 0.0
+    };
+
+    let overview = Overview::new(today_mass, today_fat);
+
+    let result = BodyOverview::new(overview, Monthly::new(mass, fat));
+
+    Ok(result)
+} 
