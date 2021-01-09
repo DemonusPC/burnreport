@@ -106,6 +106,6 @@ export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
 
 export const valuesToChartData = (data: Array<TimeSeriesData>) => {
     return data.map(value => {
-        return {x: value.date, y: value.value};
+        return {x: new Date(value.date), y: value.value};
     });
 }
