@@ -1,5 +1,6 @@
 use crate::api::handlers::delete_product_sizes_handler;
 use crate::api::handlers::delete_single_product_handler;
+use crate::api::handlers::get_body_overview_handler;
 use crate::api::handlers::get_product_sizes_handler;
 use crate::api::handlers::get_single_product_handler;
 use crate::api::handlers::insert_product_sizes_handler;
@@ -7,7 +8,6 @@ use crate::api::handlers::insert_single_product_handler;
 use crate::api::handlers::process_report;
 use crate::api::handlers::products_csv;
 use crate::api::handlers::test;
-use crate::api::handlers::get_body_overview_handler;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use warp::Filter;

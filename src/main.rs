@@ -2,10 +2,10 @@ use dotenv::dotenv;
 use std::env;
 
 mod api;
+mod body;
 mod config;
 mod nutrients;
 mod products;
-mod body;
 
 use crate::config::setup;
 use sqlx::SqlitePool;

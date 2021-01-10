@@ -1,98 +1,80 @@
+use chrono::{DateTime, Utc};
 use serde_derive::{Deserialize, Serialize};
-use chrono::{DateTime, NaiveDate, Utc};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BodyLog {
+    date: DateTime<Utc>,
+    mass: f64,
+    fat: f64,
+}
+
+impl BodyLog {
+    pub fn new(date: DateTime<Utc>, mass: f64, fat: f64) -> Self {
+        Self { date, mass, fat }
+    }
+
+    pub fn date(&self) -> &DateTime<Utc> {
+        &self.date
+    }
+
+    pub fn mass(&self) -> f64 {
+        self.mass
+    }
+
+    pub fn fat(&self) -> f64 {
+        self.fat
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimeSeriesData {
     pub date: DateTime<Utc>,
-    pub value: f64
+    pub value: f64,
 }
 
 impl TimeSeriesData {
     pub fn new(date: DateTime<Utc>, value: f64) -> Self {
-        Self {
-            date,
-            value
-        }
+        Self { date, value }
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Overview {
     mass: f64,
-    fat: f64
+    fat: f64,
 }
 
 impl Overview {
     pub fn new(mass: f64, fat: f64) -> Self {
-        Self {
-            mass,
-            fat
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Monthly {
-    mass: Vec<TimeSeriesData>,
-    fat: Vec<TimeSeriesData>
-}
-
-impl Monthly {
-    pub fn new(mass: Vec<TimeSeriesData>, fat: Vec<TimeSeriesData>) -> Self {
-        Self {
-            mass,
-            fat
-        }
+        Self { mass, fat }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BodyOverview {
-    today: Overview,
-    monthly: Monthly 
+    today: Option<Overview>,
+    past: Vec<BodyLog>,
 }
 
 impl BodyOverview {
-    pub fn new(today: Overview, monthly: Monthly) -> Self {
+    pub fn new(today: Option<Overview>, past: Vec<BodyLog>) -> Self {
+        Self { today, past }
+    }
+
+    pub fn new_from_log(sorted_past: Vec<BodyLog>) -> Self {
+        let today_date = chrono::Utc::today().and_hms(0, 0, 0);
+        // We assume that the log is already sorted by date
+        let today = match sorted_past.first() {
+            Some(log_val) => match log_val.date() == &today_date {
+                true => Some(Overview::new(log_val.mass(), log_val.fat())),
+                false => None,
+            },
+            None => None,
+        };
+
         Self {
             today,
-            monthly
+            past: sorted_past,
         }
-    }
-
-    pub fn empty() -> Self {
-        Self {
-            today: Overview {
-                mass: 0.0,
-                fat: 0.0
-            },
-            monthly: Monthly {
-                mass: vec![],
-                fat: vec![]
-            }
-        }
-    }
-
-    pub fn today_mass(mut self, mass: f64) -> Self {
-        self.today.mass = mass;
-        self
-    }
-
-    pub fn today_fat(mut self, fat: f64) -> Self {
-        self.today.fat = fat;
-        self
-    }
-
-    pub fn add_mass_value(mut self, data: TimeSeriesData) -> Self {
-        self.monthly.mass.push(data);
-        self
-    }
-
-    pub fn add_fat_value(mut self, data: TimeSeriesData) -> Self {
-        self.monthly.fat.push(data);
-        self
     }
 }

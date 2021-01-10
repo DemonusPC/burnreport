@@ -1,9 +1,11 @@
-use crate::{body::{BodyOverview, Monthly, Overview, TimeSeriesData}, nutrients::{Carbohydrates, Energy, Fat, Protein, Salt}};
+use crate::{
+    body::{BodyLog, BodyOverview},
+    nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
+};
 
 use crate::products::{Portion, Product};
 
 use crate::nutrients::TotalAble;
-use chrono::Datelike;
 use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
 use sqlx::{sqlite::SqliteDone, Row};
@@ -237,47 +239,16 @@ pub async fn delete_portion(
 
 // Modify a product Size
 // TODO: Add functionality for modifying product sizes
-
+// Lol still didnt do that todo
 
 pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Error> {
-    let mut mass: Vec<TimeSeriesData> = vec![];
-    let mut fat: Vec<TimeSeriesData> = vec![];
+    let body_log: Vec<BodyLog> =
+        sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date DESC LIMIT 30;")
+            .map(|row: SqliteRow| -> BodyLog { BodyLog::new(row.get(0), row.get(1), row.get(2)) })
+            .fetch_all(pool)
+            .await?;
 
-
-    let rows = sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date DESC LIMIT 30;").fetch_all(pool).await?;
-
-    for row in rows {
-        mass.push(TimeSeriesData::new( row.get(0), row.get(1)));
-        fat.push(TimeSeriesData::new( row.get(0), row.get(2)));
-    }
-
-    let today = chrono::Utc::today();
-
-    let today_mass: f64 = match mass.first() {
-        Some(v) => {
-            let mut r = 0.0;
-            if today.ordinal() == v.date.ordinal() {
-                r = v.value;
-            }
-            r
-        },
-        None => 0.0
-    };
-
-    let today_fat: f64 = match fat.first() {
-        Some(v) => {
-            let mut r = 0.0;
-            if today.ordinal() == v.date.ordinal() {
-                r = v.value;
-            }
-            r
-        },
-        None => 0.0
-    };
-
-    let overview = Overview::new(today_mass, today_fat);
-
-    let result = BodyOverview::new(overview, Monthly::new(mass, fat));
+    let result = BodyOverview::new_from_log(body_log);
 
     Ok(result)
-} 
+}

@@ -1,3 +1,4 @@
+use crate::api::db::body_overview;
 use crate::api::db::delete_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
@@ -7,7 +8,6 @@ use crate::api::db::list_portions;
 use crate::api::db::one_single_product;
 use crate::api::db::search_products;
 use crate::api::db::single_product;
-use crate::api::db::body_overview;
 use crate::api::SearchQuery;
 use crate::nutrients::TotalAble;
 use crate::products::{Portion, Product, Report};
@@ -355,7 +355,6 @@ pub async fn delete_product_sizes_handler(
         }
     }
 }
-
 
 pub async fn get_body_overview_handler(
     pool: SqlitePool,
