@@ -1,4 +1,4 @@
-import { Box, Heading } from "grommet";
+import { Anchor, Box, Heading } from "grommet";
 import useSWR from "swr";
 import React from "react";
 import BodyChart from "../../containers/BodyChart";
@@ -22,6 +22,7 @@ const Body = () => {
     <Box pad="medium" align="center">
       <Heading>Body</Heading>
       <Box>
+      <Anchor href="/body/add" label="Add Body Log" key="addbodylog" />
         <Heading level={2}>Today</Heading>
         <Heading level={3}>Mass (Weight)</Heading>
         {data.today ? <span>{data.today.mass} kg</span> : <span>N/A</span>}
