@@ -56,6 +56,7 @@ pub struct BodyOverview {
     past: Vec<BodyLog>,
 }
 
+
 impl BodyOverview {
     pub fn new(today: Option<Overview>, past: Vec<BodyLog>) -> Self {
         Self { today, past }
@@ -65,7 +66,7 @@ impl BodyOverview {
         let today_date = chrono::Utc::today().and_hms(0, 0, 0);
         // We assume that the log is already sorted by date
         let today = match sorted_past.first() {
-            Some(log_val) => match log_val.date() == &today_date {
+            Some(log_val) => match log_val.date().date() == today_date.date() {
                 true => Some(Overview::new(log_val.mass(), log_val.fat())),
                 false => None,
             },
