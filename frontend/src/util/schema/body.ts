@@ -3,13 +3,18 @@ export interface TimeSeriesData {
     value: number;
 }
 
+export interface BodyLog {
+    date: Date;
+    mass: number;
+    fat: number;
+}
+
+export interface Today {
+    mass: number;
+    fat: number;
+}
+
 export interface BodyOverview {
-    today: {
-        mass: number,
-        fat: number
-    }
-    monthly: {
-        mass: Array<TimeSeriesData>,
-        fat: Array<TimeSeriesData>
-    }
+    today: Today | undefined;
+    past: Array<BodyLog>;
 }
