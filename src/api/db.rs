@@ -6,6 +6,7 @@ use crate::{
 use crate::products::{Portion, Product};
 
 use crate::nutrients::TotalAble;
+use log::{info, warn};
 use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
 use sqlx::{sqlite::SqliteDone, Row};
@@ -244,7 +245,12 @@ pub async fn delete_portion(
 pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Error> {
     let body_log: Vec<BodyLog> =
         sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date DESC LIMIT 30;")
-            .map(|row: SqliteRow| -> BodyLog { BodyLog::new(row.get(0), row.get(1), row.get(2)) })
+            .map(|row: SqliteRow| -> BodyLog { 
+                let date = row.get(0);
+                let mass: f64 = row.get_unchecked(1);
+                let fat: f64 = row.get_unchecked(2);
+                BodyLog::new(date,mass, fat) 
+            })
             .fetch_all(pool)
             .await?;
 
@@ -260,7 +266,7 @@ pub async fn insert_body_log_db(
 ) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
-    let date = body_log.date();
+    let date = body_log.date().date().and_hms_nano(0, 0, 0, 0);
     let mass = body_log.mass();
     let fat = body_log.fat();
 
@@ -288,7 +294,7 @@ pub async fn update_body_log_db(
 ) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
-    let date = body_log.date();
+    let date = body_log.date().date().and_hms_nano(0, 0, 0, 0);
     let mass = body_log.mass();
     let fat = body_log.fat();
 
