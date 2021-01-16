@@ -12,7 +12,7 @@ use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use warp::Filter;
 
-use super::handlers::insert_body_log;
+use super::handlers::{insert_body_log, update_body_log};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchQuery {
@@ -70,7 +70,9 @@ pub fn routes(
         .or(post_new_product_sizes(pool.clone()))
         .or(delete_single_product_size(pool.clone()))
         .or(get_body_overview(pool.clone()))
+        .or(put_body(pool.clone()))
         .or(post_body(pool.clone()))
+        
 }
 
 fn get_search_product(
@@ -189,7 +191,17 @@ fn post_body(
 }
 
 // PUT - Update body log for a specific date
+fn put_body(
+    pool: SqlitePool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("api" / "body")
+        .and(warp::put())
+        .and(with_db(pool))
+        // Only accept bodies smaller than 16kb...
+        // .and(warp::body::content_length_limit(1024 * 16))
+        .and(warp::body::json())
+        .and_then(update_body_log)
+}
 
-// DELETE - Delete a specific log
 
 

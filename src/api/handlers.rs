@@ -24,9 +24,8 @@ use futures::{TryFutureExt, TryStreamExt};
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 use serde::Deserialize;
 use std::error::Error;
-use warp::{Filter, http::Response};
 
-use super::db::insert_body_log_db;
+use super::db::{insert_body_log_db, update_body_log_db};
 
 pub async fn test(
     pool: SqlitePool,
@@ -385,10 +384,7 @@ pub async fn insert_body_log(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     
     match insert_body_log_db(&pool, body_log).await {
-        Ok(res) => {
-            // let cc = warp::reply::json(&res);
-            // let empty_200 = warp::any().map(warp::reply);
-            // warp::reply::with_status(cc, StatusCode::CREATED)
+        Ok(_) => {
             Ok(StatusCode::CREATED)
         },
         Err(err) => {       
@@ -403,4 +399,27 @@ pub async fn insert_body_log(
         }
     }
 }
+
+pub async fn update_body_log(
+    pool: SqlitePool,
+    body_log: BodyLog,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    
+    match update_body_log_db(&pool, body_log).await {
+        Ok(_) => {
+            Ok(StatusCode::OK)
+        },
+        Err(err) => {       
+            let status = match &err {
+                // For now assume that all database errors are the primary key conflict constraint
+                sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
+                _ => StatusCode::INTERNAL_SERVER_ERROR
+            };
+            log::error!("Cannot get body overview with error: {}", err);
+            Ok(status)
+
+        }
+    }
+}
+
 

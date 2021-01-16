@@ -281,3 +281,29 @@ pub async fn insert_body_log_db(
 
     Ok(true)
 }
+
+pub async fn update_body_log_db(
+    pool: &SqlitePool,
+    body_log: BodyLog,
+) -> Result<bool, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    let date = body_log.date();
+    let mass = body_log.mass();
+    let fat = body_log.fat();
+
+    sqlx::query!(
+        r#"
+        UPDATE "main"."Body" SET mass = ?2, fat = ?3 WHERE date = ?1;
+        "#,
+        date,
+        mass,
+        fat
+    )
+    .execute(&mut tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(true)
+}
