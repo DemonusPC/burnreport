@@ -1,4 +1,4 @@
-use crate::api::db::body_overview;
+use crate::{api::db::body_overview, body::BodyLog};
 use crate::api::db::delete_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
@@ -24,6 +24,9 @@ use futures::{TryFutureExt, TryStreamExt};
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 use serde::Deserialize;
 use std::error::Error;
+use warp::{Filter, http::Response};
+
+use super::db::insert_body_log_db;
 
 pub async fn test(
     pool: SqlitePool,
@@ -374,3 +377,30 @@ pub async fn get_body_overview_handler(
 
     Ok(result)
 }
+
+
+pub async fn insert_body_log(
+    pool: SqlitePool,
+    body_log: BodyLog,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    
+    match insert_body_log_db(&pool, body_log).await {
+        Ok(res) => {
+            // let cc = warp::reply::json(&res);
+            // let empty_200 = warp::any().map(warp::reply);
+            // warp::reply::with_status(cc, StatusCode::CREATED)
+            Ok(StatusCode::CREATED)
+        },
+        Err(err) => {       
+            let status = match &err {
+                // For now assume that all database errors are the primary key conflict constraint
+                sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
+                _ => StatusCode::INTERNAL_SERVER_ERROR
+            };
+            log::error!("Cannot get body overview with error: {}", err);
+            Ok(status)
+
+        }
+    }
+}
+

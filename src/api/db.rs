@@ -252,3 +252,32 @@ pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Erro
 
     Ok(result)
 }
+
+
+pub async fn insert_body_log_db(
+    pool: &SqlitePool,
+    body_log: BodyLog,
+) -> Result<bool, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    let date = body_log.date();
+    let mass = body_log.mass();
+    let fat = body_log.fat();
+
+    sqlx::query!(
+        r#"
+        INSERT INTO "main"."Body"
+        ("date", "mass", "fat")
+        VALUES (?1, ?2, ?3);
+        "#,
+        date ,
+        mass,
+        fat
+    )
+    .execute(&mut tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(true)
+}
