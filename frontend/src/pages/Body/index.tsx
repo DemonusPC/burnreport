@@ -1,4 +1,4 @@
-import { Anchor, Box, Heading } from "grommet";
+import { Box, Heading } from "grommet";
 import useSWR from "swr";
 import React from "react";
 import BodyChart from "../../containers/BodyChart";
@@ -15,8 +15,6 @@ const Body = () => {
 
   if (error) return <div>Error could not load the body data</div>;
   if (!data) return <div>loading...</div>;
-
-  console.log(data.past);
 
   const montlhyMass = valuesToChartData(data.past, extractMass);
   const monthlyFat = valuesToChartData(data.past, extractFat);

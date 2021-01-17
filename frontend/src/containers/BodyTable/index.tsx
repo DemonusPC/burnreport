@@ -8,7 +8,7 @@ const BodyTable = ({ today, past }: BodyOverview) => {
   }
 
   const rows = past.map((logValue: BodyLog) => {
-    return <BodyLogRow {...logValue} />;
+    return <BodyLogRow key={logValue.date.toString()} date={logValue.date} mass={logValue.mass} fat={logValue.fat} />;
   });
 
   return (

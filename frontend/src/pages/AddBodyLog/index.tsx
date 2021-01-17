@@ -8,8 +8,13 @@ import {
   Button,
 } from "grommet";
 import React from "react";
-import { postBodyLog } from "../../util/data/requests";
+import { postBodyLog, putBodyLog } from "../../util/data/requests";
 import { BodyLog } from "../../util/schema/body";
+import { useParams } from "react-router";
+
+interface AddBodyLogParams {
+  date: string
+}
 
 const propertyToNumber = (property: number): number => {
   if (property) {
@@ -21,7 +26,6 @@ const propertyToNumber = (property: number): number => {
 };
 
 const toBodyLog = (flat: any): BodyLog => {
-  console.log(flat);
   return {
     date: new Date(flat.date),
     mass: propertyToNumber(flat.mass),
@@ -30,22 +34,42 @@ const toBodyLog = (flat: any): BodyLog => {
 };
 
 const AddBodyLog = () => {
+  const { date } = useParams<AddBodyLogParams>();
+
+  let initialDate = new Date().toString();
+
+  if(date) {
+    initialDate = new Date(encodeURI(date)).toString();
+
+    if(initialDate === "Invalid Date") {
+      initialDate = new Date().toString()
+    }
+  }
+
   const [body, setBody] = React.useState({
-    date: new Date().toString(),
+    date: initialDate,
     mass: 0.0,
     fat: 0.0,
   });
 
   return (
     <Box pad="medium" align="center">
-      <Heading>Add Body Log</Heading>
+      <Heading>Body Log</Heading>
       <Form
         onSubmit={(event: any) => {
           const entry = toBodyLog(event.value);
-          postBodyLog(entry).then((result) => {
-            window.history.replaceState(window.history.state, "", "/body");
-            window.location.reload();
-          });
+
+          if(date){
+            putBodyLog(entry).then((result) => {
+              window.history.replaceState(window.history.state, "", "/body");
+              window.location.reload();
+            });
+          }else{
+            postBodyLog(entry).then((result) => {
+              window.history.replaceState(window.history.state, "", "/body");
+              window.location.reload();
+            });
+          }
         }}
       >
         <FormField name="date" label="Date" required>
@@ -70,9 +94,10 @@ const AddBodyLog = () => {
           <TextInput name={"fat"} />
         </FormField>
 
-        <Box direction="row" gap="medium">
+        <Box direction="row" gap="medium" margin={{top: "large"}}>
           <Button type="submit" primary label="Submit" />
           <Button type="reset" label="Reset" />
+          <Button type="button" label="Cancel" href="/body" />
         </Box>
       </Form>
     </Box>

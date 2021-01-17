@@ -149,9 +149,23 @@ export const postBodyLog = async (bodyLog: BodyLog): Promise<number> => {
     body: JSON.stringify(bodyLog)
   });
 
-  console.log(bodyLog);
+  const result: number= response.status;
+
+  return result;
+}
+
+export const putBodyLog = async (bodyLog: BodyLog): Promise<number> => {
+  const response = await fetch(`/api/body`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      origin: "*",
+    },
+    mode: "cors",
+    body: JSON.stringify(bodyLog)
+  });
 
   const result: number= response.status;
 
-  return 0;
+  return result;
 }

@@ -17,6 +17,9 @@ const App = () => (
       <Grommet full theme={grommet}>
         <Navigation />
         <Switch>
+        <Route path="/body/update/:date">
+            <AddBodyLog />
+          </Route>
           <Route path="/body/add">
             <AddBodyLog />
           </Route>
