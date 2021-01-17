@@ -8,12 +8,15 @@ import {
   valuesToChartData,
 } from "../../util/data/calculations";
 import { BodyOverview } from "../../util/schema/body";
+import BodyTable from "../../containers/BodyTable";
 
 const Body = () => {
   const { data, error } = useSWR<BodyOverview>("/api/body/overview");
 
   if (error) return <div>Error could not load the body data</div>;
   if (!data) return <div>loading...</div>;
+
+  console.log(data.past);
 
   const montlhyMass = valuesToChartData(data.past, extractMass);
   const monthlyFat = valuesToChartData(data.past, extractFat);
@@ -22,13 +25,8 @@ const Body = () => {
     <Box pad="medium" align="center">
       <Heading>Body</Heading>
       <Box>
-      <Anchor href="/body/add" label="Add Body Log" key="addbodylog" />
-        <Heading level={2}>Today</Heading>
-        <Heading level={3}>Mass (Weight)</Heading>
-        {data.today ? <span>{data.today.mass} kg</span> : <span>N/A</span>}
+        <BodyTable {...data} />
 
-        <Heading level={3}>Fat Percentage (%)</Heading>
-        {data.today ? <span>{data.today.fat} kg</span> : <span>N/A</span>}
         <Heading level={3}>Mass (Weight)</Heading>
         <Box width="1280px">
           <BodyChart data={montlhyMass} parseDomain={(data) => [50, 100]} />
