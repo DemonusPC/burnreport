@@ -53,6 +53,8 @@ pub fn routes(
 
     let frontend = index.or(products).or(products_add).or(product_portions);
 
+    let default = warp::any().and(warp::fs::file("./frontend/build/index.html"));
+
     //  GET /...
     // e.g. /favicon.ico -> favicon.ico
     // e.g. /static/js/main.chunk.js -> /static/js/main.chunk.js
@@ -72,6 +74,8 @@ pub fn routes(
         .or(get_body_overview(pool.clone()))
         .or(put_body(pool.clone()))
         .or(post_body(pool.clone()))
+        .or(default)
+
         
 }
 
