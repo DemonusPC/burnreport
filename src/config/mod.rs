@@ -40,6 +40,14 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         }
     }
 
+    match check_if_table_exists(pool, "Body").await {
+        Ok(_v) => println!("Body table exists"),
+        Err(err) => {
+            println!("Check table for Body failed with error: {}", err);
+            create_portions_table(pool).await?;
+        }
+    }
+
     Ok(true)
 }
 
