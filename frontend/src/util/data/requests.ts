@@ -1,6 +1,7 @@
 import { Product, ProductAPIStatus, ProductSize, Portion } from "../schema/product";
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
+import { BodyLog } from "../schema/body";
 
 
 export interface RestResult<T> {
@@ -133,6 +134,38 @@ export const deletePortion = async (id: number, name: string): Promise<ProductAP
   });
 
   const result: ProductAPIStatus = await response.json();
+
+  return result;
+}
+
+export const postBodyLog = async (bodyLog: BodyLog): Promise<number> => {
+  const response = await fetch(`/api/body`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      origin: "*",
+    },
+    mode: "cors",
+    body: JSON.stringify(bodyLog)
+  });
+
+  const result: number= response.status;
+
+  return result;
+}
+
+export const putBodyLog = async (bodyLog: BodyLog): Promise<number> => {
+  const response = await fetch(`/api/body`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      origin: "*",
+    },
+    mode: "cors",
+    body: JSON.stringify(bodyLog)
+  });
+
+  const result: number= response.status;
 
   return result;
 }

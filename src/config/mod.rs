@@ -4,8 +4,8 @@
 // Get column metadata
 // PRAGMA table_info('Food');
 
-use sqlx::row::Row;
 use sqlx::sqlite::SqliteRow;
+use sqlx::Row;
 use sqlx::SqlitePool;
 
 struct TableMeta {
@@ -37,6 +37,14 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         Err(err) => {
             println!("Check table for Portions failed with error: {}", err);
             create_portions_table(pool).await?;
+        }
+    }
+
+    match check_if_table_exists(pool, "Body").await {
+        Ok(_v) => println!("Body table exists"),
+        Err(err) => {
+            println!("Check table for Body failed with error: {}", err);
+            create_body_table(pool).await?;
         }
     }
 
@@ -95,3 +103,25 @@ async fn create_portions_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
     Ok(())
 }
+
+// I should refactor this to be a common function but im not bothered now
+async fn create_body_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS "Body" (
+            "date"	TEXT NOT NULL UNIQUE,
+            "mass"	INTEGER,
+            "fat"	INTEGER,
+            PRIMARY KEY("date")
+        )
+        "#
+    )
+    .execute(&mut tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok(())
+}
+

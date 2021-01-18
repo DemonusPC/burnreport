@@ -24,3 +24,10 @@ CREATE TABLE "Portions" (
 	"grams"	REAL NOt NULL,
 	FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
 );
+
+CREATE TABLE "Body" (
+	"date"	TEXT NOT NULL UNIQUE,
+	"mass"	INTEGER,
+	"fat"	INTEGER,
+	PRIMARY KEY("date")
+)

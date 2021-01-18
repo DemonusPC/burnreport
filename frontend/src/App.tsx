@@ -9,6 +9,7 @@ import Navigation from "./containers/Navigation";
 import AddProduct from "./pages/AddProduct";
 import Portions from './pages/Portions';
 import Body from "./pages/Body";
+import AddBodyLog from "./pages/AddBodyLog";
 
 const App = () => (
   <>
@@ -16,6 +17,12 @@ const App = () => (
       <Grommet full theme={grommet}>
         <Navigation />
         <Switch>
+        <Route path="/body/update/:date">
+            <AddBodyLog />
+          </Route>
+          <Route path="/body/add">
+            <AddBodyLog />
+          </Route>
           <Route path="/body">
             <Body />
           </Route>

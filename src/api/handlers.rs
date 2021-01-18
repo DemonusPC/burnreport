@@ -1,3 +1,4 @@
+use crate::{api::db::body_overview, body::BodyLog};
 use crate::api::db::delete_portion;
 use crate::api::db::delete_product;
 use crate::api::db::import_file;
@@ -23,6 +24,8 @@ use futures::{TryFutureExt, TryStreamExt};
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 use serde::Deserialize;
 use std::error::Error;
+
+use super::db::{insert_body_log_db, update_body_log_db};
 
 pub async fn test(
     pool: SqlitePool,
@@ -354,3 +357,69 @@ pub async fn delete_product_sizes_handler(
         }
     }
 }
+
+pub async fn get_body_overview_handler(
+    pool: SqlitePool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let c: Vec<i32> = vec![];
+    let result = match body_overview(&pool).await {
+        Ok(res) => {
+            let cc = warp::reply::json(&res);
+            warp::reply::with_status(cc, StatusCode::OK)
+        }
+        Err(err) => {
+            let r = warp::reply::json(&c);
+            log::error!("Cannot get body overview with error: {}", err);
+            warp::reply::with_status(r, StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    Ok(result)
+}
+
+
+pub async fn insert_body_log(
+    pool: SqlitePool,
+    body_log: BodyLog,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    
+    match insert_body_log_db(&pool, body_log).await {
+        Ok(_) => {
+            Ok(StatusCode::CREATED)
+        },
+        Err(err) => {       
+            let status = match &err {
+                // For now assume that all database errors are the primary key conflict constraint
+                sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
+                _ => StatusCode::INTERNAL_SERVER_ERROR
+            };
+            log::error!("Cannot get body overview with error: {}", err);
+            Ok(status)
+
+        }
+    }
+}
+
+pub async fn update_body_log(
+    pool: SqlitePool,
+    body_log: BodyLog,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    
+    match update_body_log_db(&pool, body_log).await {
+        Ok(_) => {
+            Ok(StatusCode::OK)
+        },
+        Err(err) => {       
+            let status = match &err {
+                // For now assume that all database errors are the primary key conflict constraint
+                sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
+                _ => StatusCode::INTERNAL_SERVER_ERROR
+            };
+            log::error!("Cannot get body overview with error: {}", err);
+            Ok(status)
+
+        }
+    }
+}
+
+

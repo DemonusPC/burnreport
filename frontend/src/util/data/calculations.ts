@@ -1,4 +1,4 @@
-import { TimeSeriesData } from "../schema/body";
+import { BodyLog } from "../schema/body";
 import { Product } from "../schema/product";
 import { FlatProduct } from "../schema/report";
 
@@ -104,8 +104,16 @@ export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
     return result;
 }
 
-export const valuesToChartData = (data: Array<TimeSeriesData>) => {
+export const extractMass = (log: BodyLog): number => {
+    return log.mass;
+}
+
+export const extractFat = (log: BodyLog): number => {
+    return log.fat;
+}
+
+export const valuesToChartData = (data: Array<BodyLog>, extractor: (log: BodyLog) => number) => {
     return data.map(value => {
-        return {x: value.date, y: value.value};
+        return {x: new Date(value.date), y: extractor(value)};
     });
 }
