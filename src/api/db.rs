@@ -9,16 +9,15 @@ use crate::nutrients::TotalAble;
 use log::{info, warn};
 use sqlx::sqlite::SqliteRow;
 use sqlx::SqlitePool;
-use sqlx::{sqlite::SqliteDone, Row};
+use sqlx::{Row};
 
 pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
     for product in products {
-        let result: SqliteDone = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
+        let result = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
         VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)"#)
         .bind(product.name())
         .bind(product.manufacturer())
-        .bind(product.energy().kcal())
         .bind(product.energy().kcal())
         .bind(product.energy().k_j())
         .bind(product.carbohydrates().total())
@@ -135,11 +134,10 @@ pub async fn one_single_product(
 pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
-    let result: SqliteDone = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
+    let result = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
     VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)"#)
     .bind(product.name())
     .bind(product.manufacturer())
-    .bind(product.energy().kcal())
     .bind(product.energy().kcal())
     .bind(product.energy().k_j())
     .bind(product.carbohydrates().total())
