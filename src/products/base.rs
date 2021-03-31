@@ -1,4 +1,6 @@
+use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
+use futures::future::{ready, Ready};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,6 +98,16 @@ impl Product {
 
     pub fn salt(&self) -> &Salt {
         return &self.salt;
+    }
+}
+
+impl Responder for Product {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
     }
 }
 
