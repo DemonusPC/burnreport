@@ -9,11 +9,7 @@ use crate::{
     },
     products::{ApiResult, Portion, Product, ProductSubmission, ResultList},
 };
-use actix_web::{
-    delete, get, post, put,
-    web::{self, Query},
-    Responder,
-};
+use actix_web::{delete, get, post, web, Responder};
 use sqlx::SqlitePool;
 
 #[get("/api/search")]

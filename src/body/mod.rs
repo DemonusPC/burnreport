@@ -1,3 +1,4 @@
+use actix_web::{HttpRequest, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use serde_derive::{Deserialize, Serialize};
 
@@ -23,6 +24,16 @@ impl BodyLog {
 
     pub fn fat(&self) -> f64 {
         self.fat
+    }
+}
+
+impl Responder for BodyLog {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
     }
 }
 
@@ -76,5 +87,15 @@ impl BodyOverview {
             today,
             past: sorted_past,
         }
+    }
+}
+
+impl Responder for BodyOverview {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
     }
 }
