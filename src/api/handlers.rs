@@ -375,17 +375,16 @@
 //     Ok(result)
 // }
 
-
 // pub async fn insert_body_log(
 //     pool: SqlitePool,
 //     body_log: BodyLog,
 // ) -> Result<impl warp::Reply, warp::Rejection> {
-    
+
 //     match insert_body_log_db(&pool, body_log).await {
 //         Ok(_) => {
 //             Ok(StatusCode::CREATED)
 //         },
-//         Err(err) => {       
+//         Err(err) => {
 //             let status = match &err {
 //                 // For now assume that all database errors are the primary key conflict constraint
 //                 sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
@@ -402,12 +401,12 @@
 //     pool: SqlitePool,
 //     body_log: BodyLog,
 // ) -> Result<impl warp::Reply, warp::Rejection> {
-    
+
 //     match update_body_log_db(&pool, body_log).await {
 //         Ok(_) => {
 //             Ok(StatusCode::OK)
 //         },
-//         Err(err) => {       
+//         Err(err) => {
 //             let status = match &err {
 //                 // For now assume that all database errors are the primary key conflict constraint
 //                 sqlx::Error::Database(_) => StatusCode::BAD_REQUEST,
@@ -419,5 +418,3 @@
 //         }
 //     }
 // }
-
-

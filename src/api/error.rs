@@ -8,7 +8,7 @@ pub enum ApiError {
     #[display(fmt = "InternalServer")]
     InternalServer,
     #[display(fmt = "BadReqest")]
-    BadRequest
+    BadRequest,
 }
 
 impl error::ResponseError for ApiError {

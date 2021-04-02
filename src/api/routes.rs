@@ -75,7 +75,6 @@ pub struct SearchQuery {
 //         .or(post_body(pool.clone()))
 //         .or(default)
 
-        
 // }
 
 // fn get_search_product(
@@ -205,6 +204,3 @@ pub struct SearchQuery {
 //         .and(warp::body::json())
 //         .and_then(update_body_log)
 // }
-
-
-

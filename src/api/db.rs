@@ -8,8 +8,8 @@ use crate::products::{Portion, Product};
 use crate::nutrients::TotalAble;
 use log::{info, warn};
 use sqlx::sqlite::SqliteRow;
+use sqlx::Row;
 use sqlx::SqlitePool;
-use sqlx::{Row};
 
 pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
@@ -219,7 +219,7 @@ pub async fn insert_portion(
     Ok(true)
 }
 
-pub async fn delete_portion(
+pub async fn remove_portion(
     pool: &SqlitePool,
     product: i32,
     name: &str,
@@ -243,11 +243,11 @@ pub async fn delete_portion(
 pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Error> {
     let body_log: Vec<BodyLog> =
         sqlx::query(" SELECT date, mass, fat FROM Body ORDER BY date DESC LIMIT 30;")
-            .map(|row: SqliteRow| -> BodyLog { 
+            .map(|row: SqliteRow| -> BodyLog {
                 let date = row.get(0);
                 let mass: f64 = row.get_unchecked(1);
                 let fat: f64 = row.get_unchecked(2);
-                BodyLog::new(date,mass, fat) 
+                BodyLog::new(date, mass, fat)
             })
             .fetch_all(pool)
             .await?;
@@ -257,11 +257,7 @@ pub async fn body_overview(pool: &SqlitePool) -> Result<BodyOverview, sqlx::Erro
     Ok(result)
 }
 
-
-pub async fn insert_body_log_db(
-    pool: &SqlitePool,
-    body_log: BodyLog,
-) -> Result<bool, sqlx::Error> {
+pub async fn insert_body_log_db(pool: &SqlitePool, body_log: BodyLog) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
     let date = body_log.date().date().and_hms_nano(0, 0, 0, 0);
@@ -274,7 +270,7 @@ pub async fn insert_body_log_db(
         ("date", "mass", "fat")
         VALUES (?1, ?2, ?3);
         "#,
-        date ,
+        date,
         mass,
         fat
     )
@@ -286,10 +282,7 @@ pub async fn insert_body_log_db(
     Ok(true)
 }
 
-pub async fn update_body_log_db(
-    pool: &SqlitePool,
-    body_log: BodyLog,
-) -> Result<bool, sqlx::Error> {
+pub async fn update_body_log_db(pool: &SqlitePool, body_log: BodyLog) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
     let date = body_log.date().date().and_hms_nano(0, 0, 0, 0);

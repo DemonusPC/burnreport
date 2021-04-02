@@ -56,7 +56,6 @@ pub struct BodyOverview {
     past: Vec<BodyLog>,
 }
 
-
 impl BodyOverview {
     pub fn new(today: Option<Overview>, past: Vec<BodyLog>) -> Self {
         Self { today, past }

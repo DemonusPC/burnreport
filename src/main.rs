@@ -27,7 +27,7 @@ async fn main() -> Result<(), sqlx::Error> {
         Ok(val) => val,
         Err(_e) => panic!("No DATABASE_URL specified"),
     };
-    
+
     let pool = SqlitePool::connect(&db_path).await?;
 
     let db_configured = setup(&pool).await?;
@@ -36,14 +36,13 @@ async fn main() -> Result<(), sqlx::Error> {
         panic!("Error while setting up database");
     }
 
-
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
             .wrap(middleware::Logger::default())
             .configure(api_routes)
-            // .service(Files::new("/static", "./frontend/build/static/"))
-            // .default_service(web::get().to(frontend))
+        // .service(Files::new("/static", "./frontend/build/static/"))
+        // .default_service(web::get().to(frontend))
     })
     .bind("127.0.0.1:8080")?
     .run()

@@ -1,5 +1,5 @@
-use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
+use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use futures::future::{ready, Ready};
 use serde_derive::{Deserialize, Serialize};
 
@@ -181,5 +181,15 @@ impl Default for Portion {
             name: "".to_owned(),
             grams: 0.0,
         }
+    }
+}
+
+impl Responder for Portion {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
     }
 }
