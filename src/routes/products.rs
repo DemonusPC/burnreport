@@ -8,7 +8,7 @@ use crate::{
             delete_product, insert_portion, insert_product, list_portions, remove_portion,
             single_product,
         },
-        ApiError, SearchQuery,
+        ApiError,
     },
     products::{ApiResult, Portion, Product, ResultList},
 };
@@ -16,6 +16,13 @@ use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, Responder};
 use futures::{StreamExt, TryStreamExt};
 use sqlx::SqlitePool;
+
+use serde_derive::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchQuery {
+    pub p: String,
+}
 
 #[get("/api/search")]
 async fn get_search_products(

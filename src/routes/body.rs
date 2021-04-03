@@ -1,14 +1,13 @@
-use actix_web::{delete, get, post, put, web, Responder};
-use sqlx::SqlitePool;
-
 use crate::{
     api::{
         db::{body_overview, insert_body_log_db, update_body_log_db},
         ApiError,
     },
     body::BodyLog,
-    products::{ApiResult, ResultList},
+    products::ApiResult,
 };
+use actix_web::{get, post, put, web, Responder};
+use sqlx::SqlitePool;
 
 #[get("/api/body/overview")]
 async fn get_body_overview(pool: web::Data<SqlitePool>) -> impl Responder {

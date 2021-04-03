@@ -1,12 +1,9 @@
+use crate::nutrients::TotalAble;
+use crate::products::{Portion, Product};
 use crate::{
     body::{BodyLog, BodyOverview},
     nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
 };
-
-use crate::products::{Portion, Product};
-
-use crate::nutrients::TotalAble;
-use log::{info, warn};
 use sqlx::sqlite::SqliteRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
