@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use routes::api_routes;
+use routes::{api_routes, frontend, frontend_helper_routes};
 use std::env;
 
 mod api;
@@ -41,8 +41,9 @@ async fn main() -> Result<(), sqlx::Error> {
             .data(pool.clone())
             .wrap(middleware::Logger::default())
             .configure(api_routes)
-        // .service(Files::new("/static", "./frontend/build/static/"))
-        // .default_service(web::get().to(frontend))
+            .configure(frontend_helper_routes)
+            .service(Files::new("/static", "./frontend/build/static/"))
+            .default_service(web::get().to(frontend))
     })
     .bind("127.0.0.1:8080")?
     .run()

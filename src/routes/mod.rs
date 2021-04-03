@@ -1,7 +1,14 @@
 use actix_web::web;
 mod body;
+mod frontend;
 mod products;
 mod report;
+
+pub use self::frontend::frontend;
+
+pub fn frontend_helper_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(frontend::favicon);
+}
 
 pub fn api_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(products::get_search_products);
