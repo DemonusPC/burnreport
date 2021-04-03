@@ -6,15 +6,15 @@
     "axios": "^0.21.1",
     "cogo-toast": "^4.2.3",
     "file-saver": "^2.0.5",
-    "grommet": "^2.16.3",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "grommet": "^2.17.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
-    "styled-components": "^5.2.1",
-    "swr": "^0.5.4",
+    "styled-components": "^5.2.3",
+    "swr": "^0.5.5",
     "typescript": "^4.2.3",
-    "victory": "^35.4.12"
+    "victory": "^35.4.13"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -39,18 +39,18 @@
   },
   "proxy": "http://localhost:8080",
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^13.0.6",
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^11.2.6",
+    "@testing-library/user-event": "^13.1.1",
     "@types/file-saver": "^2.0.1",
-    "@types/jest": "^26.0.21",
-    "@types/node": "^14.14.35",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.37",
     "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.2",
+    "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
     "history": "^5.0.0",
     "jest-styled-components": "^7.0.3",
-    "msw": "^0.27.1"
+    "msw": "^0.28.1"
   }
 }

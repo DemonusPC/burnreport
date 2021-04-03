@@ -11,6 +11,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde = { version = "1.0.120", features = ["derive"] }
 serde_json = "1.0.61"
 serde_derive = "1.0.120"
+derive_more = "0.99.10"
 json = "*"
 
 futures = "0.3.12"
@@ -23,7 +24,8 @@ dotenv = "0.15.0"
 csv = "1.1"
 
 
-sqlx = { version = "0.5.1", features = [ "runtime-tokio-rustls", "macros", "sqlite", "chrono" ] }
-
-tokio = { version = "1", features = ["full"] }
-warp = "0.3"
+sqlx = { version = "0.5.1", features = [ "runtime-actix-rustls", "macros", "sqlite", "chrono" ] }
+actix-web = "4.0.0-beta.4"
+actix-files = "0.6.0-beta.3"
+actix-service = "2.0.0-beta.5"
+actix-multipart = "0.4.0-beta.4"

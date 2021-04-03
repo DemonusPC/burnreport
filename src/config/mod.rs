@@ -124,4 +124,3 @@ async fn create_body_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
     Ok(())
 }
-

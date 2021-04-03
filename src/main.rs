@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use routes::{api_routes, frontend, frontend_helper_routes};
 use std::env;
 
 mod api;
@@ -6,13 +7,15 @@ mod body;
 mod config;
 mod nutrients;
 mod products;
+mod routes;
 
 use crate::config::setup;
 use sqlx::SqlitePool;
 
-use warp::Filter;
+use actix_files::Files;
+use actix_web::{middleware, web, App, HttpServer};
 
-#[tokio::main]
+#[actix_web::main]
 async fn main() -> Result<(), sqlx::Error> {
     dotenv().ok();
 
@@ -32,23 +35,19 @@ async fn main() -> Result<(), sqlx::Error> {
     if !db_configured {
         panic!("Error while setting up database");
     }
-    // import_file(&pool).await?;
-    let aa = api::routes(pool);
 
-    // let cors = warp::cors();
-
-    let cors = warp::cors()
-        .allow_any_origin()
-        .allow_header("content-type")
-        .allow_methods(vec!["GET", "POST", "PUT", "DELETE"]);
-    // let cors = warp::cors()
-    // .allow_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-    // .allow_origin("*")
-    // .max_age(30);
-
-    let routes = aa.with(warp::log("nutrition")).with(cors);
-
-    warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+    HttpServer::new(move || {
+        App::new()
+            .data(pool.clone())
+            .wrap(middleware::Logger::default())
+            .configure(api_routes)
+            .configure(frontend_helper_routes)
+            .service(Files::new("/static", "./frontend/build/static/"))
+            .default_service(web::get().to(frontend))
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await;
 
     Ok(())
 }
