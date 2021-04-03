@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use crate::{
     api::{db::import_file, search_products},
     nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
@@ -12,7 +10,7 @@ use crate::{
         },
         ApiError, SearchQuery,
     },
-    products::{ApiResult, Portion, Product, ProductSubmission, ResultList},
+    products::{ApiResult, Portion, Product, ResultList},
 };
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, Responder};
@@ -141,13 +139,6 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
             }
         }
     }
-
-    // let new_id = match insert_product(&pool, product.0).await {
-    //     Ok(res) => res,
-    //     Err(err) => {
-    //         return Err(ApiError::InternalServer);
-    //     }
-    // };
 
     Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
 }

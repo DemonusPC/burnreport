@@ -22,4 +22,5 @@ pub fn api_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(body::get_body_overview);
     cfg.service(body::post_body_log);
     cfg.service(body::put_body_log);
+    cfg.service(report::post_report);
 }
