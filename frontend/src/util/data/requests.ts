@@ -9,21 +9,25 @@ export interface RestResult<T> {
   data?: T;
 }
 
+export interface ResultList<T> {
+  result: Array<T>
+}
+
 export const getProductSearch = async (suggestion: string): Promise<Array<Product>> => {
     const request =  await fetch(encodeURI(`/api/search?p=${suggestion}`));
 
-    const result : Array<Product> = await request.json();
+    const result : ResultList<Product> = await request.json();
 
-    return result;
+    return result.result;
 }
 
 
 export const getSingleProductById = async (id: number) => {
     const request =  await fetch(encodeURI(`/api/products/${id}`));
 
-    const result : Array<Product> = await request.json();
+    const result : ResultList<Product> = await request.json();
 
-    return result;
+    return result.result;
 }
     
 export const postReport = async (report: Report): Promise<ReportResult> => {
@@ -89,9 +93,9 @@ export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
 
 export const getProductSizesById = async (id: number) => {
   const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
-  const result : Array<ProductSize> = await request.json();
+  const result : ResultList<ProductSize> = await request.json();
 
-  return result;
+  return result.result;
 }
 
 export const postPortions = async (portions: Array<Portion>): Promise<RestResult<ProductAPIStatus>> => {
@@ -105,7 +109,7 @@ export const postPortions = async (portions: Array<Portion>): Promise<RestResult
     body: JSON.stringify(portions)
   });
 
-  if(response.status !== 200) {
+  if(!response.ok) {
     const result : RestResult<ProductAPIStatus> = {
       status: false
     }
