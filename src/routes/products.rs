@@ -16,7 +16,6 @@ use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, Responder};
 use futures::{StreamExt, TryStreamExt};
 use sqlx::SqlitePool;
-
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -47,18 +46,24 @@ async fn get_search_products(
 
 #[get("/api/products/{id}")]
 async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -> impl Responder {
-    let search_result = match single_product(&pool, path.to_owned()).await {
+    let product = match single_product(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => {
-            return Err(ApiError::InternalServer);
+            match err {
+                sqlx::Error::RowNotFound => {
+                    return Err(ApiError::NotFound);
+                }
+                _ => {
+                    return Err(ApiError::InternalServer);
+                }
+            }
+  
         }
     };
 
-    let result = ResultList {
-        result: search_result,
-    };
 
-    Ok(result)
+
+    Ok(product)
 }
 
 #[post("/api/products")]

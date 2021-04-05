@@ -9,6 +9,8 @@ pub enum ApiError {
     InternalServer,
     #[display(fmt = "BadReqest")]
     BadRequest,
+    #[display(fmt = "BadReqest")]
+    NotFound,
 }
 
 impl error::ResponseError for ApiError {
@@ -23,6 +25,7 @@ impl error::ResponseError for ApiError {
         match *self {
             ApiError::InternalServer => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::BadRequest => StatusCode::BAD_REQUEST,
+            ApiError::NotFound => StatusCode::NOT_FOUND,
         }
     }
 }

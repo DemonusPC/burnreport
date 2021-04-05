@@ -65,7 +65,7 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
     Ok(result)
 }
 
-pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Vec<Product>, sqlx::Error> {
+pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
     let result = sqlx::query("SELECT * FROM Food WHERE id = ?")
         .bind(id)
@@ -88,7 +88,7 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Vec<Product>, 
                 salt,
             )
         })
-        .fetch_all(pool)
+        .fetch_one(pool)
         .await?;
     Ok(result)
 }
