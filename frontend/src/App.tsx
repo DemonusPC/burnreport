@@ -1,5 +1,4 @@
 import React from "react";
-import Products from "./pages/Products";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { Grommet } from "grommet";
@@ -7,9 +6,12 @@ import { grommet } from "grommet/themes";
 import Index from "./pages/Index";
 import Navigation from "./containers/Navigation";
 import AddProduct from "./pages/AddProduct";
-import Portions from './pages/Portions';
+import Portions from "./pages/Portions";
 import Body from "./pages/Body";
 import AddBodyLog from "./pages/AddBodyLog";
+import ProductsSearch from "./pages/ProductsSearch";
+import ProductsList from "./pages/ProductsList";
+import ProductPage from "./pages/ProductPage";
 
 const App = () => (
   <>
@@ -17,7 +19,7 @@ const App = () => (
       <Grommet full theme={grommet}>
         <Navigation />
         <Switch>
-        <Route path="/body/update/:date">
+          <Route path="/body/update/:date">
             <AddBodyLog />
           </Route>
           <Route path="/body/add">
@@ -32,8 +34,14 @@ const App = () => (
           <Route path="/products/:id/portions">
             <Portions />
           </Route>
+          <Route path="/products/list">
+            <ProductsList />
+          </Route>
+          <Route path="/products/:id">
+            <ProductPage />
+          </Route>
           <Route path="/products">
-            <Products />
+            <ProductsSearch />
           </Route>
           <Route path="/">
             <Index />

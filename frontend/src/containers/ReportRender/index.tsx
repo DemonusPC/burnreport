@@ -11,9 +11,9 @@ import { saveAs } from 'file-saver';
 import styled from "styled-components";
 import NutrientTable from "../NutrientTable";
 import NutrientBar from "../NutrientBar";
-import { totalMacroInGrams } from "../../pages/Products";
 import { displayRound } from "../../util/data/calculations";
 import ConsumedItem from "../ConsumedItem";
+import { totalMacroInGrams } from "../../pages/ProductPage";
 
 export interface ReportResult {
   timeDone: number;
