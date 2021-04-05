@@ -33,6 +33,45 @@ impl Responder for ResultList<Portion> {
     }
 }
 
+impl Responder for ResultList<SearchSuggestion> {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchSuggestion {
+    id: i32,
+    text: String,
+    sub_text: Option<String>,
+    entity: Option<String>,
+}
+
+impl SearchSuggestion {
+    pub fn new(id: i32, text: String, sub_text: Option<String>, entity: Option<String>) -> Self {
+        SearchSuggestion {
+            id,
+            text,
+            sub_text,
+            entity,
+        }
+    }
+}
+
+impl Responder for SearchSuggestion {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = serde_json::to_string(&self).unwrap();
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApiResult {
     code: u16,
