@@ -1,5 +1,5 @@
 use crate::nutrients::TotalAble;
-use crate::products::{Portion, Product};
+use crate::products::{Portion, Product, SearchSuggestion};
 use crate::{
     body::{BodyLog, BodyOverview},
     nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
@@ -37,6 +37,24 @@ pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), 
     Ok(())
 }
 
+pub async fn search_product_suggestions(
+    pool: &SqlitePool,
+    term: &str,
+) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
+    // SELECT *  FROM Food WHERE name LIKE "%Spag%";
+    let result = sqlx::query("SELECT id, name, manufacturer FROM Food WHERE name LIKE $1 LIMIT 15")
+        .bind(format!("%{}%", term))
+        .map(|row: SqliteRow| {
+            let id: i32 = row.get(0);
+            let text: String = row.get(1);
+            let sub_text: String = row.get(2);
+            SearchSuggestion::new(id, text, Some(sub_text), Some("Product".to_owned()))
+        })
+        .fetch_all(pool)
+        .await?;
+    Ok(result)
+}
+
 pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Product>, sqlx::Error> {
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
     let result = sqlx::query("SELECT * FROM Food WHERE name LIKE $1 LIMIT 15")
@@ -65,7 +83,7 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
     Ok(result)
 }
 
-pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Vec<Product>, sqlx::Error> {
+pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
     let result = sqlx::query("SELECT * FROM Food WHERE id = ?")
         .bind(id)
@@ -88,7 +106,7 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Vec<Product>, 
                 salt,
             )
         })
-        .fetch_all(pool)
+        .fetch_one(pool)
         .await?;
     Ok(result)
 }

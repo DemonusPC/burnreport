@@ -2,6 +2,7 @@ import { Product, ProductAPIStatus, ProductSize, Portion } from "../schema/produ
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
 import { BodyLog } from "../schema/body";
+import { SearchSuggestion } from "../../containers/ProductSearchForm";
 
 
 export interface RestResult<T> {
@@ -12,6 +13,15 @@ export interface RestResult<T> {
 export interface ResultList<T> {
   result: Array<T>
 }
+
+export const getProductSearchSuggestions = async (suggestion: string): Promise<Array<SearchSuggestion>> => {
+  const request =  await fetch(encodeURI(`/api/search/suggestions?p=${suggestion}`));
+
+  const result : ResultList<SearchSuggestion> = await request.json();
+
+  return result.result;
+}
+
 
 export const getProductSearch = async (suggestion: string): Promise<Array<Product>> => {
     const request =  await fetch(encodeURI(`/api/search?p=${suggestion}`));
