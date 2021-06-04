@@ -66,7 +66,7 @@ const ProductPage = () => {
 
   return (
     <Box pad="large" align="center">
-    <Box direction="row" align="center" alignContent="between" justify="between">
+    <Box direction="row" align="center" alignContent="between" justify="around" gap="large">
         <Button type="button" label="Back" icon={<Return />} onClick={() => {
             window.history.back();
         }} />
@@ -129,9 +129,10 @@ const ProductPage = () => {
 
       <Box
         justify="between"
-        alignContent="between"
+        alignContent="center"
         direction="row"
         margin={{ top: "xlarge" }}
+        gap="large"
       >
           <Anchor
             href={urlToPortion(data.id)}

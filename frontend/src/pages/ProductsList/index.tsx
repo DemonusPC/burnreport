@@ -20,9 +20,6 @@ export const totalMacroInGrams = (product: Product) => {
 };
 
 
-
-
-
 const ProductsList = () => {
   const toSearch = useQuery().get("p") || "";
   const { data, error } = useSWR<ResultList<Product>>(encodeURI(`/api/search?p=${toSearch}`));

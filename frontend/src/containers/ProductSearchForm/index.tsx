@@ -51,7 +51,7 @@ const ProductSearchForm = ({initialText} : SearchFormProps) : JSX.Element => {
       }}
     >
       <TextInput name="text" icon={<Search />} suggestions={suggestions} />
-      <Box direction="row" gap="medium">
+      <Box direction="row" gap="medium" margin={{top: '1em'}}>
         <Button type="submit" primary label="Search" />
       </Box>
     </Form>
