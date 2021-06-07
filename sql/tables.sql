@@ -27,7 +27,26 @@ CREATE TABLE "Portions" (
 
 CREATE TABLE "Body" (
 	"date"	TEXT NOT NULL UNIQUE,
-	"mass"	INTEGER,
-	"fat"	INTEGER,
+	"mass"	REAL,
+	"fat"	REAL,
 	PRIMARY KEY("date")
+)
+
+CREATE TABLE "Vitamins" (
+	"id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"product"	INTEGER NOT NULL,
+	"a"	REAL,
+	"d"	REAL,
+	"e"	REAL,
+	"k"	REAL,
+	"b1"	REAL,
+	"b2"	REAL,
+	"b3"	REAL,
+	"b5"	REAL,
+	"b6"	REAL,
+	"b7"	REAL,
+	"b9"	REAL,
+	"b12"	REAL,
+	"c"	REAL,
+	FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
 )

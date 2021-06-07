@@ -1,3 +1,5 @@
+import Vitamins from "./vitamins";
+
 export interface Energy {
     kcal: number,
     kj: number
@@ -34,7 +36,8 @@ export interface Product {
     carbohydrates: Carbohydrates,
     fat: Fat,
     protein: Protein,
-    salt: Salt
+    salt: Salt,
+    vitamins?: Vitamins
 }
 
 export const emptyProduct = () : Product => {

@@ -4,6 +4,7 @@ use crate::{
     body::{BodyLog, BodyOverview},
     nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
 };
+use crate::nutrients::{Vitamins, WaterSolubleApi, FatSolubleApi};
 use sqlx::sqlite::SqliteRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
@@ -76,6 +77,7 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
                 fat,
                 protein,
                 salt,
+                Option::None
             )
         })
         .fetch_all(pool)
@@ -104,6 +106,7 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
                 fat,
                 protein,
                 salt,
+                Option::None
             )
         })
         .fetch_one(pool)
@@ -138,6 +141,7 @@ pub async fn one_single_product(
                 fat,
                 protein,
                 salt,
+                Option::None
             )
         })
         .fetch_one(pool)
@@ -169,13 +173,40 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
     .execute(&mut tx)
     .await?;
 
-    let rec: (i32,) = sqlx::query_as("SELECT last_insert_rowid()")
-        .fetch_one(&mut tx)
-        .await?;
+    let product_id = result.last_insert_rowid();
+
+    match product.vitamins() {
+        Some(v) => {
+            sqlx::query(r#"
+            INSERT INTO "Vitamins"
+            ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
+            "#)
+            .bind(product_id)
+            .bind(v.a())
+            .bind(v.d())
+            .bind(v.e())
+            .bind(v.k())
+            .bind(v.b1())
+            .bind(v.b2())
+            .bind(v.b3())
+            .bind(v.b5())
+            .bind(v.b6())
+            .bind(v.b7())
+            .bind(v.b9())
+            .bind(v.b12())
+            .bind(v.c())
+            .execute(&mut tx)
+            .await?;
+
+        }
+        None => {}
+    }
+
 
     tx.commit().await?;
 
-    Ok(result.last_insert_rowid())
+    Ok(product_id)
 }
 
 pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Error> {

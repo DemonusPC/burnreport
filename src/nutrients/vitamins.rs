@@ -19,7 +19,7 @@ pub trait WaterSolubleApi {
     fn c(&self) -> f64;
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct FatSoluble {
     a: f64,
     d: f64,
@@ -42,7 +42,7 @@ impl FatSolubleApi for FatSoluble {
     }
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct WaterSoluble {
     b1: f64,
     b2: f64,
@@ -86,7 +86,7 @@ impl WaterSolubleApi for WaterSoluble {
 }
 
 // Its important to remember that unlike food the values in the Vitamins table is in mg
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Vitamins {
     fat: FatSoluble,
     water: WaterSoluble,
