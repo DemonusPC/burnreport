@@ -1,10 +1,12 @@
+use crate::nutrients::FatSoluble;
 use crate::nutrients::TotalAble;
+use crate::nutrients::WaterSoluble;
+use crate::nutrients::{FatSolubleApi, Vitamins, WaterSolubleApi};
 use crate::products::{Portion, Product, SearchSuggestion};
 use crate::{
     body::{BodyLog, BodyOverview},
     nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
 };
-use crate::nutrients::{Vitamins, WaterSolubleApi, FatSolubleApi};
 use sqlx::sqlite::SqliteRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
@@ -77,7 +79,7 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
                 fat,
                 protein,
                 salt,
-                Option::None
+                Option::None,
             )
         })
         .fetch_all(pool)
@@ -86,6 +88,38 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
 }
 
 pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
+    // For now we will do a vitamins call before the product call jus to make it cleaner
+    // (This isnt the fastest way)
+    let vitamins = match sqlx::query("SELECT * FROM Vitamins WHERE product = ?")
+        .bind(id)
+        .map(|row: SqliteRow| {
+            let fat = FatSoluble::new(
+                row.try_get(2).unwrap_or(0.0),
+                row.try_get(3).unwrap_or(0.0),
+                row.try_get(4).unwrap_or(0.0),
+                row.try_get(5).unwrap_or(0.0),
+            );
+            let water = WaterSoluble::new(
+                row.try_get(6).unwrap_or(0.0),
+                row.try_get(7).unwrap_or(0.0),
+                row.try_get(8).unwrap_or(0.0),
+                row.try_get(9).unwrap_or(0.0),
+                row.try_get(10).unwrap_or(0.0),
+                row.try_get(11).unwrap_or(0.0),
+                row.try_get(12).unwrap_or(0.0),
+                row.try_get(13).unwrap_or(0.0),
+                row.try_get(14).unwrap_or(0.0),
+            );
+
+            Vitamins::new(fat, water)
+        })
+        .fetch_one(pool)
+        .await
+    {
+        Ok(v) => Some(v),
+        Err(_err) => Option::None,
+    };
+
     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
     let result = sqlx::query("SELECT * FROM Food WHERE id = ?")
         .bind(id)
@@ -106,7 +140,8 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
                 fat,
                 protein,
                 salt,
-                Option::None
+                // We only fetch one so we will only clone once
+                vitamins.clone(),
             )
         })
         .fetch_one(pool)
@@ -177,11 +212,13 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
 
     match product.vitamins() {
         Some(v) => {
-            sqlx::query(r#"
+            sqlx::query(
+                r#"
             INSERT INTO "Vitamins"
             ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
-            "#)
+            "#,
+            )
             .bind(product_id)
             .bind(v.a())
             .bind(v.d())
@@ -198,11 +235,9 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
             .bind(v.c())
             .execute(&mut tx)
             .await?;
-
         }
         None => {}
     }
-
 
     tx.commit().await?;
 

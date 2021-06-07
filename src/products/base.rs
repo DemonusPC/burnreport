@@ -14,7 +14,7 @@ pub struct Product {
     fat: Fat,
     protein: Protein,
     salt: Salt,
-    vitamins: Option<Vitamins>
+    vitamins: Option<Vitamins>,
 }
 
 impl Product {
@@ -27,7 +27,7 @@ impl Product {
         fat: Fat,
         protein: Protein,
         salt: Salt,
-        vitamins: Option<Vitamins>
+        vitamins: Option<Vitamins>,
     ) -> Product {
         return Product {
             id: id,
@@ -38,7 +38,7 @@ impl Product {
             fat: fat,
             protein: protein,
             salt: salt,
-            vitamins
+            vitamins,
         };
     }
 
@@ -69,7 +69,7 @@ impl Product {
             fat: Fat::new(total_fat, saturated, mono, trans),
             protein: Protein::new(protein),
             salt: Salt::new(salt),
-            vitamins: Some(Vitamins::default())
+            vitamins: Some(Vitamins::default()),
         };
     }
 

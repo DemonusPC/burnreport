@@ -15,9 +15,9 @@ use crate::{
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, Responder};
 use futures::{StreamExt, TryStreamExt};
+use log::error;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use log::error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchQuery {
@@ -155,7 +155,7 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
                         Fat::new(fat, saturated, monounsat, trans),
                         Protein::new(protein),
                         Salt::new(salt),
-                        Option::None
+                        Option::None,
                     );
                 })
                 .collect();

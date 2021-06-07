@@ -27,6 +27,12 @@ pub struct FatSoluble {
     k: f64,
 }
 
+impl FatSoluble {
+    pub fn new(a: f64, d: f64, e: f64, k: f64) -> Self {
+        Self { a, d, e, k }
+    }
+}
+
 impl FatSolubleApi for FatSoluble {
     fn a(&self) -> f64 {
         self.a
@@ -53,6 +59,32 @@ pub struct WaterSoluble {
     b9: f64,
     b12: f64,
     c: f64,
+}
+
+impl WaterSoluble {
+    pub fn new(
+        b1: f64,
+        b2: f64,
+        b3: f64,
+        b5: f64,
+        b6: f64,
+        b7: f64,
+        b9: f64,
+        b12: f64,
+        c: f64,
+    ) -> Self {
+        Self {
+            b1,
+            b2,
+            b3,
+            b5,
+            b6,
+            b7,
+            b9,
+            b12,
+            c,
+        }
+    }
 }
 
 impl WaterSolubleApi for WaterSoluble {
@@ -90,6 +122,12 @@ impl WaterSolubleApi for WaterSoluble {
 pub struct Vitamins {
     fat: FatSoluble,
     water: WaterSoluble,
+}
+
+impl Vitamins {
+    pub fn new(fat: FatSoluble, water: WaterSoluble) -> Self {
+        Self { fat, water }
+    }
 }
 
 impl FatSolubleApi for Vitamins {
