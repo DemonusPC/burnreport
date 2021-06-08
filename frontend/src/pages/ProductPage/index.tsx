@@ -9,6 +9,8 @@ import { calculatePer, displayRound } from "../../util/data/calculations";
 import { deleteProduct, ResultList } from "../../util/data/requests";
 import { Product, ProductSize } from "../../util/schema/product";
 import {Return} from 'grommet-icons'; 
+import AdditionalTable from "../../containers/AdditionalTable";
+import { vitaminsToRow } from "../../util/schema/vitamins";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -125,6 +127,7 @@ const ProductPage = () => {
           amount={state.per}
           baseUnit={state.unit.grams}
         />
+        <AdditionalTable entity={data.vitamins} mapper={vitaminsToRow} unit={'mg'} />
       </Box>
 
       <Box

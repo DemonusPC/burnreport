@@ -1,3 +1,5 @@
+import { RowProps } from "../../components/Row";
+
 export default interface Vitamins {
     fat: {
         a: number,
@@ -36,4 +38,27 @@ export const emptyVitamins = () : Vitamins => ({
         b12: 0,
         c:  0
     }
-})
+});
+
+
+export const vitaminsToRow = (entity: Vitamins): Array<RowProps> => {
+    const result = [];
+
+    const {fat, water} = entity;
+
+    let k: keyof typeof fat;
+    
+    for (k in fat) {
+        const v: number = fat[k];
+        result.push({entity: k, amount: v, unit: "mg"})
+    }
+
+    let c: keyof typeof water;
+
+    for (c in water) {
+        const v: number = water[c];
+        result.push({entity: c, amount: v, unit: "mg"})
+    }
+
+    return result;
+} 
