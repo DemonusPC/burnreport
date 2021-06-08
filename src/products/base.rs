@@ -59,6 +59,7 @@ impl Product {
         trans: f64,
         protein: f64,
         salt: f64,
+        total_vitamins: Option<Vitamins>
     ) -> Product {
         return Product {
             id: id,
@@ -69,7 +70,7 @@ impl Product {
             fat: Fat::new(total_fat, saturated, mono, trans),
             protein: Protein::new(protein),
             salt: Salt::new(salt),
-            vitamins: Some(Vitamins::default()),
+            vitamins: total_vitamins
         };
     }
 

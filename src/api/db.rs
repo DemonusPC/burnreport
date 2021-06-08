@@ -131,6 +131,7 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
             let protein: Protein = Protein::new(row.get(14));
             let salt: Salt = Salt::new(row.get(15));
+
             Product::new(
                 row.get(0),
                 row.get(1),
@@ -155,8 +156,37 @@ pub async fn one_single_product(
     id: i32,
     amount: f64,
 ) -> Result<Product, sqlx::Error> {
-    // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-    let result = sqlx::query("SELECT id, name, manufacturer, (kcal/100) * $1 as kcal, (kj/100) * $1 as kj,  (carbohydrates/100) * $1 as carbohydrates,  (fiber/100) * $1 as fiber, (sugar/100) * $1 as sugar, (added_sugar/100) * $1 as added_sugar,  (starch/100) * $1 as starch, (fat/100) * $1 as fat, (saturated/100) * $1 as saturated, (monounsaturated/100) * $1 as monounsaturated, (trans/100) * $1 as trans, (protein/100) * $1 as protein, (salt/100) * $1 as salt FROM Food WHERE id = $2")
+    let result = sqlx::query(r#"SELECT 
+                                id, 
+                                name, 
+                                manufacturer, 
+                                (kcal/100) * $1 as kcal,
+                                (kj/100) * $1 as kj,
+                                (carbohydrates/100) * $1 as carbohydrates,  
+                                (fiber/100) * $1 as fiber, 
+                                (sugar/100) * $1 as sugar, 
+                                (added_sugar/100) * $1 as added_sugar,  
+                                (starch/100) * $1 as starch, 
+                                (fat/100) * $1 as fat, 
+                                (saturated/100) * $1 as saturated, 
+                                (monounsaturated/100) * $1 as monounsaturated, 
+                                (trans/100) * $1 as trans, 
+                                (protein/100) * $1 as protein, 
+                                (salt/100) * $1 as salt, 
+                                (a/100) * $1 as a, 
+                                (d/100) * $1 as d, 
+                                (e/100) * $1 as e, 
+                                (k/100) * $1 as k,
+                                (b1/100) * $1 as b1,
+                                (b2/100) * $1 as b2,
+                                (b3/100) * $1 as b3,
+                                (b5/100) * $1 as b5,
+                                (b6/100) * $1 as b6,
+                                (b7/100) * $1 as b7,
+                                (b9/100) * $1 as b9,
+                                (b12/100) * $1 as b12,
+                                (c/100) * $1 as c
+                                FROM full_product WHERE id = $2"#)
         .bind(amount)
         .bind(id)
         .map(|row: SqliteRow| {
@@ -167,6 +197,32 @@ pub async fn one_single_product(
             let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
             let protein: Protein = Protein::new(row.get(14));
             let salt: Salt = Salt::new(row.get(15));
+
+            let fat_sol = FatSoluble::new(
+                row.try_get(16).unwrap_or(0.0),
+                row.try_get(17).unwrap_or(0.0),
+                row.try_get(18).unwrap_or(0.0),
+                row.try_get(19).unwrap_or(0.0),
+            );
+            let water_sol = WaterSoluble::new(
+                row.try_get(20).unwrap_or(0.0),
+                row.try_get(21).unwrap_or(0.0),
+                row.try_get(22).unwrap_or(0.0),
+                row.try_get(23).unwrap_or(0.0),
+                row.try_get(24).unwrap_or(0.0),
+                row.try_get(25).unwrap_or(0.0),
+                row.try_get(26).unwrap_or(0.0),
+                row.try_get(27).unwrap_or(0.0),
+                row.try_get(28).unwrap_or(0.0),
+            );
+
+            let vitamin_content = Vitamins::new(fat_sol, water_sol);
+
+            let vitamin_option = match vitamin_content.is_zero() {
+                true => Option::None,
+                false => Some(vitamin_content)
+            };
+
             Product::new(
                 row.get(0),
                 row.get(1),
@@ -176,7 +232,7 @@ pub async fn one_single_product(
                 fat,
                 protein,
                 salt,
-                Option::None
+                vitamin_option
             )
         })
         .fetch_one(pool)
