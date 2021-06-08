@@ -1,4 +1,13 @@
-import { Anchor, Box, Button, Heading, Select, TextInput } from "grommet";
+import {
+  Anchor,
+  Box,
+  Button,
+  Heading,
+  Select,
+  TextInput,
+  Accordion,
+  AccordionPanel,
+} from "grommet";
 import React from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
@@ -8,7 +17,7 @@ import NutrientTable from "../../containers/NutrientTable";
 import { calculatePer, displayRound } from "../../util/data/calculations";
 import { deleteProduct, ResultList } from "../../util/data/requests";
 import { Product, ProductSize } from "../../util/schema/product";
-import {Return} from 'grommet-icons'; 
+import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
 
@@ -68,13 +77,23 @@ const ProductPage = () => {
 
   return (
     <Box pad="large" align="center">
-    <Box direction="row" align="center" alignContent="between" justify="around" gap="large">
-        <Button type="button" label="Back" icon={<Return />} onClick={() => {
+      <Box
+        direction="row"
+        align="center"
+        alignContent="between"
+        justify="around"
+        gap="large"
+      >
+        <Button
+          type="button"
+          label="Back"
+          icon={<Return />}
+          onClick={() => {
             window.history.back();
-        }} />
+          }}
+        />
         <Anchor href="/products/add" label="Add Product" key="addproduct" />
-        
-    </Box>
+      </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
         <NutrientBar
@@ -127,7 +146,15 @@ const ProductPage = () => {
           amount={state.per}
           baseUnit={state.unit.grams}
         />
-        <AdditionalTable entity={data.vitamins} mapper={vitaminsToRow} unit={'mg'} />
+        <Accordion animate={true} multiple={false}>
+          <AccordionPanel label="Vitamins">
+            <AdditionalTable
+              entity={data.vitamins}
+              mapper={vitaminsToRow}
+              unit={"mg"}
+            />
+          </AccordionPanel>
+        </Accordion>
       </Box>
 
       <Box
@@ -137,20 +164,20 @@ const ProductPage = () => {
         margin={{ top: "xlarge" }}
         gap="large"
       >
-          <Anchor
-            href={urlToPortion(data.id)}
-            label="Portions"
-            key="addproduct"
-          />
-          <Button
-            fill={false}
-            color="status-critical"
-            type="button"
-            label="Delete Product"
-            onClick={() => {
-              deleteProduct(data.id).then((status) => {});
-            }}
-          />
+        <Anchor
+          href={urlToPortion(data.id)}
+          label="Portions"
+          key="addproduct"
+        />
+        <Button
+          fill={false}
+          color="status-critical"
+          type="button"
+          label="Delete Product"
+          onClick={() => {
+            deleteProduct(data.id).then((status) => {});
+          }}
+        />
       </Box>
     </Box>
   );
