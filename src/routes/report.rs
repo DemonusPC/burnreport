@@ -1,4 +1,5 @@
 use crate::nutrients::TotalAble;
+use crate::nutrients::Vitamins;
 use actix_web::{post, web, Responder};
 use chrono::{DateTime, Utc};
 use serde_json::json;
@@ -36,6 +37,8 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
     // Salt
     let mut total_salt: f64 = 0.0;
 
+    let mut total_vitamins: Vitamins = Vitamins::default();
+
     for v in &report.consumed {
         match one_single_product(&pool, v.id(), v.amount()).await {
             Ok(product) => {
@@ -57,6 +60,13 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
 
                 total_salt += &product.salt().total();
 
+                match product.vitamins() {
+                    Some(v) => {
+                        total_vitamins = total_vitamins + v;
+                    }
+                    None => {}
+                };
+
                 result.push(product);
             }
             Err(err) => println!("{:?}", err),
@@ -68,7 +78,7 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
     let reply = json!({
         "timeDone": utc,
         "result": {
-        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt),
+        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt, Some(total_vitamins)),
         "consumed": result,
         }
     });

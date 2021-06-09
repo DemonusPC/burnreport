@@ -1,3 +1,4 @@
+use crate::nutrients::Vitamins;
 use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
 use actix_web::{Error, HttpRequest, HttpResponse, Responder};
 use futures::future::{ready, Ready};
@@ -13,6 +14,7 @@ pub struct Product {
     fat: Fat,
     protein: Protein,
     salt: Salt,
+    vitamins: Option<Vitamins>,
 }
 
 impl Product {
@@ -25,6 +27,7 @@ impl Product {
         fat: Fat,
         protein: Protein,
         salt: Salt,
+        vitamins: Option<Vitamins>,
     ) -> Product {
         return Product {
             id: id,
@@ -35,6 +38,7 @@ impl Product {
             fat: fat,
             protein: protein,
             salt: salt,
+            vitamins,
         };
     }
 
@@ -55,6 +59,7 @@ impl Product {
         trans: f64,
         protein: f64,
         salt: f64,
+        total_vitamins: Option<Vitamins>
     ) -> Product {
         return Product {
             id: id,
@@ -65,6 +70,7 @@ impl Product {
             fat: Fat::new(total_fat, saturated, mono, trans),
             protein: Protein::new(protein),
             salt: Salt::new(salt),
+            vitamins: total_vitamins
         };
     }
 
@@ -98,6 +104,10 @@ impl Product {
 
     pub fn salt(&self) -> &Salt {
         return &self.salt;
+    }
+
+    pub fn vitamins(&self) -> Option<Vitamins> {
+        self.vitamins.clone()
     }
 }
 
