@@ -4,6 +4,7 @@ import {
   Box,
   Form,
   FormField,
+  Text,
   TextInput,
   Button,
   MaskedInput,
@@ -27,6 +28,7 @@ interface NutritionField {
   fieldType: "text" | "masked" | "maskHighPrecision";
   defaultValue?: number;
   required?: boolean;
+  unit?: "g" | "mg";
 }
 
 const formStructure: Array<Category> = [
@@ -67,26 +69,31 @@ const formStructure: Array<Category> = [
         name: "carbohydrates",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "sugar",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "addedSugar",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "fiber",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "starch",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
     ],
   },
@@ -98,21 +105,25 @@ const formStructure: Array<Category> = [
         name: "fat",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "saturated",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "monosaturated",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
       {
         name: "trans",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
     ],
   },
@@ -123,6 +134,7 @@ const formStructure: Array<Category> = [
         name: "protein",
         fieldType: "masked",
         required: true,
+        unit: "g"
       },
     ],
   },
@@ -133,6 +145,7 @@ const formStructure: Array<Category> = [
         name: "salt",
         fieldType: "maskHighPrecision",
         required: true,
+        unit: "g"
       },
     ],
   },
@@ -142,54 +155,67 @@ const formStructure: Array<Category> = [
       {
         name: "a",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "d",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "e",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "k",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b1",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b2",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b3",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b5",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b6",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b7",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b9",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "b12",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
       {
         name: "c",
         fieldType: "maskHighPrecision",
+        unit: "mg"
       },
     ],
   },
@@ -277,11 +303,13 @@ const fileChosen = (file: any | undefined, setReport: any) => {
 
 const mapFields = (fields: Array<NutritionField>) => {
   return fields.map((field: NutritionField) => {
+    const label = `${capitalise(field.name)} ${field.unit ? `(${field.unit})` : ""} ${field.required ? " *" : ""}`
+
     if (field.fieldType === "maskHighPrecision") {
       return (
         <FormField
           name={field.name}
-          label={capitalise(field.name)}
+          label={label}
           required={field.required || false}
         >
           <MaskedInput
@@ -305,7 +333,7 @@ const mapFields = (fields: Array<NutritionField>) => {
       return (
         <FormField
           name={field.name}
-          label={capitalise(field.name)}
+          label={label}
           required={field.required || false}
         >
           <MaskedInput
@@ -330,7 +358,7 @@ const mapFields = (fields: Array<NutritionField>) => {
     return (
       <FormField
         name={field.name}
-        label={capitalise(field.name)}
+        label={label}
         required={field.required || false}
       >
         <TextInput name={field.name} />
@@ -355,6 +383,7 @@ const AddProduct = () => {
     <Box pad="large" align="center">
       <Box>
         <Heading>Add Product</Heading>
+        <Text>All values should be provided per 100 g / ml</Text>
         <Box width="large">
           <Form
             onSubmit={(event: any) => {
