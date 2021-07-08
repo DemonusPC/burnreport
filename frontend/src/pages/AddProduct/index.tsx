@@ -2,33 +2,12 @@ import React from "react";
 import {
   Heading,
   Box,
-  FormField,
   Text,
-  TextInput,
-  MaskedInput,
 } from "grommet";
 import { Product } from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
 import ProductForm from '../../containers/ProductForm';
-
-interface Category {
-  name: string;
-  fields: Array<NutritionField>;
-}
-
-// Note on the highprecision
-// The lowest daily reference intake is 5 micrograms according to the eu
-// legislation on the daily reference. To have some form of floor I decided
-// to make 0.001 miligram to be the smallest value.
-// Vitamins are stored as miligrams unlike basic macronutrients
-interface NutritionField {
-  name: string;
-  fieldType: "text" | "masked" | "maskHighPrecision";
-  defaultValue?: number;
-  required?: boolean;
-  unit?: "g" | "mg";
-}
 
 
 const propertyToNumber = (property: number): number => {
