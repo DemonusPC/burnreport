@@ -1,13 +1,10 @@
-import React, { useState } from "react";
 import { Heading, Box } from "grommet";
-import styled from "styled-components";
 import ProductSearchForm from "../../containers/ProductSearchForm";
 import { Product } from "../../util/schema/product";
 import useQuery from "../../util/useQuery";
 import { ResultList } from "../../util/data/requests";
 import useSWR from "swr";
 import ProductCell from "../../components/ProductCell";
-
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -19,18 +16,18 @@ export const totalMacroInGrams = (product: Product) => {
   return total;
 };
 
-
 const ProductsList = () => {
   const toSearch = useQuery().get("p") || "";
-  const { data, error } = useSWR<ResultList<Product>>(encodeURI(`/api/search?p=${toSearch}`));
+  const { data, error } = useSWR<ResultList<Product>>(
+    encodeURI(`/api/search?p=${toSearch}`)
+  );
 
   if (error) return <div>An error occured</div>;
   if (!data) return <div>loading...</div>;
 
   const productResult = data.result.map((p: Product) => {
-    return <ProductCell {...p} />
-  })
-
+    return <ProductCell {...p} />;
+  });
 
   return (
     <Box pad="large" align="start">

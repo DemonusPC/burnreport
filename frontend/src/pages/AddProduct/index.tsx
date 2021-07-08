@@ -1,43 +1,14 @@
 import React from "react";
-import { Heading, Box, Form, FormField, TextInput, Button } from "grommet";
+import {
+  Heading,
+  Box,
+  Text,
+} from "grommet";
 import { Product } from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
+import ProductForm from '../../containers/ProductForm';
 
-const cols = [
-  "name",
-  "manufacturer",
-  "kcal",
-  "kj",
-  "carbohydrates",
-  "sugar",
-  "addedSugar",
-  "fiber",
-  "starch",
-  "fat",
-  "saturated",
-  "monounsaturated",
-  "trans",
-  "protein",
-  "salt",
-  "a",
-  "d",
-  "e",
-  "k",
-  "b1",
-  "b2",
-  "b3",
-  "b5",
-  "b6",
-  "b7",
-  "b9",
-  "b12",
-  "c"
-];
-
-const capitalise = (value: string) => {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-};
 
 const propertyToNumber = (property: number): number => {
   if (property) {
@@ -91,10 +62,10 @@ const toProduct = (flat: any): Product => {
         b6: propertyToNumber(flat.b6),
         b7: propertyToNumber(flat.b7),
         b9: propertyToNumber(flat.b9),
-        b12:propertyToNumber(flat.b12),
+        b12: propertyToNumber(flat.b12),
         c: propertyToNumber(flat.c),
-      }
-    }
+      },
+    },
   };
 };
 
@@ -107,41 +78,32 @@ const fileChosen = (file: any | undefined, setReport: any) => {
       form.append("file", content.toString());
 
       postCSVProducts(form).then((status) => {
-        setReport(true)
-      })
+        setReport(true);
+      });
     }
   };
 
   reader.readAsText(file);
 };
 
+
 const AddProduct = () => {
   const [sent, setSent] = React.useState(false);
 
+  const onSubmit = (event: any) => {
+    const product = toProduct(event.value);
+    postProduct(product).then((result) => {
+      setSent(true);
+    });
+  };
+
   return (
-    <Box pad="large">
+    <Box pad="large" align="center">
       <Box>
         <Heading>Add Product</Heading>
+        <Text>All values should be provided per 100 g / ml</Text>
         <Box width="large">
-          <Form
-            onSubmit={(event: any) => {
-              const product = toProduct(event.value);
-              postProduct(product).then((result) => {
-                setSent(true);
-              });
-            }}
-          >
-            {cols.map((col) => (
-              <FormField name={col} label={capitalise(col)} required>
-                <TextInput name={col} />
-              </FormField>
-            ))}
-
-            <Box direction="row" gap="medium">
-              <Button type="submit" primary label="Submit" />
-              <Button type="reset" label="Reset" />
-            </Box>
-          </Form>
+          <ProductForm onSubmit={onSubmit} />
         </Box>
         {sent && <Redirect to="/products" />}
       </Box>

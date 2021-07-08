@@ -109,7 +109,7 @@ impl WaterSoluble {
     }
 
     // Ugly as fuck and slow but currently no other way.
-    // I need to think of a better way of figuring out that 
+    // I need to think of a better way of figuring out that
     // vitamins are not present
     pub fn is_zero(&self) -> bool {
         if self.b1 == 0.0
@@ -191,7 +191,7 @@ impl Vitamins {
     }
 
     pub fn is_zero(&self) -> bool {
-        self.fat.is_zero() && self.water.is_zero() 
+        self.fat.is_zero() && self.water.is_zero()
     }
 }
 

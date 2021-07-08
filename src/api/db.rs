@@ -156,7 +156,8 @@ pub async fn one_single_product(
     id: i32,
     amount: f64,
 ) -> Result<Product, sqlx::Error> {
-    let result = sqlx::query(r#"SELECT 
+    let result = sqlx::query(
+        r#"SELECT 
                                 id, 
                                 name, 
                                 manufacturer, 
@@ -186,57 +187,58 @@ pub async fn one_single_product(
                                 (b9/100) * $1 as b9,
                                 (b12/100) * $1 as b12,
                                 (c/100) * $1 as c
-                                FROM full_product WHERE id = $2"#)
-        .bind(amount)
-        .bind(id)
-        .map(|row: SqliteRow| {
-            // let name : String = row.get(0);
-            let energy: Energy = Energy::new(row.get(3), row.get(4));
-            let carbs: Carbohydrates =
-                Carbohydrates::new(row.get(5), row.get(6), row.get(7), row.get(8), row.get(9));
-            let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
-            let protein: Protein = Protein::new(row.get(14));
-            let salt: Salt = Salt::new(row.get(15));
+                                FROM full_product WHERE id = $2"#,
+    )
+    .bind(amount)
+    .bind(id)
+    .map(|row: SqliteRow| {
+        // let name : String = row.get(0);
+        let energy: Energy = Energy::new(row.get(3), row.get(4));
+        let carbs: Carbohydrates =
+            Carbohydrates::new(row.get(5), row.get(6), row.get(7), row.get(8), row.get(9));
+        let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
+        let protein: Protein = Protein::new(row.get(14));
+        let salt: Salt = Salt::new(row.get(15));
 
-            let fat_sol = FatSoluble::new(
-                row.try_get(16).unwrap_or(0.0),
-                row.try_get(17).unwrap_or(0.0),
-                row.try_get(18).unwrap_or(0.0),
-                row.try_get(19).unwrap_or(0.0),
-            );
-            let water_sol = WaterSoluble::new(
-                row.try_get(20).unwrap_or(0.0),
-                row.try_get(21).unwrap_or(0.0),
-                row.try_get(22).unwrap_or(0.0),
-                row.try_get(23).unwrap_or(0.0),
-                row.try_get(24).unwrap_or(0.0),
-                row.try_get(25).unwrap_or(0.0),
-                row.try_get(26).unwrap_or(0.0),
-                row.try_get(27).unwrap_or(0.0),
-                row.try_get(28).unwrap_or(0.0),
-            );
+        let fat_sol = FatSoluble::new(
+            row.try_get(16).unwrap_or(0.0),
+            row.try_get(17).unwrap_or(0.0),
+            row.try_get(18).unwrap_or(0.0),
+            row.try_get(19).unwrap_or(0.0),
+        );
+        let water_sol = WaterSoluble::new(
+            row.try_get(20).unwrap_or(0.0),
+            row.try_get(21).unwrap_or(0.0),
+            row.try_get(22).unwrap_or(0.0),
+            row.try_get(23).unwrap_or(0.0),
+            row.try_get(24).unwrap_or(0.0),
+            row.try_get(25).unwrap_or(0.0),
+            row.try_get(26).unwrap_or(0.0),
+            row.try_get(27).unwrap_or(0.0),
+            row.try_get(28).unwrap_or(0.0),
+        );
 
-            let vitamin_content = Vitamins::new(fat_sol, water_sol);
+        let vitamin_content = Vitamins::new(fat_sol, water_sol);
 
-            let vitamin_option = match vitamin_content.is_zero() {
-                true => Option::None,
-                false => Some(vitamin_content)
-            };
+        let vitamin_option = match vitamin_content.is_zero() {
+            true => Option::None,
+            false => Some(vitamin_content),
+        };
 
-            Product::new(
-                row.get(0),
-                row.get(1),
-                row.get(2),
-                energy,
-                carbs,
-                fat,
-                protein,
-                salt,
-                vitamin_option
-            )
-        })
-        .fetch_one(pool)
-        .await?;
+        Product::new(
+            row.get(0),
+            row.get(1),
+            row.get(2),
+            energy,
+            carbs,
+            fat,
+            protein,
+            salt,
+            vitamin_option,
+        )
+    })
+    .fetch_one(pool)
+    .await?;
 
     Ok(result)
 }

@@ -48,6 +48,14 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         }
     }
 
+    match check_if_table_exists(pool, "Vitamins").await {
+        Ok(_v) => println!("Vitamins table exists"),
+        Err(err) => {
+            println!("Check table for Vitamins failed with error: {}", err);
+            create_vitamins_table(pool).await?;
+        }
+    }
+
     Ok(true)
 }
 
@@ -115,6 +123,38 @@ async fn create_body_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "mass"	INTEGER,
             "fat"	INTEGER,
             PRIMARY KEY("date")
+        )
+        "#
+    )
+    .execute(&mut tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok(())
+}
+
+async fn create_vitamins_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        CREATE TABLE IF NOT EXISTS "Vitamins" (
+            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            "product"	INTEGER NOT NULL,
+            "a"	REAL,
+            "d"	REAL,
+            "e"	REAL,
+            "k"	REAL,
+            "b1"	REAL,
+            "b2"	REAL,
+            "b3"	REAL,
+            "b5"	REAL,
+            "b6"	REAL,
+            "b7"	REAL,
+            "b9"	REAL,
+            "b12"	REAL,
+            "c"	REAL,
+            FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
         )
         "#
     )
