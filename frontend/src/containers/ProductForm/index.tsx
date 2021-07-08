@@ -147,76 +147,76 @@ const requiredFields: Array<Category> = [
 ];
 
 const vitaminForm: Array<Category> = [
-    {
-        name: "Vitamins",
-        fields: [
-          {
-            name: "a",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "d",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "e",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "k",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b1",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b2",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b3",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b5",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b6",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b7",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b9",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "b12",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-          {
-            name: "c",
-            fieldType: "maskHighPrecision",
-            unit: "mg",
-          },
-        ],
+  {
+    name: "Vitamins",
+    fields: [
+      {
+        name: "a",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
       },
+      {
+        name: "d",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "e",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "k",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b1",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b2",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b3",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b5",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b6",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b7",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b9",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "b12",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+      {
+        name: "c",
+        fieldType: "maskHighPrecision",
+        unit: "mg",
+      },
+    ],
+  },
 ];
 
 const capitalise = (value: string) => {
@@ -305,20 +305,25 @@ interface ProductFormProps {
 }
 
 const ProductForm = ({ onSubmit }: ProductFormProps): JSX.Element => {
-    // For now only vitamins are optional so we can store just a single state
-    const [optional, setOptional] = React.useState(false);
-    return (
+  // For now only vitamins are optional so we can store just a single state
+  const [optional, setOptional] = React.useState(false);
+  return (
     <Form onSubmit={onSubmit}>
       {mapCategories(requiredFields)}
 
-        { optional
-            ? <>{mapCategories(vitaminForm)}</>
-            : <Button type="button" label = "Add Vitamins" onClick={() => setOptional(true)} />  
-        }
+      {optional ? (
+        <>{mapCategories(vitaminForm)}</>
+      ) : (
+        <Button
+          margin={{ top: "large", bottom: "small" }}
+          type="button"
+          label="Add Vitamins"
+          onClick={() => setOptional(true)}
+        />
+      )}
 
-      <Box direction="row" gap="medium">
+      <Box direction="row" margin={{ top: "large" }} gap="medium">
         <Button type="submit" primary label="Submit" />
-        <Button type="reset" label="Reset" />
       </Box>
     </Form>
   );
