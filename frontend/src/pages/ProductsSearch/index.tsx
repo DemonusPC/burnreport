@@ -1,5 +1,5 @@
 import React from "react";
-import { Heading, Box } from "grommet"
+import { Heading, Box, Anchor } from "grommet"
 import ProductSearchForm from "../../containers/ProductSearchForm";
 import { Product } from "../../util/schema/product";
 
@@ -17,6 +17,7 @@ export const totalMacroInGrams = (product: Product) => {
 const ProductsSearch = () => {
   return (
     <Box pad="large" align="center">
+      <Anchor href="/products/add" label="Add Product" key="addproduct" />
       <Box>
         <Heading>Product Search</Heading>
       </Box>
