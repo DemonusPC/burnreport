@@ -8,6 +8,7 @@ import {
   Button,
   MaskedInput,
 } from "grommet";
+import { highPrecisionMask, standardMask } from "../../util/schema/masks";
 
 interface Category {
   name: string;
@@ -236,21 +237,7 @@ const mapFields = (fields: Array<NutritionField>) => {
           label={label}
           required={field.required || false}
         >
-          <MaskedInput
-            name={field.name}
-            mask={[
-              {
-                regexp: /^\d+$/,
-                placeholder: "0",
-              },
-              { fixed: "." },
-              {
-                length: 3,
-                regexp: /^[0-9]{1,4}$/,
-                placeholder: "000",
-              },
-            ]}
-          />
+          <MaskedInput name={field.name} mask={highPrecisionMask} />
         </FormField>
       );
     } else if (field.fieldType === "masked") {
@@ -260,21 +247,7 @@ const mapFields = (fields: Array<NutritionField>) => {
           label={label}
           required={field.required || false}
         >
-          <MaskedInput
-            name={field.name}
-            mask={[
-              {
-                regexp: /^\d+$/,
-                placeholder: "0",
-              },
-              { fixed: "." },
-              {
-                length: 2,
-                regexp: /^[0-9]{1,4}$/,
-                placeholder: "00",
-              },
-            ]}
-          />
+          <MaskedInput name={field.name} mask={standardMask} />
         </FormField>
       );
     }

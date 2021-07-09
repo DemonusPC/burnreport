@@ -1,26 +1,21 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  Button,
-  Box,
-  TextInput,
-  Text,
-  Select,
-} from "grommet";
+import { Button, Box, Text, Select, MaskedInput } from "grommet";
 import { Close } from "grommet-icons";
 import { ProductSize } from "../../util/schema/product";
+import { standardMask } from "../../util/schema/masks";
 
 const PerWrapper = styled(Box)`
   align-items: center;
 `;
 
-const shortName = (name: string) : string => {
-  const max = 28
-  if(name.length > max) {
+const shortName = (name: string): string => {
+  const max = 28;
+  if (name.length > max) {
     return name.slice(0, max - 3) + "...";
   }
   return name;
-}
+};
 
 interface ProductItemProps {
   id: number;
@@ -41,40 +36,43 @@ const ProductItem = ({
   deleteFunc,
   unit,
   unitOptions,
-  setUnit
+  setUnit,
 }: ProductItemProps) => {
-
   return (
-    <Box elevation="medium" pad="medium" margin={{bottom: "large"}} border="all" key={id}>
-      <Box  direction="row" alignContent="center" justify="between">
+    <Box
+      elevation="medium"
+      pad="medium"
+      margin={{ bottom: "large" }}
+      border="all"
+      key={id}
+    >
+      <Box direction="row" alignContent="center" justify="between">
         <Text weight="bold">{shortName(name)}</Text>
-        <Button
-          plain={true}
-          icon={<Close />}
-          onClick={deleteFunc}
+        <Button plain={true} icon={<Close />} onClick={deleteFunc} />
+      </Box>
+      <PerWrapper
+        direction="row"
+        alignContent="center"
+        justify="center"
+        margin={{ top: "medium" }}
+      >
+        <MaskedInput
+          mask={standardMask}
+          defaultValue={100.0}
+          onChange={changeFunc}
         />
-        </Box>
 
-          <PerWrapper
-            direction="row"
-            alignContent="center"
-            justify="center"
-            margin={{top: "medium"}}
-          >
-            <TextInput placeholder="0.0" value={amount} onChange={changeFunc} />
-
-            <Select
-              name="select"
-              placeholder="Select"
-              labelKey="name"
-              value={unit}
-              options={unitOptions}
-              onChange={({ option }) => {
-                setUnit(option);
-              }}
-            />
-          </PerWrapper>
-
+        <Select
+          name="select"
+          placeholder="Select"
+          labelKey="name"
+          value={unit}
+          options={unitOptions}
+          onChange={({ option }) => {
+            setUnit(option);
+          }}
+        />
+      </PerWrapper>
     </Box>
   );
 };
