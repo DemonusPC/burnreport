@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Button, Box, Text, Select, MaskedInput } from "grommet";
 import { Close } from "grommet-icons";
 import { ProductSize } from "../../util/schema/product";
+import { standardMask } from "../../util/schema/masks";
 
 const PerWrapper = styled(Box)`
   align-items: center;
@@ -56,19 +57,8 @@ const ProductItem = ({
         margin={{ top: "medium" }}
       >
         <MaskedInput
-          mask={[
-            {
-              regexp: /^\d+$/,
-              placeholder: "0",
-            },
-            { fixed: "." },
-            {
-              length: 2,
-              regexp: /^[0-9]{1,4}$/,
-              placeholder: "00",
-            },
-          ]}
-          defaultValue={100.00}
+          mask={standardMask}
+          defaultValue={100.0}
           onChange={changeFunc}
         />
 

@@ -1,4 +1,4 @@
-// Masks for the masked input 
+// Masks for the masked input
 
 export const standardMask = [
   {
