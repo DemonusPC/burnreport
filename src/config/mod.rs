@@ -1,9 +1,3 @@
-//  check for table
-// SELECT name FROM sqlite_master WHERE type='table' AND name='Food';
-
-// Get column metadata
-// PRAGMA table_info('Food');
-
 use sqlx::SqlitePool;
 
 pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
