@@ -1,65 +1,6 @@
-//  check for table
-// SELECT name FROM sqlite_master WHERE type='table' AND name='Food';
-
-// Get column metadata
-// PRAGMA table_info('Food');
-
-use sqlx::sqlite::SqliteRow;
-use sqlx::Row;
 use sqlx::SqlitePool;
 
-struct TableMeta {
-    pub name: String,
-}
-
-async fn check_if_table_exists(pool: &SqlitePool, table_name: &str) -> Result<(), sqlx::Error> {
-    // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-    let _result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name=$1")
-        .bind(table_name)
-        .map(|row: SqliteRow| TableMeta { name: row.get(0) })
-        .fetch_one(pool)
-        .await?;
-
-    Ok(())
-}
-
 pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
-    match check_if_table_exists(pool, "Food").await {
-        Ok(_v) => println!("Food table exists"),
-        Err(err) => {
-            println!("Check table for Food failed with error: {}", err);
-            create_food_table(pool).await?;
-        }
-    }
-
-    match check_if_table_exists(pool, "Portions").await {
-        Ok(_v) => println!("Portions table exists"),
-        Err(err) => {
-            println!("Check table for Portions failed with error: {}", err);
-            create_portions_table(pool).await?;
-        }
-    }
-
-    match check_if_table_exists(pool, "Body").await {
-        Ok(_v) => println!("Body table exists"),
-        Err(err) => {
-            println!("Check table for Body failed with error: {}", err);
-            create_body_table(pool).await?;
-        }
-    }
-
-    match check_if_table_exists(pool, "Vitamins").await {
-        Ok(_v) => println!("Vitamins table exists"),
-        Err(err) => {
-            println!("Check table for Vitamins failed with error: {}", err);
-            create_vitamins_table(pool).await?;
-        }
-    }
-
-    Ok(true)
-}
-
-async fn create_food_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
 
     sqlx::query!(
@@ -81,21 +22,8 @@ async fn create_food_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "trans"	REAL DEFAULT 0,
             "protein"	REAL NOT NULL DEFAULT 0,
             "salt"	REAL NOT NULL DEFAULT 0
-        )
-        "#
-    )
-    .execute(&mut tx)
-    .await?;
-    tx.commit().await?;
-
-    Ok(())
-}
-
-async fn create_portions_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-    let mut tx = pool.begin().await?;
-
-    sqlx::query!(
-        r#"
+        );
+        
         CREATE TABLE IF NOT EXISTS "Portions" (
             "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             "product"	INTEGER NOT NULL,
@@ -103,41 +31,14 @@ async fn create_portions_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "grams"	REAL NOt NULL,
             FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
         );
-        "#
-    )
-    .execute(&mut tx)
-    .await?;
-    tx.commit().await?;
-
-    Ok(())
-}
-
-// I should refactor this to be a common function but im not bothered now
-async fn create_body_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-    let mut tx = pool.begin().await?;
-
-    sqlx::query!(
-        r#"
+        
         CREATE TABLE IF NOT EXISTS "Body" (
             "date"	TEXT NOT NULL UNIQUE,
-            "mass"	INTEGER,
-            "fat"	INTEGER,
+            "mass"	REAL,
+            "fat"	REAL,
             PRIMARY KEY("date")
-        )
-        "#
-    )
-    .execute(&mut tx)
-    .await?;
-    tx.commit().await?;
-
-    Ok(())
-}
-
-async fn create_vitamins_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-    let mut tx = pool.begin().await?;
-
-    sqlx::query!(
-        r#"
+        );
+        
         CREATE TABLE IF NOT EXISTS "Vitamins" (
             "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             "product"	INTEGER NOT NULL,
@@ -155,12 +56,16 @@ async fn create_vitamins_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "b12"	REAL,
             "c"	REAL,
             FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
-        )
+        );
+        
+        CREATE VIEW IF NOT EXISTS full_product
+        AS 
+           SELECT f.id, f.name, f.manufacturer, f.kcal, f.kj, f.carbohydrates, f.fiber, f.sugar, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c FROM Food as f LEFT JOIN Vitamins as v ON f.id = v.product;
         "#
     )
     .execute(&mut tx)
     .await?;
     tx.commit().await?;
 
-    Ok(())
+    Ok(true)
 }
