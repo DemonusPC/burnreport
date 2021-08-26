@@ -14,8 +14,8 @@ use sqlx::SqlitePool;
 pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
     for product in products {
-        let result = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt)
-        VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)"#)
+        let result = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt, omegathree, omegasix)
+        VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)"#)
         .bind(product.name())
         .bind(product.manufacturer())
         .bind(product.energy().kcal())
@@ -31,6 +31,8 @@ pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), 
         .bind(product.fat().trans())
         .bind(product.protein().total())
         .bind(product.salt().total())
+        .bind(product.fat().omega_3())
+        .bind(product.fat().omega_6())
         .execute(&mut tx)
         .await?;
     }
