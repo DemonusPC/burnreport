@@ -67,7 +67,14 @@ pub async fn search_products(pool: &SqlitePool, term: &str) -> Result<Vec<Produc
             let energy: Energy = Energy::new(row.get(3), row.get(4));
             let carbs: Carbohydrates =
                 Carbohydrates::new(row.get(5), row.get(6), row.get(7), row.get(8), row.get(9));
-            let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
+            let fat: Fat = Fat::new(
+                row.get(10),
+                row.get(11),
+                row.get(12),
+                row.get(13),
+                row.get(16),
+                row.get(17),
+            );
             let protein: Protein = Protein::new(row.get(14));
             let salt: Salt = Salt::new(row.get(15));
             Product::new(
@@ -128,7 +135,14 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let energy: Energy = Energy::new(row.get(3), row.get(4));
             let carbs: Carbohydrates =
                 Carbohydrates::new(row.get(5), row.get(6), row.get(7), row.get(8), row.get(9));
-            let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
+            let fat: Fat = Fat::new(
+                row.get(10),
+                row.get(11),
+                row.get(12),
+                row.get(13),
+                row.get(16),
+                row.get(17),
+            );
             let protein: Protein = Protein::new(row.get(14));
             let salt: Salt = Salt::new(row.get(15));
 
@@ -187,6 +201,8 @@ pub async fn one_single_product(
                                 (b9/100) * $1 as b9,
                                 (b12/100) * $1 as b12,
                                 (c/100) * $1 as c
+                                (omegathree/100) * $1 as omegathree
+                                (omegasix/100) * $1 as omegasix
                                 FROM full_product WHERE id = $2"#,
     )
     .bind(amount)
@@ -196,7 +212,14 @@ pub async fn one_single_product(
         let energy: Energy = Energy::new(row.get(3), row.get(4));
         let carbs: Carbohydrates =
             Carbohydrates::new(row.get(5), row.get(6), row.get(7), row.get(8), row.get(9));
-        let fat: Fat = Fat::new(row.get(10), row.get(11), row.get(12), row.get(13));
+        let fat: Fat = Fat::new(
+            row.get(10),
+            row.get(11),
+            row.get(12),
+            row.get(13),
+            row.get(16),
+            row.get(17),
+        );
         let protein: Protein = Protein::new(row.get(14));
         let salt: Salt = Salt::new(row.get(15));
 
@@ -339,18 +362,31 @@ pub async fn insert_portion(
         let p = size.product();
         let name = size.name();
         let grams = size.grams();
-        sqlx::query!(
+        sqlx::query(
             r#"
-            INSERT INTO "main"."Portions"
-            ("product", "name", "grams")
-            VALUES (?1, ?2, ?3);
-            "#,
-            p,
-            name,
-            grams
+        INSERT INTO "Portions"
+        ("product", "name", "grams")
+        VALUES (?1, ?2, ?3);
+        "#,
         )
+        .bind(p)
+        .bind(name)
+        .bind(grams)
         .execute(&mut tx)
         .await?;
+
+        // sqlx::query!(
+        //     r#"
+        //     INSERT INTO "Portions"
+        //     ("product", "name", "grams")
+        //     VALUES (?1, ?2, ?3);
+        //     "#,
+        //     p,
+        //     name,
+        //     grams
+        // )
+        // .execute(&mut tx)
+        // .await?;
     }
 
     tx.commit().await?;
@@ -403,16 +439,16 @@ pub async fn insert_body_log_db(pool: &SqlitePool, body_log: BodyLog) -> Result<
     let mass = body_log.mass();
     let fat = body_log.fat();
 
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO "main"."Body"
         ("date", "mass", "fat")
         VALUES (?1, ?2, ?3);
         "#,
-        date,
-        mass,
-        fat
     )
+    .bind(date)
+    .bind(mass)
+    .bind(fat)
     .execute(&mut tx)
     .await?;
 
@@ -428,14 +464,14 @@ pub async fn update_body_log_db(pool: &SqlitePool, body_log: BodyLog) -> Result<
     let mass = body_log.mass();
     let fat = body_log.fat();
 
-    sqlx::query!(
+    sqlx::query(
         r#"
         UPDATE "main"."Body" SET mass = ?2, fat = ?3 WHERE date = ?1;
         "#,
-        date,
-        mass,
-        fat
     )
+    .bind(date)
+    .bind(mass)
+    .bind(fat)
     .execute(&mut tx)
     .await?;
 

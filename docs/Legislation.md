@@ -1,6 +1,6 @@
 # Relevant EU legislation for reference
 
-## Nutrition LEgislation
+## Nutrition Legislation
 For overall references:
 ``` 
 https://europa.eu/youreurope/business/product-requirements/food-labelling/nutrition-declaration/index_en.htm
