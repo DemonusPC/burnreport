@@ -378,19 +378,6 @@ pub async fn insert_portion(
         .bind(grams)
         .execute(&mut tx)
         .await?;
-
-        // sqlx::query!(
-        //     r#"
-        //     INSERT INTO "Portions"
-        //     ("product", "name", "grams")
-        //     VALUES (?1, ?2, ?3);
-        //     "#,
-        //     p,
-        //     name,
-        //     grams
-        // )
-        // .execute(&mut tx)
-        // .await?;
     }
 
     tx.commit().await?;
