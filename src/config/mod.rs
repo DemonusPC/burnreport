@@ -21,7 +21,9 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             "monounsaturated"	REAL DEFAULT 0,
             "trans"	REAL DEFAULT 0,
             "protein"	REAL NOT NULL DEFAULT 0,
-            "salt"	REAL NOT NULL DEFAULT 0
+            "salt"	REAL NOT NULL DEFAULT 0,
+            "omegathree" REAL NOT NULL DEFAULT 0,
+	        "omegasix" REAL NOT NULL DEFAULT 0
         );
         
         CREATE TABLE IF NOT EXISTS "Portions" (
@@ -60,7 +62,7 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         
         CREATE VIEW IF NOT EXISTS full_product
         AS 
-           SELECT f.id, f.name, f.manufacturer, f.kcal, f.kj, f.carbohydrates, f.fiber, f.sugar, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c FROM Food as f LEFT JOIN Vitamins as v ON f.id = v.product;
+           SELECT f.id, f.name, f.manufacturer, f.kcal, f.kj, f.carbohydrates, f.fiber, f.sugar, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c, f.omegathree, f.omegasix FROM Food as f LEFT JOIN Vitamins as v ON f.id = v.product;
         "#
     )
     .execute(&mut tx)

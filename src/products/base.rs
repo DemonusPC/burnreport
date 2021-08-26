@@ -60,6 +60,8 @@ impl Product {
         protein: f64,
         salt: f64,
         total_vitamins: Option<Vitamins>,
+        omega_3: f64,
+        omega_6: f64,
     ) -> Product {
         return Product {
             id: id,
@@ -67,7 +69,7 @@ impl Product {
             manufacturer: manufacturer,
             energy: Energy::new(kcal, k_j),
             carbohydrates: Carbohydrates::new(total_carbs, fiber, sugar, added_sugar, starch),
-            fat: Fat::new(total_fat, saturated, mono, trans),
+            fat: Fat::new(total_fat, saturated, mono, trans, omega_3, omega_6),
             protein: Protein::new(protein),
             salt: Salt::new(salt),
             vitamins: total_vitamins,

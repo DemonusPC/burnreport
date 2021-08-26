@@ -78,20 +78,46 @@ impl TotalAble for Carbohydrates {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PolyunsaturatedFats {
+    omega_3: f64,
+    omega_6: f64,
+}
+
+impl PolyunsaturatedFats {
+    pub fn omega_3(&self) -> f64 {
+        self.omega_3
+    }
+
+    pub fn omega_6(&self) -> f64 {
+        self.omega_6
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Fat {
     total: f64,
     saturated: f64,
     monounsaturated: f64,
     trans: f64,
+    polyunsaturated: PolyunsaturatedFats,
 }
 
 impl Fat {
-    pub fn new(total: f64, saturated: f64, mono: f64, trans: f64) -> Fat {
+    pub fn new(
+        total: f64,
+        saturated: f64,
+        mono: f64,
+        trans: f64,
+        omega_3: f64,
+        omega_6: f64,
+    ) -> Fat {
         Fat {
             total: total,
             saturated: saturated,
             monounsaturated: mono,
             trans: trans,
+            polyunsaturated: PolyunsaturatedFats { omega_3, omega_6 },
         }
     }
 
@@ -105,6 +131,14 @@ impl Fat {
 
     pub fn trans(&self) -> f64 {
         return self.trans;
+    }
+
+    pub fn omega_3(&self) -> f64 {
+        return self.polyunsaturated.omega_3();
+    }
+
+    pub fn omega_6(&self) -> f64 {
+        return self.polyunsaturated.omega_6();
     }
 
     pub fn contains_trans(&self) -> bool {

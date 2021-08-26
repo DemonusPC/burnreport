@@ -21,6 +21,10 @@ const data: Array<Product> = [
       saturated: 0.1,
       monounsaturated: 0.0,
       trans: 0.0,
+      polyunsaturated: {
+        omega3: 0.0,
+        omega6: 12.5
+      }
     },
     protein: {
       total: 5.2,
@@ -49,6 +53,10 @@ const data: Array<Product> = [
       saturated: 6.0,
       monounsaturated: 2.3,
       trans: 0.0,
+      polyunsaturated: {
+        omega3: 0.0,
+        omega6: 12.5
+      }
     },
     protein: {
       total: 4.1,
@@ -77,6 +85,10 @@ const data: Array<Product> = [
       saturated: 0.6,
       monounsaturated: 0.0,
       trans: 0.0,
+      polyunsaturated: {
+        omega3: 0.0,
+        omega6: 12.5
+      }
     },
     protein: {
       total: 10.0,
@@ -105,6 +117,10 @@ const data: Array<Product> = [
       saturated: 52.0,
       monounsaturated: 0.0,
       trans: 0.0,
+      polyunsaturated: {
+        omega3: 0.0,
+        omega6: 12.5
+      }
     },
     protein: {
       total: 0.6,
@@ -133,6 +149,10 @@ const data: Array<Product> = [
       saturated: 23.0,
       monounsaturated: 0.0,
       trans: 0.0,
+      polyunsaturated: {
+        omega3: 0.0,
+        omega6: 12.5
+      }
     },
     protein: {
       total: 16.0,

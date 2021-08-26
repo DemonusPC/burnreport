@@ -146,13 +146,25 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
                         .parse::<f64>()
                         .unwrap_or(0.0);
 
+                    let omega_3 = record
+                        .get(15)
+                        .unwrap_or("0.0")
+                        .parse::<f64>()
+                        .unwrap_or(0.0);
+
+                    let omega_6 = record
+                        .get(16)
+                        .unwrap_or("0.0")
+                        .parse::<f64>()
+                        .unwrap_or(0.0);
+
                     return Product::new(
                         -1,
                         name.to_owned(),
                         manufacturer.to_owned(),
                         Energy::new(kcal, kj),
                         Carbohydrates::new(carbs, fiber, sugar, added_sugar, starch),
-                        Fat::new(fat, saturated, monounsat, trans),
+                        Fat::new(fat, saturated, monounsat, trans, omega_3, omega_6),
                         Protein::new(protein),
                         Salt::new(salt),
                         Option::None,

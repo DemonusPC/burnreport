@@ -11,6 +11,7 @@ import ConsumedItem from "../ConsumedItem";
 import { totalMacroInGrams } from "../../pages/ProductPage";
 import AdditionalTable from "../AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
+import OmegaBar from "../OmegaBar";
 
 export interface ReportResult {
   timeDone: number;
@@ -54,6 +55,8 @@ const ReportRender = ({ result }: ReportResult) => {
             unit={"mg"}
           />
 
+          <Heading level={3}> Omega 3 to Omega 6</Heading>
+        <OmegaBar omega3={result.total.fat.polyunsaturated.omega3} omega6={result.total.fat.polyunsaturated.omega6} />
           <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>{mapConsumed(result.consumed)}</Accordion>
         </Box>

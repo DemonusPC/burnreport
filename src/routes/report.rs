@@ -39,6 +39,9 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
 
     let mut total_vitamins: Vitamins = Vitamins::default();
 
+    let mut total_omega_3: f64 = 0.0;
+    let mut total_omega_6: f64 = 0.0;
+
     for v in &report.consumed {
         match one_single_product(&pool, v.id(), v.amount()).await {
             Ok(product) => {
@@ -60,6 +63,9 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
 
                 total_salt += &product.salt().total();
 
+                total_omega_3 += &product.fat().omega_3();
+                total_omega_6 += &product.fat().omega_6();
+
                 match product.vitamins() {
                     Some(v) => {
                         total_vitamins = total_vitamins + v;
@@ -78,7 +84,7 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
     let reply = json!({
         "timeDone": utc,
         "result": {
-        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt, Some(total_vitamins)),
+        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt, Some(total_vitamins), total_omega_3, total_omega_6),
         "consumed": result,
         }
     });
