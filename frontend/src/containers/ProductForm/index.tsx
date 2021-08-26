@@ -121,6 +121,19 @@ const requiredFields: Array<Category> = [
         required: true,
         unit: "g",
       },
+      {
+        name: "omega3",
+        fieldType: "masked",
+        required: true,
+        unit: "g",
+      },
+
+      {
+        name: "omega6",
+        fieldType: "masked",
+        required: true,
+        unit: "g",
+      },
     ],
   },
   {

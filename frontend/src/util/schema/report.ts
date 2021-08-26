@@ -41,4 +41,6 @@ export interface FlatProduct {
     trans: number;
     protein: number;
     salt: number;
+    omega3: number;
+    omega6: number;
 }

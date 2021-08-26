@@ -46,6 +46,8 @@ export const extractTabularNutrients = (product: Product, amount: number, baseUn
     rows.push(asColumn('Fat', 'saturated', calculateToDisplay(product.fat.saturated, amount, baseUnit)));
     rows.push(asColumn('Fat', 'monounsaturated', calculateToDisplay(product.fat.monounsaturated, amount,baseUnit)));
     rows.push(asColumn('Fat', 'trans', calculateToDisplay(product.fat.trans, amount, baseUnit)));
+    rows.push(asColumn('Fat', 'omega 3', calculateToDisplay(product.fat.polyunsaturated.omega3, amount, baseUnit)));
+    rows.push(asColumn('Fat', 'omega 6', calculateToDisplay(product.fat.polyunsaturated.omega6, amount, baseUnit)));
 
     rows.push(asColumn('Protein', 'total', calculateToDisplay(product.protein.total, amount, baseUnit)));
 
@@ -71,6 +73,8 @@ export const reportNutrientsToTable = (product: Product) => {
     rows.push(asColumn('Fat', 'saturated', product.fat.saturated));
     rows.push(asColumn('Fat', 'monounsaturated', product.fat.monounsaturated));
     rows.push(asColumn('Fat', 'trans', product.fat.trans));
+    rows.push(asColumn('Fat', 'omega 3', product.fat.polyunsaturated.omega3));
+    rows.push(asColumn('Fat', 'omega 6', product.fat.polyunsaturated.omega6));
 
     rows.push(asColumn('Protein', 'total', product.protein.total));
 
@@ -97,7 +101,9 @@ export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
             monounsaturated: product.fat.monounsaturated,
             trans: product.fat.trans,
             protein: product.protein.total,
-            salt: product.salt.total
+            salt: product.salt.total,
+            omega3: product.fat.polyunsaturated.omega3,
+            omega6: product.fat.polyunsaturated.omega6
         }
     });
 

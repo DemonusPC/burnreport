@@ -13,11 +13,17 @@ export interface Carbohydrates {
     starch: number
 }
 
+export interface PolyunsaturatedFats {
+    omega3: number,
+    omega6: number,
+}
+
 export interface Fat {
     total: number,
     saturated: number,
     monounsaturated: number,
-    trans: number
+    trans: number,
+    polyunsaturated: PolyunsaturatedFats
 }
 
 export interface Protein {
@@ -60,7 +66,11 @@ export const emptyProduct = () : Product => {
             total: 0,
             saturated: 0,
             monounsaturated: 0,
-            trans: 0           
+            trans: 0,
+            polyunsaturated: {
+                omega3: 0,
+                omega6: 0,
+            }           
         },
         protein: {
             total: 0

@@ -40,6 +40,10 @@ const toProduct = (flat: any): Product => {
       saturated: propertyToNumber(flat.saturated),
       monounsaturated: propertyToNumber(flat.monounsaturated),
       trans: propertyToNumber(flat.trans),
+      polyunsaturated: {
+        omega3: propertyToNumber(flat.omega3),
+        omega6: propertyToNumber(flat.omega6)
+      }
     },
     protein: {
       total: propertyToNumber(flat.protein),
