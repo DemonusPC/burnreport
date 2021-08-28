@@ -41,7 +41,7 @@ const Index = () => {
   return (
     <>
       {!report.completed ? (
-        <Box pad="medium">
+        <Box pad="large" align="center">
           <ReportForm setReportFunction={setReport} />
           <Box>
             <Heading>Import from file</Heading>
