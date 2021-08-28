@@ -6,29 +6,35 @@ const BRAND = "#404345";
 // const BRAND_DARK = "#1a1b1c" ;
 
 export const burnReportTheme = deepMerge(grommet, {
-    global: {
-        colors: {
-            brand: {
-                light: BRAND
-            },
-            background: {
-                dark: "#2b2b2b",
-                light: "#FFFFFF"
-            },
-            "accent-1": {
-                dark: "#b62203",
-                light: "#b62203",
-            },
-            "accent-3": "#b62203",
-            focus: "#b62203"
-        },
-        focus: {
-            shadow: {
-                color: "#b62203"
-            }
-        }
-    }
-})
+  global: {
+    colors: {
+      brand: {
+        dark: "#f8f8f8",
+        light: BRAND,
+      },
+      background: {
+        dark: "#2b2b2b",
+        light: "#FFFFFF",
+      },
+      "accent-1": {
+        dark: "#f8f8f8",
+        light: "#b62203",
+      },
+      "accent-3": "#b62203",
+      focus: "#b62203",
+    },
+    focus: {
+      shadow: {
+        color: "#b62203",
+      },
+    },
+  },
+  button: {
+    border: {
+      radius: "4px",
+    },
+  },
+});
 
 export const burnReportTheme2 = {
   name: "my theme",
@@ -39,7 +45,7 @@ export const burnReportTheme2 = {
     colors: {
       brand: {
         dark: BRAND,
-        light: BRAND
+        light: BRAND,
       },
       background: {
         dark: "#111111",

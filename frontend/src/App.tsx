@@ -13,9 +13,12 @@ import ProductsList from "./pages/ProductsList";
 import ProductPage from "./pages/ProductPage";
 import TestPage from "./pages/TestPage";
 import { burnReportTheme } from "./theme/light";
+import { cookieTheme } from "./theme/cookie";
 
 const App = () => {
-  const [themeMode, setThemeMode] = React.useState<"light" | "dark">("light");
+  const [themeMode, setThemeMode] = React.useState<"light" | "dark">(
+    cookieTheme()
+  );
 
   return (
     <>

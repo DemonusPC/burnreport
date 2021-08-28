@@ -46,7 +46,11 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
           type="button"
           plain
           icon={iconRender(theme)}
-          onClick={() => themeSwitcher(theme === "light" ? "dark" : "light")}
+          onClick={() => {
+            const nextTheme = theme === "light" ? "dark" : "light";
+            document.cookie = `theme=${nextTheme}`;
+            themeSwitcher(nextTheme);
+          }}
         />
       </Box>
     </Header>
