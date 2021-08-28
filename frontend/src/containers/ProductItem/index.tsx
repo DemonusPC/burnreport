@@ -7,6 +7,7 @@ import { standardMask } from "../../util/schema/masks";
 
 const PerWrapper = styled(Box)`
   align-items: center;
+  background-color: transparent;
 `;
 
 const shortName = (name: string): string => {

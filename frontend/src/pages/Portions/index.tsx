@@ -16,7 +16,7 @@ import {
 import PortionTable from "../../components/PortionTable";
 
 interface IdParams {
-  id: string
+  id: string;
 }
 
 const emptyState = (): Array<Portion> => {
@@ -69,7 +69,7 @@ const Portions = () => {
 
   return (
     <>
-      <Box pad="large" margin="large" elevation="medium">
+      <Box pad="large">
         <Heading>Portions</Heading>
         <PortionTable
           portions={current}

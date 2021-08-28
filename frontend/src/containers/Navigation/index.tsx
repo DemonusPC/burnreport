@@ -48,7 +48,7 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
           icon={iconRender(theme)}
           onClick={() => {
             const nextTheme = theme === "light" ? "dark" : "light";
-            document.cookie = `theme=${nextTheme}`;
+            document.cookie = `theme=${nextTheme}; SameSite=Strict`;
             themeSwitcher(nextTheme);
           }}
         />

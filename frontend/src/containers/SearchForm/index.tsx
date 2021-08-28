@@ -4,32 +4,32 @@ import { Search } from "grommet-icons";
 import { emptyProduct, Product } from "../../util/schema/product";
 
 interface SearchProps {
-  selectedFunction: (product: Product) => void,
-  suggestFunction: (suggestion: string) => Promise<any>
+  selectedFunction: (product: Product) => void;
+  suggestFunction: (suggestion: string) => Promise<any>;
 }
 
-const buildSuggestionStringArray = () : string[] => {
+const buildSuggestionStringArray = (): string[] => {
   return [];
 };
 
-const emptyOriginal = () : Product[] => {
+const emptyOriginal = (): Product[] => {
   return [];
-}
+};
 
 const confirmProduct = (name: string, original: Product[]) => {
-  const found = original.find((element) => element.name === name) || emptyProduct();
+  const found =
+    original.find((element) => element.name === name) || emptyProduct();
   return found;
 };
 
-
-const SearchForm = ( { selectedFunction, suggestFunction } : SearchProps) => {
+const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
   const [state, setState] = useState({
     value: "",
     selectedProduct: emptyProduct(),
   });
-    const [sug, setSug] = useState({
+  const [sug, setSug] = useState({
     suggestions: buildSuggestionStringArray(),
-    original: emptyOriginal()
+    original: emptyOriginal(),
   });
 
   const onChange = (event: { target: { value: any } }) => {
@@ -44,14 +44,14 @@ const SearchForm = ( { selectedFunction, suggestFunction } : SearchProps) => {
       const suggestions = json.map((product: Product) => {
         return product.name;
       });
-      setSug({suggestions, original: json});
+      setSug({ suggestions, original: json });
     });
 
     setState({ ...state, value });
   };
 
   const onSelect = (event: { suggestion: any }) => {
-    const selected = confirmProduct(event.suggestion, sug.original)
+    const selected = confirmProduct(event.suggestion, sug.original);
     setState({
       ...state,
       value: event.suggestion,
@@ -61,15 +61,15 @@ const SearchForm = ( { selectedFunction, suggestFunction } : SearchProps) => {
   };
 
   return (
-      <Box width="large">
-        <TextInput
-          icon={<Search />}
-          value={state.value}
-          onChange={onChange}
-          onSelect={onSelect}
-          suggestions={sug.suggestions}
-        />
-      </Box>
+    <Box width="large">
+      <TextInput
+        icon={<Search />}
+        value={state.value}
+        onChange={onChange}
+        onSuggestionSelect={onSelect}
+        suggestions={sug.suggestions}
+      />
+    </Box>
   );
 };
 
