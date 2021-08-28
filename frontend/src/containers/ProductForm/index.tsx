@@ -280,7 +280,9 @@ const mapFields = (fields: Array<NutritionField>) => {
 const mapCategories = (categories: Array<Category>) => {
   return categories.map((c: Category) => (
     <>
-      <Heading level={2}>{c.name}</Heading>
+      <Heading level={2} size="small">
+        {c.name}
+      </Heading>
       {mapFields(c.fields)}
     </>
   ));
