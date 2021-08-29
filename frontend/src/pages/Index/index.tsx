@@ -1,5 +1,5 @@
 import React from "react";
-import { Heading, Box } from "grommet";
+import { Heading, Box, FileInput } from "grommet";
 import { emptyProduct } from "../../util/schema/product";
 
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
@@ -45,9 +45,7 @@ const Index = () => {
           <ReportForm setReportFunction={setReport} />
           <Box>
             <Heading>Import from file</Heading>
-            <input
-              type="file"
-              accept=".json"
+            <FileInput
               onChange={(e) => {
                 if (e.target.files) {
                   fileChosen(e.target.files[0], setReport);

@@ -29,6 +29,7 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
             color="text"
             label={"Report"}
             key={"report"}
+            as="div"
           />
         </Link>
         <Link to="/products">
@@ -38,6 +39,7 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
             href={"/products"}
             label={"Products"}
             key={"products"}
+            as="div"
           />
         </Link>
       </Nav>

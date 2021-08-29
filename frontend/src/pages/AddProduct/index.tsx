@@ -1,5 +1,5 @@
 import React from "react";
-import { Heading, Box, Text } from "grommet";
+import { Heading, Box, Text, FileInput } from "grommet";
 import { Product } from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
@@ -107,9 +107,7 @@ const AddProduct = () => {
       </Box>
       <Box margin={{ top: "xlarge" }}>
         <Heading>Upload Products as CSV</Heading>
-        <input
-          type="file"
-          accept=".csv"
+        <FileInput
           onChange={(e) => {
             if (e.target.files) {
               fileChosen(e.target.files[0], setSent);
