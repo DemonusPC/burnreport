@@ -10,7 +10,7 @@ import ProductsSearch from "./pages/ProductsSearch";
 import ProductsList from "./pages/ProductsList";
 import ProductPage from "./pages/ProductPage";
 import TestPage from "./pages/TestPage";
-import { burnReportTheme } from "./theme/light";
+import { burnReportTheme } from "./theme/base";
 import { cookieTheme } from "./theme/cookie";
 
 const App = () => {
