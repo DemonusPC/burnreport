@@ -6,8 +6,6 @@ import Index from "./pages/Index";
 import Navigation from "./containers/Navigation";
 import AddProduct from "./pages/AddProduct";
 import Portions from "./pages/Portions";
-import Body from "./pages/Body";
-import AddBodyLog from "./pages/AddBodyLog";
 import ProductsSearch from "./pages/ProductsSearch";
 import ProductsList from "./pages/ProductsList";
 import ProductPage from "./pages/ProductPage";
@@ -26,15 +24,6 @@ const App = () => {
         <Grommet full theme={burnReportTheme} themeMode={themeMode}>
           <Navigation theme={themeMode} themeSwitcher={setThemeMode} />
           <Switch>
-            <Route path="/body/update/:date">
-              <AddBodyLog />
-            </Route>
-            <Route path="/body/add">
-              <AddBodyLog />
-            </Route>
-            <Route path="/body">
-              <Body />
-            </Route>
             <Route path="/products/add">
               <AddProduct />
             </Route>
