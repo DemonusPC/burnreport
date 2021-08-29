@@ -1,7 +1,8 @@
 import React from "react";
-import { Heading, Box, Anchor } from "grommet"
+import { Heading, Box, Anchor } from "grommet";
 import ProductSearchForm from "../../containers/ProductSearchForm";
 import { Product } from "../../util/schema/product";
+import { Link } from "react-router-dom";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -13,11 +14,13 @@ export const totalMacroInGrams = (product: Product) => {
   return total;
 };
 
-
 const ProductsSearch = () => {
   return (
     <Box pad="large" align="center">
-      <Anchor href="/products/add" label="Add Product" key="addproduct" />
+      <Link to="/products/add">
+        <Anchor as="span" label="Add Product" key="addproduct" />
+      </Link>
+
       <Box>
         <Heading>Product Search</Heading>
       </Box>

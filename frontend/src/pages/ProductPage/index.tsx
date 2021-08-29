@@ -20,6 +20,7 @@ import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
+import { Link, useHistory, withRouter } from "react-router-dom";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -57,6 +58,7 @@ interface ProductParams {
 }
 
 const ProductPage = () => {
+  const history = useHistory();
   const params: ProductParams = useParams<ProductParams>();
   const parsed = Number.parseInt(params.id);
   const [state, setState] = React.useState({
@@ -92,7 +94,9 @@ const ProductPage = () => {
             window.history.back();
           }}
         />
-        <Anchor href="/products/add" label="Add Product" key="addproduct" />
+        <Link to="/products/add">
+          <Anchor as="span" label="Add Product" key="addproduct" />
+        </Link>
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
@@ -164,18 +168,18 @@ const ProductPage = () => {
         margin={{ top: "xlarge" }}
         gap="large"
       >
-        <Anchor
-          href={urlToPortion(data.id)}
-          label="Portions"
-          key="addproduct"
-        />
+        <Link to={urlToPortion(data.id)}>
+          <Anchor as="span" label="Portions" key="toPortions" />
+        </Link>
+
         <Button
           fill={false}
           color="status-critical"
           type="button"
           label="Delete Product"
-          onClick={() => {
-            deleteProduct(data.id).then((status) => {});
+          onClick={async () => {
+            await deleteProduct(data.id);
+            history.push("/products");
           }}
         />
       </Box>
