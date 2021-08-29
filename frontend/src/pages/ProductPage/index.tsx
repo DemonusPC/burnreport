@@ -20,7 +20,7 @@ import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
-import { Link, useHistory, withRouter } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
