@@ -19,7 +19,7 @@ const iconRender = (theme: "light" | "dark") => {
 const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
   return (
     <Header background="background-back" pad="medium">
-      <Nav direction="row">
+      <Nav direction="row" margin={{ top: "4px" }}>
         <Text weight="bold" color="text">
           Burnreport
         </Text>
