@@ -6,16 +6,10 @@ import { Close } from "grommet-icons";
 interface PortionTableProps {
   productId: number;
   portions: Portion[];
-  setState: any;
-  removeFunction: any;
+  removeFunction: (portionName: string) => Promise<void>;
 }
 
-const PortionList = ({
-  productId,
-  portions,
-  setState,
-  removeFunction,
-}: PortionTableProps) => {
+const PortionList = ({ portions, removeFunction }: PortionTableProps) => {
   return (
     <>
       {portions.map((portion: Portion) => {
@@ -41,9 +35,8 @@ const PortionList = ({
               hoverIndicator={true}
               size="medium"
               icon={<Close />}
-              onClick={() => {
-                const state = removeFunction(portions, portion.name, productId);
-                setState(state);
+              onClick={async () => {
+                await removeFunction(portion.name);
               }}
             />
           </Box>

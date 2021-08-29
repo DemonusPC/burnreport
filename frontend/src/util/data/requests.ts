@@ -47,35 +47,29 @@ export const getSingleProductById = async (id: number) => {
   return result.result;
 };
 
-export const postReport = async (report: Report): Promise<ReportResult> => {
-  const response = await fetch(`/api/report`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(report),
-  });
+const generatePostRequest = <T, O>(uri: string): ((data: T) => Promise<O>) => {
+  return async (data: T): Promise<O> => {
+    const response = await fetch(`/api/report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  const result: ReportResult = await response.json();
+    const result: O = await response.json();
 
-  return result;
+    return result;
+  };
 };
 
-export const postProduct = async (
-  product: Product
-): Promise<ProductAPIStatus> => {
-  const response = await fetch(`/api/products`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(product),
-  });
+export const postReport = generatePostRequest<Report, ReportResult>(
+  `/api/report`
+);
 
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
-};
+export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
+  `/api/products`
+);
 
 export const deleteProduct = async (id: number): Promise<ProductAPIStatus> => {
   const response = await fetch(`/api/products/${id}`, {
