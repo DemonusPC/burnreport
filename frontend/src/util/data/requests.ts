@@ -49,7 +49,7 @@ export const getSingleProductById = async (id: number) => {
 
 const generatePostRequest = <T, O>(uri: string): ((data: T) => Promise<O>) => {
   return async (data: T): Promise<O> => {
-    const response = await fetch(`/api/report`, {
+    const response = await fetch(uri, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,6 +63,17 @@ const generatePostRequest = <T, O>(uri: string): ((data: T) => Promise<O>) => {
   };
 };
 
+// This is different from a generator
+const deleteRequest = async <O>(uri: string): Promise<O> => {
+  const response = await fetch(uri, {
+    method: "DELETE",
+  });
+
+  const result: O = await response.json();
+
+  return result;
+};
+
 export const postReport = generatePostRequest<Report, ReportResult>(
   `/api/report`
 );
@@ -72,14 +83,7 @@ export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
 );
 
 export const deleteProduct = async (id: number): Promise<ProductAPIStatus> => {
-  const response = await fetch(`/api/products/${id}`, {
-    method: "DELETE",
-    mode: "cors",
-  });
-
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
+  return await deleteRequest(`/api/products/${id}`);
 };
 
 export const postCSVProducts = async (data: any): Promise<ProductAPIStatus> => {
@@ -100,46 +104,16 @@ export const getProductSizesById = async (id: number) => {
   return result.result;
 };
 
-export const postPortions = async (
-  portions: Array<Portion>
-): Promise<RestResult<ProductAPIStatus>> => {
-  const response = await fetch(`/api/products/portions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(portions),
-  });
-
-  if (!response.ok) {
-    const result: RestResult<ProductAPIStatus> = {
-      status: false,
-    };
-    return result;
-  }
-
-  const jsonData: ProductAPIStatus = await response.json();
-
-  const result: RestResult<ProductAPIStatus> = {
-    status: true,
-    data: jsonData,
-  };
-
-  return result;
-};
+export const postPortions = generatePostRequest<
+  Portion[],
+  RestResult<ProductAPIStatus>
+>(`/api/products/portions`);
 
 export const deletePortion = async (
   id: number,
   name: string
 ): Promise<ProductAPIStatus> => {
-  const response = await fetch(
-    encodeURI(`/api/products/${id}/portions/${name}`),
-    {
-      method: "DELETE",
-    }
+  return await deleteRequest<ProductAPIStatus>(
+    `/api/products/${id}/portions/${name}`
   );
-
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
 };
