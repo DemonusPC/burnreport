@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Heading, Box, Button, Anchor } from "grommet";
+import { Heading, Box, Button } from "grommet";
 import { AddCircle } from "grommet-icons";
 
 import { useParams } from "react-router";
@@ -13,7 +13,7 @@ import {
   getProductSizesById,
   deletePortion,
 } from "../../util/data/requests";
-import PortionTable from "../../components/PortionTable";
+import PortionList from "../../components/PortionList";
 
 interface IdParams {
   id: string;
@@ -69,13 +69,13 @@ const Portions = () => {
 
   return (
     <>
-      <Box pad="large">
-        <Heading>Portions</Heading>
-        <PortionTable
+      <Box pad="large" width="large">
+        <Heading size="small">Portions</Heading>
+        <PortionList
           portions={current}
-          stateSetter={setCurrent}
+          setState={setCurrent}
           productId={Number.parseInt(id)}
-          stateReducer={removeAndDeletePortion}
+          removeFunction={removeAndDeletePortion}
         />
         <Box margin={{ top: "large" }}>
           {!adding ? (
@@ -100,11 +100,7 @@ const Portions = () => {
                   }
                   setAdding(false);
                 }}
-              />
-              <Anchor
-                margin={{ top: "medium" }}
-                label="Cancel"
-                onClick={() => setAdding(false)}
+                cancelfunction={() => setAdding(false)}
               />
             </>
           )}
