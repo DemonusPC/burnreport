@@ -159,7 +159,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
 
   return (
     <Box>
-      <Heading>Create Report</Heading>
+      <Heading size="small">Create Report</Heading>
       <Box pad={{ bottom: "large" }}>{mapProductItems(state, setState)}</Box>
 
       <Box pad={{ bottom: "large" }}>

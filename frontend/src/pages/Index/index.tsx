@@ -44,7 +44,7 @@ const Index = () => {
         <>
           <ReportForm setReportFunction={setReport} />
           <Box>
-            <Heading>Import from file</Heading>
+            <Heading size="small">Import from file</Heading>
             <FileInput
               onChange={(e) => {
                 if (e.target.files) {
