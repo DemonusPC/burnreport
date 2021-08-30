@@ -16,7 +16,7 @@ export const totalMacroInGrams = (product: Product) => {
 
 const ProductsSearch = () => {
   return (
-    <Box pad="large" align="center">
+    <Box pad="large" gridArea="main">
       <Link to="/products/add">
         <Anchor as="span" label="Add Product" key="addproduct" />
       </Link>

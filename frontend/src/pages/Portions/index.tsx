@@ -54,7 +54,7 @@ const Portions = () => {
 
   return (
     <>
-      <Box pad="large" width="large">
+      <Box pad="large" gridArea="main">
         <Heading size="small">Portions</Heading>
         <PortionList
           portions={current}

@@ -30,7 +30,7 @@ const ProductsList = () => {
   });
 
   return (
-    <Box pad="large" align="start">
+    <Box pad="large" gridArea="main">
       <Box>
         <Heading>Product Search</Heading>
       </Box>

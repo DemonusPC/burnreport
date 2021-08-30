@@ -78,7 +78,7 @@ const ProductPage = () => {
   const availablePortions = [base].concat(portions.data.result);
 
   return (
-    <Box pad="large" align="center">
+    <Box pad="large" gridArea="main">
       <Box
         direction="row"
         align="center"

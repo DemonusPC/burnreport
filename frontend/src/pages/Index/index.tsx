@@ -39,9 +39,9 @@ const Index = () => {
   });
 
   return (
-    <>
+    <Box pad="large" gridArea="main">
       {!report.completed ? (
-        <Box pad="large" align="center">
+        <>
           <ReportForm setReportFunction={setReport} />
           <Box>
             <Heading>Import from file</Heading>
@@ -53,13 +53,11 @@ const Index = () => {
               }}
             />
           </Box>
-        </Box>
+        </>
       ) : (
-        <Box pad="large">
-          <ReportRender result={report.report.result} />
-        </Box>
+        <ReportRender result={report.report.result} />
       )}
-    </>
+    </Box>
   );
 };
 

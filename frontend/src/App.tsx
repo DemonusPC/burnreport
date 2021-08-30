@@ -12,6 +12,7 @@ import ProductPage from "./pages/ProductPage";
 import TestPage from "./pages/TestPage";
 import { burnReportTheme } from "./theme/base";
 import { cookieTheme } from "./theme/cookie";
+import ResponsiveGrid from "./containers/ResponsiveGrid";
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<"light" | "dark">(
@@ -23,29 +24,31 @@ const App = () => {
       <Router>
         <Grommet full theme={burnReportTheme} themeMode={themeMode}>
           <Navigation theme={themeMode} themeSwitcher={setThemeMode} />
-          <Switch>
-            <Route path="/products/add">
-              <AddProduct />
-            </Route>
-            <Route path="/products/:id/portions">
-              <Portions />
-            </Route>
-            <Route path="/products/list">
-              <ProductsList />
-            </Route>
-            <Route path="/products/:id">
-              <ProductPage />
-            </Route>
-            <Route path="/products">
-              <ProductsSearch />
-            </Route>
-            <Route path="/test">
-              <TestPage />
-            </Route>
-            <Route path="/">
-              <Index />
-            </Route>
-          </Switch>
+          <ResponsiveGrid>
+            <Switch>
+              <Route path="/products/add">
+                <AddProduct />
+              </Route>
+              <Route path="/products/:id/portions">
+                <Portions />
+              </Route>
+              <Route path="/products/list">
+                <ProductsList />
+              </Route>
+              <Route path="/products/:id">
+                <ProductPage />
+              </Route>
+              <Route path="/products">
+                <ProductsSearch />
+              </Route>
+              <Route path="/test">
+                <TestPage />
+              </Route>
+              <Route path="/">
+                <Index />
+              </Route>
+            </Switch>
+          </ResponsiveGrid>
         </Grommet>
       </Router>
     </>

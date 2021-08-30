@@ -96,7 +96,7 @@ const AddProduct = () => {
   };
 
   return (
-    <Box pad="large" align="center">
+    <Box pad="large" gridArea="main">
       <Box>
         <Heading>Add Product</Heading>
         <Text>All values should be provided per 100 g / ml</Text>
