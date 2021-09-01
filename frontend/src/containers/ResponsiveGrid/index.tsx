@@ -5,7 +5,7 @@ import { Grid, ResponsiveContext } from "grommet";
 const columns: any = {
   small: ["auto"],
   medium: ["20%", "60%", "20%"],
-  large: ["25%", "50%", "25%"],
+  large: ["30%", "40%", "30%"],
 };
 
 const rows = ["flex"];

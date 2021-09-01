@@ -1,8 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
-import { Anchor, Text, Header, Nav, Box, Button } from "grommet";
+import { Text, Header, Nav, Box, Button } from "grommet";
 import { Scorecard, Cube, Moon, Sun } from "grommet-icons";
+import AnchorLink from "../../components/AnchorLink";
 
 interface NavigationProps {
   theme: "light" | "dark";
@@ -23,25 +23,21 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
         <Text weight="bold" color="text">
           Burnreport
         </Text>
-        <Link to="/">
-          <Anchor
-            icon={<Scorecard />}
-            color="text"
-            label={"Report"}
-            key={"report"}
-            as="span"
-          />
-        </Link>
-        <Link to="/products">
-          <Anchor
-            icon={<Cube />}
-            color="text"
-            href={"/products"}
-            label={"Products"}
-            key={"products"}
-            as="span"
-          />
-        </Link>
+        <AnchorLink
+          icon={<Scorecard />}
+          color="text"
+          label={"Report"}
+          key={"report"}
+          to="/"
+        />
+        <AnchorLink
+          to="/products"
+          icon={<Cube />}
+          color="text"
+          href={"/products"}
+          label={"Products"}
+          key={"products"}
+        />
       </Nav>
       <Box direction="row">
         <Button
@@ -60,6 +56,3 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
 };
 
 export default Navigation;
-
-// {/* <Link to="/">Report</Link>
-// <Link to="/products">Products</Link> */}

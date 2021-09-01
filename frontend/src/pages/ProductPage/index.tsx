@@ -1,5 +1,4 @@
 import {
-  Anchor,
   Box,
   Button,
   Heading,
@@ -20,7 +19,8 @@ import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import AnchorLink from "../../components/AnchorLink";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -94,9 +94,7 @@ const ProductPage = () => {
             window.history.back();
           }}
         />
-        <Link to="/products/add">
-          <Anchor as="span" label="Add Product" key="addproduct" />
-        </Link>
+        <AnchorLink to="/products/add" label="Add Product" />
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
@@ -168,10 +166,11 @@ const ProductPage = () => {
         margin={{ top: "xlarge" }}
         gap="large"
       >
-        <Link to={urlToPortion(data.id)}>
-          <Anchor as="span" label="Portions" key="toPortions" />
-        </Link>
-
+        <AnchorLink
+          to={urlToPortion(data.id)}
+          label="Portions"
+          key="toPortions"
+        />
         <Button
           fill={false}
           color="status-critical"
