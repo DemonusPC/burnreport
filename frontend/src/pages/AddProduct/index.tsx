@@ -100,7 +100,7 @@ const AddProduct = () => {
       <Box>
         <Heading>Add Product</Heading>
         <Text>All values should be provided per 100 g / ml</Text>
-        <Box width="large">
+        <Box>
           <ProductForm onSubmit={onSubmit} />
         </Box>
         {sent && <Redirect to="/products" />}
