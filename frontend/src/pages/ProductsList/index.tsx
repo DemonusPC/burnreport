@@ -26,11 +26,11 @@ const ProductsList = () => {
   if (!data) return <div>loading...</div>;
 
   const productResult = data.result.map((p: Product) => {
-    return <ProductCell {...p} />;
+    return <ProductCell {...p} key={`${p.name}${p.manufacturer}`} />;
   });
 
   return (
-    <Box pad="large" align="start">
+    <Box pad="large" gridArea="main">
       <Box>
         <Heading>Product Search</Heading>
       </Box>

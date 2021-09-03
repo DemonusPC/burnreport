@@ -7,6 +7,7 @@ import { standardMask } from "../../util/schema/masks";
 
 const PerWrapper = styled(Box)`
   align-items: center;
+  background-color: transparent;
 `;
 
 const shortName = (name: string): string => {
@@ -40,11 +41,11 @@ const ProductItem = ({
 }: ProductItemProps) => {
   return (
     <Box
-      elevation="medium"
       pad="medium"
       margin={{ bottom: "large" }}
       border="all"
       key={id}
+      round={"4px"}
     >
       <Box direction="row" alignContent="center" justify="between">
         <Text weight="bold">{shortName(name)}</Text>

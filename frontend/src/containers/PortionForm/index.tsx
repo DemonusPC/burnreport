@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, TextInput, Form, Button, FormField } from "grommet";
+import { Box, TextInput, Form, Button, FormField, Heading } from "grommet";
 import { Portion } from "../../util/schema/product";
 
 import { AddCircle } from "grommet-icons";
@@ -7,6 +7,7 @@ import { AddCircle } from "grommet-icons";
 interface PortionFormProps {
   product: number;
   selectedFunction: (product: Portion) => void;
+  cancelfunction: () => void;
 }
 
 const parseProduct = (product: number, value: any): Portion => {
@@ -17,7 +18,11 @@ const parseProduct = (product: number, value: any): Portion => {
   };
 };
 
-const PortionForm = ({ product, selectedFunction }: PortionFormProps) => {
+const PortionForm = ({
+  product,
+  selectedFunction,
+  cancelfunction,
+}: PortionFormProps) => {
   return (
     <Form
       onSubmit={(event: any) => {
@@ -28,8 +33,10 @@ const PortionForm = ({ product, selectedFunction }: PortionFormProps) => {
         }
       }}
     >
-      <Box direction="row" gap="medium">
-        <Box direction="row" gap="xsmall">
+      <Box gap="medium">
+        <Heading level={2} size="small">
+          New portion
+        </Heading>
         <FormField name={"name"} label={"Name"} required>
           <TextInput name={"name"} plain={false} />
         </FormField>
@@ -37,9 +44,15 @@ const PortionForm = ({ product, selectedFunction }: PortionFormProps) => {
         <FormField name={"portion"} label={"Portion (in grams)"} required>
           <TextInput name={"portion"} plain={false} />
         </FormField>
-        </Box>
-        <Box direction="row" align="center" margin={{top: "medium"}} gap="xsmall">
-        <Button primary type="submit" icon={<AddCircle />} label="Add" />
+        <Box
+          direction="row"
+          align="center"
+          margin={{ top: "medium" }}
+          gap="small"
+        >
+          <Button primary type="submit" icon={<AddCircle />} label="Add" />
+
+          <Button type="button" label="Cancel" onClick={cancelfunction} />
         </Box>
       </Box>
     </Form>

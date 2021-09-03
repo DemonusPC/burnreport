@@ -1,14 +1,9 @@
 import React from "react";
-import {
-  Heading,
-  Box,
-  Text,
-} from "grommet";
+import { Heading, Box, Text, FileInput } from "grommet";
 import { Product } from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
-import ProductForm from '../../containers/ProductForm';
-
+import ProductForm from "../../containers/ProductForm";
 
 const propertyToNumber = (property: number): number => {
   if (property) {
@@ -42,8 +37,8 @@ const toProduct = (flat: any): Product => {
       trans: propertyToNumber(flat.trans),
       polyunsaturated: {
         omega3: propertyToNumber(flat.omega3),
-        omega6: propertyToNumber(flat.omega6)
-      }
+        omega6: propertyToNumber(flat.omega6),
+      },
     },
     protein: {
       total: propertyToNumber(flat.protein),
@@ -90,7 +85,6 @@ const fileChosen = (file: any | undefined, setReport: any) => {
   reader.readAsText(file);
 };
 
-
 const AddProduct = () => {
   const [sent, setSent] = React.useState(false);
 
@@ -102,20 +96,18 @@ const AddProduct = () => {
   };
 
   return (
-    <Box pad="large" align="center">
+    <Box pad="large" gridArea="main">
       <Box>
         <Heading>Add Product</Heading>
         <Text>All values should be provided per 100 g / ml</Text>
-        <Box width="large">
+        <Box>
           <ProductForm onSubmit={onSubmit} />
         </Box>
         {sent && <Redirect to="/products" />}
       </Box>
       <Box margin={{ top: "xlarge" }}>
         <Heading>Upload Products as CSV</Heading>
-        <input
-          type="file"
-          accept=".csv"
+        <FileInput
           onChange={(e) => {
             if (e.target.files) {
               fileChosen(e.target.files[0], setSent);

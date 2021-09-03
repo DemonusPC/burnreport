@@ -1,5 +1,5 @@
 import React from "react";
-import { Heading, Box } from "grommet";
+import { Heading, Box, FileInput } from "grommet";
 import { emptyProduct } from "../../util/schema/product";
 
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
@@ -39,15 +39,13 @@ const Index = () => {
   });
 
   return (
-    <>
+    <Box pad="large" gridArea="main">
       {!report.completed ? (
-        <Box pad="medium">
+        <>
           <ReportForm setReportFunction={setReport} />
           <Box>
-            <Heading>Import from file</Heading>
-            <input
-              type="file"
-              accept=".json"
+            <Heading size="small">Import from file</Heading>
+            <FileInput
               onChange={(e) => {
                 if (e.target.files) {
                   fileChosen(e.target.files[0], setReport);
@@ -55,13 +53,11 @@ const Index = () => {
               }}
             />
           </Box>
-        </Box>
+        </>
       ) : (
-        <Box pad="large">
-          <ReportRender result={report.report.result} />
-        </Box>
+        <ReportRender result={report.report.result} />
       )}
-    </>
+    </Box>
   );
 };
 

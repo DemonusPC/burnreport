@@ -1,9 +1,12 @@
-import { Product, ProductAPIStatus, ProductSize, Portion } from "../schema/product";
+import {
+  Product,
+  ProductAPIStatus,
+  ProductSize,
+  Portion,
+} from "../schema/product";
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
-import { BodyLog } from "../schema/body";
 import { SearchSuggestion } from "../../containers/ProductSearchForm";
-
 
 export interface RestResult<T> {
   status: boolean;
@@ -11,175 +14,114 @@ export interface RestResult<T> {
 }
 
 export interface ResultList<T> {
-  result: Array<T>
+  result: Array<T>;
 }
 
-export const getProductSearchSuggestions = async (suggestion: string): Promise<Array<SearchSuggestion>> => {
-  const request =  await fetch(encodeURI(`/api/search/suggestions?p=${suggestion}`));
+export const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) {
+      throw new Error("An error occured");
+    }
+    return r.json();
+  });
 
-  const result : ResultList<SearchSuggestion> = await request.json();
+export const getProductSearchSuggestions = async (
+  suggestion: string
+): Promise<Array<SearchSuggestion>> => {
+  const request = await fetch(
+    encodeURI(`/api/search/suggestions?p=${suggestion}`)
+  );
+
+  const result: ResultList<SearchSuggestion> = await request.json();
 
   return result.result;
-}
+};
 
+export const getProductSearch = async (
+  suggestion: string
+): Promise<Array<Product>> => {
+  const request = await fetch(encodeURI(`/api/search?p=${suggestion}`));
 
-export const getProductSearch = async (suggestion: string): Promise<Array<Product>> => {
-    const request =  await fetch(encodeURI(`/api/search?p=${suggestion}`));
+  const result: ResultList<Product> = await request.json();
 
-    const result : ResultList<Product> = await request.json();
-
-    return result.result;
-}
-
+  return result.result;
+};
 
 export const getSingleProductById = async (id: number) => {
-    const request =  await fetch(encodeURI(`/api/products/${id}`));
+  const request = await fetch(encodeURI(`/api/products/${id}`));
 
-    const result : ResultList<Product> = await request.json();
-
-    return result.result;
-}
-    
-export const postReport = async (report: Report): Promise<ReportResult> => {
-    const response = await fetch(`/api/report`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        origin: "*",
-      },
-      mode: "cors",
-      body: JSON.stringify(report)
-    });
-
-    const result: ReportResult = await response.json();
-
-    return result;
-}
-
-export const postProduct = async (product: Product): Promise<ProductAPIStatus> => {
-  const response = await fetch(`/api/products`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      origin: "*",
-    },
-    mode: "cors",
-    body: JSON.stringify(product)
-  });
-
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
-}
-
-export const deleteProduct = async (id: number): Promise<ProductAPIStatus> => {
-  const response = await fetch(`/api/products/${id}`, {
-    method: 'DELETE',
-    headers: {
-      origin: "*",
-    },
-    mode: "cors",
-  });
-
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
-}
-
-export const postCSVProducts = async(data: any): Promise<ProductAPIStatus> => {
-  const response = await fetch(`/api/products/csv`, {
-    method: 'POST',
-    headers: {
-      origin: "*",
-    },
-    mode: "cors",
-    body: data
-  });
-
-  const result: ProductAPIStatus = await response.json();
-
-  return result;
-}
-
-export const getProductSizesById = async (id: number) => {
-  const request =  await fetch(encodeURI(`/api/products/${id}/portions`));
-  const result : ResultList<ProductSize> = await request.json();
+  const result: ResultList<Product> = await request.json();
 
   return result.result;
-}
+};
 
-export const postPortions = async (portions: Array<Portion>): Promise<RestResult<ProductAPIStatus>> => {
-  const response = await fetch(`/api/products/portions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      origin: "*",
-    },
-    mode: "cors",
-    body: JSON.stringify(portions)
+const generatePostRequest = <T, O>(uri: string): ((data: T) => Promise<O>) => {
+  return async (data: T): Promise<O> => {
+    const response = await fetch(uri, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result: O = await response.json();
+
+    return result;
+  };
+};
+
+// This is different from a generator
+const deleteRequest = async <O>(uri: string): Promise<O> => {
+  const response = await fetch(uri, {
+    method: "DELETE",
   });
 
-  if(!response.ok) {
-    const result : RestResult<ProductAPIStatus> = {
-      status: false
-    }
-    return result; 
-  }
-
-  const jsonData : ProductAPIStatus = await response.json();
-
-  const result : RestResult<ProductAPIStatus> = {
-    status: true,
-    data: jsonData
-  }
+  const result: O = await response.json();
 
   return result;
-}
+};
 
-// /api/products/21/sizes/portion
+export const postReport = generatePostRequest<Report, ReportResult>(
+  `/api/report`
+);
 
-export const deletePortion = async (id: number, name: string): Promise<ProductAPIStatus> => {
-  const response = await fetch(encodeURI(`/api/products/${id}/portions/${name}`), {
-    method: 'DELETE',
-    headers: {
-      origin: "*",
-    },
-    mode: "cors",
+export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
+  `/api/products`
+);
+
+export const deleteProduct = async (id: number): Promise<ProductAPIStatus> => {
+  return await deleteRequest(`/api/products/${id}`);
+};
+
+export const postCSVProducts = async (data: any): Promise<ProductAPIStatus> => {
+  const response = await fetch(`/api/products/csv`, {
+    method: "POST",
+    body: data,
   });
 
   const result: ProductAPIStatus = await response.json();
 
   return result;
-}
+};
 
-export const postBodyLog = async (bodyLog: BodyLog): Promise<number> => {
-  const response = await fetch(`/api/body`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      origin: "*",
-    },
-    mode: "cors",
-    body: JSON.stringify(bodyLog)
-  });
+export const getProductSizesById = async (id: number) => {
+  const request = await fetch(encodeURI(`/api/products/${id}/portions`));
+  const result: ResultList<ProductSize> = await request.json();
 
-  const result: number= response.status;
+  return result.result;
+};
 
-  return result;
-}
+export const postPortions = generatePostRequest<
+  Portion[],
+  RestResult<ProductAPIStatus>
+>(`/api/products/portions`);
 
-export const putBodyLog = async (bodyLog: BodyLog): Promise<number> => {
-  const response = await fetch(`/api/body`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      origin: "*",
-    },
-    mode: "cors",
-    body: JSON.stringify(bodyLog)
-  });
-
-  const result: number= response.status;
-
-  return result;
-}
+export const deletePortion = async (
+  id: number,
+  name: string
+): Promise<ProductAPIStatus> => {
+  return await deleteRequest<ProductAPIStatus>(
+    `/api/products/${id}/portions/${name}`
+  );
+};

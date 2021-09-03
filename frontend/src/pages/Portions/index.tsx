@@ -1,81 +1,77 @@
-import React, { useState, useEffect } from "react";
-import { Heading, Box, Button, Anchor } from "grommet";
+import React, { useState } from "react";
+import { Heading, Box, Button } from "grommet";
 import { AddCircle } from "grommet-icons";
-
 import { useParams } from "react-router";
 
 import { Portion } from "../../util/schema/product";
 import PortionForm from "../../containers/PortionForm";
-import cogoToast from "cogo-toast";
 
 import {
   postPortions,
-  getProductSizesById,
   deletePortion,
+  ResultList,
 } from "../../util/data/requests";
-import PortionTable from "../../components/PortionTable";
+import PortionList from "../../components/PortionList";
+import useSWR, { mutate } from "swr";
 
 interface IdParams {
-  id: string
+  id: string;
 }
 
-const emptyState = (): Array<Portion> => {
-  return [];
+const formatToPortion = (unformatted: any): Portion => {
+  return {
+    product: parseInt(unformatted.product),
+    name: unformatted.name,
+    grams: parseFloat(unformatted.grams),
+  };
 };
 
-const removeAndDeletePortion = (
-  state: Array<Portion>,
-  name: string,
-  productId: number,
-  removeFunction: any
+// Any since it can take any of the two functions
+// I need to type this correclty
+const mutatePortions = async (
+  id: number,
+  nextData: ResultList<Portion>,
+  apiCall: any
 ) => {
-  deletePortion(productId, name);
-  const result = state.filter((p) => p.name !== name);
-  return result;
-};
+  mutate(`/api/products/${id}/portions`, nextData, false);
 
-const submit = async (portions: Array<any>) => {
-  const parsed: Array<Portion> = portions.map((portion: any) => {
-    return {
-      product: parseInt(portion.product),
-      name: portion.name,
-      grams: parseFloat(portion.grams),
-    };
-  });
+  await apiCall();
 
-  const result = await postPortions(parsed);
-  return result;
-};
-
-const refreshPortions = async (id: number, setState: any) => {
-  const portions = await getProductSizesById(id);
-  setState(portions);
+  mutate(`/api/products/${id}/portions`);
 };
 
 const Portions = () => {
-  const [current, setCurrent] = useState(emptyState());
-  const [adding, setAdding] = useState(false);
   const { id } = useParams<IdParams>();
+  const { data, error } = useSWR<ResultList<Portion>>(
+    encodeURI(`/api/products/${id}/portions`)
+  );
+  const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
-    const fetchAndSet = async () => {
-      const portions = await getProductSizesById(Number.parseInt(id));
+  if (error) return <div>Error</div>;
+  if (!data) return <div>loading...</div>;
 
-      setCurrent(portions);
-    };
-
-    fetchAndSet();
-  }, [id]);
+  const current = data.result;
 
   return (
     <>
-      <Box pad="large" margin="large" elevation="medium">
-        <Heading>Portions</Heading>
-        <PortionTable
+      <Box pad="large" gridArea="main">
+        <Heading margin={{ bottom: "2em" }} size="small">
+          Portions
+        </Heading>
+        <PortionList
           portions={current}
-          stateSetter={setCurrent}
           productId={Number.parseInt(id)}
-          stateReducer={removeAndDeletePortion}
+          removeFunction={async (portionName: string) => {
+            const nextdata: ResultList<Portion> = {
+              result: current.filter(
+                (value: Portion) => value.name !== portionName
+              ),
+            };
+
+            await mutatePortions(Number.parseInt(id), nextdata, async () => {
+              await deletePortion(Number.parseInt(id), portionName);
+            });
+          }}
         />
         <Box margin={{ top: "large" }}>
           {!adding ? (
@@ -90,21 +86,24 @@ const Portions = () => {
             <>
               <PortionForm
                 product={Number.parseInt(id)}
-                selectedFunction={async (portion: Portion) => {
-                  const submitResult = await submit([portion]);
-                  if (submitResult.status) {
-                    cogoToast.success("Portion added");
-                    await refreshPortions(Number.parseInt(id), setCurrent);
-                  } else {
-                    cogoToast.error("Failed to add portion");
-                  }
+                selectedFunction={async (portion: any) => {
+                  const formatted: Portion = formatToPortion(portion);
+
+                  const nextdata: ResultList<Portion> = {
+                    result: [...current, formatted],
+                  };
+
+                  await mutatePortions(
+                    Number.parseInt(id),
+                    nextdata,
+                    async () => {
+                      await postPortions([formatted]);
+                    }
+                  );
+
                   setAdding(false);
                 }}
-              />
-              <Anchor
-                margin={{ top: "medium" }}
-                label="Cancel"
-                onClick={() => setAdding(false)}
+                cancelfunction={() => setAdding(false)}
               />
             </>
           )}

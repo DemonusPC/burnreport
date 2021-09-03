@@ -1,5 +1,4 @@
 import {
-  Anchor,
   Box,
   Button,
   Heading,
@@ -15,11 +14,13 @@ import useSWR from "swr";
 import NutrientBar from "../../containers/NutrientBar";
 import NutrientTable from "../../containers/NutrientTable";
 import { calculatePer, displayRound } from "../../util/data/calculations";
-import { deleteProduct, ResultList } from "../../util/data/requests";
+import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
 import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
+import { useHistory } from "react-router-dom";
+import AnchorLink from "../../components/AnchorLink";
 
 export const totalMacroInGrams = (product: Product) => {
   const carbs = product.carbohydrates.total;
@@ -57,6 +58,7 @@ interface ProductParams {
 }
 
 const ProductPage = () => {
+  const history = useHistory();
   const params: ProductParams = useParams<ProductParams>();
   const parsed = Number.parseInt(params.id);
   const [state, setState] = React.useState({
@@ -65,7 +67,10 @@ const ProductPage = () => {
     unitOptions: [base],
   });
 
-  const { data, error } = useSWR<Product>(encodeURI(`/api/products/${parsed}`));
+  const { data, error } = useSWR<Product | null>(
+    encodeURI(`/api/products/${parsed}`),
+    fetcher
+  );
   const portions = useSWR<ResultList<ProductSize>>(
     encodeURI(`/api/products/${parsed}/portions`)
   );
@@ -76,7 +81,7 @@ const ProductPage = () => {
   const availablePortions = [base].concat(portions.data.result);
 
   return (
-    <Box pad="large" align="center">
+    <Box pad="large" gridArea="main">
       <Box
         direction="row"
         align="center"
@@ -92,7 +97,7 @@ const ProductPage = () => {
             window.history.back();
           }}
         />
-        <Anchor href="/products/add" label="Add Product" key="addproduct" />
+        <AnchorLink to="/products/add" label="Add Product" />
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
@@ -164,18 +169,19 @@ const ProductPage = () => {
         margin={{ top: "xlarge" }}
         gap="large"
       >
-        <Anchor
-          href={urlToPortion(data.id)}
+        <AnchorLink
+          to={urlToPortion(data.id)}
           label="Portions"
-          key="addproduct"
+          key="toPortions"
         />
         <Button
           fill={false}
           color="status-critical"
           type="button"
           label="Delete Product"
-          onClick={() => {
-            deleteProduct(data.id).then((status) => {});
+          onClick={async () => {
+            await deleteProduct(data.id);
+            history.push("/products");
           }}
         />
       </Box>

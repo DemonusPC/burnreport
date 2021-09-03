@@ -1,12 +1,12 @@
 import React from "react";
-import {
-  Box,
-  Heading,
-  Button,
-} from "grommet";
+import { Box, Heading, Button } from "grommet";
 import SearchForm from "../SearchForm";
 import { Product, ProductSize } from "../../util/schema/product";
-import { getProductSearch, postReport, getProductSizesById } from "../../util/data/requests";
+import {
+  getProductSearch,
+  postReport,
+  getProductSizesById,
+} from "../../util/data/requests";
 import { ConsumedProduct, Report, ConsumedRaw } from "../../util/schema/report";
 import ProductItem from "../ProductItem";
 
@@ -28,7 +28,7 @@ const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
     consumed,
   };
 
-  postReport(report).then((json) => {
+  postReport(report).then((json: any) => {
     setReport({ completed: true, report: json });
   });
 };
@@ -48,12 +48,8 @@ const baseUnit: ProductSize = {
   grams: 1,
 };
 
-
 // Add Product Items
-const addConsumedProduct = (
-  product: Product,
-  setState: any
-) => {
+const addConsumedProduct = (product: Product, setState: any) => {
   const boxedProduct: ConsumedRaw = {
     id: product.id,
     name: product.name,
@@ -62,18 +58,15 @@ const addConsumedProduct = (
     unitOptions: [baseUnit],
   };
 
-  setState((prevState : any) => {
+  setState((prevState: any) => {
     const newState = new Map(prevState);
     newState.set(product.id, boxedProduct);
     return newState;
   });
 };
 // Remove Product Items
-const deleteConsumedProduct = (
-  productId: number,
-  setState: any
-) => {
-  setState((prevState : any) => {
+const deleteConsumedProduct = (productId: number, setState: any) => {
+  setState((prevState: any) => {
     const newState = new Map(prevState);
     newState.delete(productId);
     return newState;
@@ -88,8 +81,7 @@ const changeProductAmount = (
   amount: number,
   setState: any
 ) => {
-  
-  setState((prevState : any) => {
+  setState((prevState: any) => {
     const target = prevState.get(productId);
     if (target) {
       const newState = new Map(prevState);
@@ -99,7 +91,6 @@ const changeProductAmount = (
     }
     return prevState;
   });
-
 };
 
 // Change Unit
@@ -108,7 +99,7 @@ const changeProductUnit = (
   unit: ProductSize,
   setState: any
 ) => {
-  setState((prevState : any) => {
+  setState((prevState: any) => {
     const target = prevState.get(productId);
     if (target) {
       const newState = new Map(prevState);
@@ -124,9 +115,9 @@ const changeProductUnit = (
 const getProductUnitOptions = async (productId: number, setState: any) => {
   const serverPortions = await getProductSizesById(productId);
 
-  setState((prevState : any) => {
-    const target : ConsumedRaw = prevState.get(productId);
-    if(target){
+  setState((prevState: any) => {
+    const target: ConsumedRaw = prevState.get(productId);
+    if (target) {
       const newState = new Map(prevState);
       target.unitOptions = [baseUnit].concat(serverPortions);
       newState.set(productId, target);
@@ -135,8 +126,7 @@ const getProductUnitOptions = async (productId: number, setState: any) => {
 
     return prevState;
   });
-}
-
+};
 
 // Produyct Item Mapping
 
@@ -157,9 +147,9 @@ const mapProductItems = (state: any, setState: any) => {
       }}
       unit={product.unit}
       unitOptions={product.unitOptions}
-      setUnit={((option: ProductSize) => {
-        changeProductUnit(product.id, option, setState)
-      } )}
+      setUnit={(option: ProductSize) => {
+        changeProductUnit(product.id, option, setState);
+      }}
     />
   ));
 };
@@ -169,10 +159,8 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
 
   return (
     <Box>
-      <Heading>Create Report</Heading>
-      <Box pad={{ bottom: "large" }}>
-          {mapProductItems(state, setState)}
-      </Box>
+      <Heading size="small">Create Report</Heading>
+      <Box pad={{ bottom: "large" }}>{mapProductItems(state, setState)}</Box>
 
       <Box pad={{ bottom: "large" }}>
         <SearchForm
@@ -186,11 +174,18 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
 
       <Box>
         <Box direction="row" gap="medium">
-          <Button type="submit" primary label="Submit" onClick={() => {
-                const rawProducts: Array<ConsumedRaw> = Array.from(state.values());
-                const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
-                sendReport(boxed, setReportFunction);
-          }} />
+          <Button
+            type="submit"
+            primary
+            label="Submit"
+            onClick={() => {
+              const rawProducts: Array<ConsumedRaw> = Array.from(
+                state.values()
+              );
+              const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
+              sendReport(boxed, setReportFunction);
+            }}
+          />
           <Button
             type="reset"
             label="Reset"
