@@ -14,7 +14,7 @@ import useSWR from "swr";
 import NutrientBar from "../../containers/NutrientBar";
 import NutrientTable from "../../containers/NutrientTable";
 import { calculatePer, displayRound } from "../../util/data/calculations";
-import { deleteProduct, ResultList } from "../../util/data/requests";
+import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
 import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
@@ -67,7 +67,10 @@ const ProductPage = () => {
     unitOptions: [base],
   });
 
-  const { data, error } = useSWR<Product>(encodeURI(`/api/products/${parsed}`));
+  const { data, error } = useSWR<Product | null>(
+    encodeURI(`/api/products/${parsed}`),
+    fetcher
+  );
   const portions = useSWR<ResultList<ProductSize>>(
     encodeURI(`/api/products/${parsed}/portions`)
   );

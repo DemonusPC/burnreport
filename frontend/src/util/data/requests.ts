@@ -17,6 +17,14 @@ export interface ResultList<T> {
   result: Array<T>;
 }
 
+export const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) {
+      throw new Error("An error occured");
+    }
+    return r.json();
+  });
+
 export const getProductSearchSuggestions = async (
   suggestion: string
 ): Promise<Array<SearchSuggestion>> => {
