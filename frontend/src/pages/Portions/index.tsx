@@ -55,7 +55,9 @@ const Portions = () => {
   return (
     <>
       <Box pad="large" gridArea="main">
-        <Heading size="small">Portions</Heading>
+        <Heading margin={{ bottom: "2em" }} size="small">
+          Portions
+        </Heading>
         <PortionList
           portions={current}
           productId={Number.parseInt(id)}

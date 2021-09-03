@@ -10,6 +10,10 @@ interface PortionTableProps {
 }
 
 const PortionList = ({ portions, removeFunction }: PortionTableProps) => {
+  if (portions.length === 0) {
+    return <Text>No portion specified</Text>;
+  }
+
   return (
     <>
       {portions.map((portion: Portion) => {
