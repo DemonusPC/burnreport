@@ -4,6 +4,7 @@ use actix_web::{HttpRequest, HttpResponse, Responder};
 pub use self::base::Product;
 pub use self::base::ProductSubmission;
 pub use self::base::Report;
+pub use self::base::Unit;
 
 pub use self::base::Portion;
 use serde_derive::{Deserialize, Serialize};

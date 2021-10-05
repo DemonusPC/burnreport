@@ -41,82 +41,58 @@ export const extractTabularNutrients = (
   }
   const rows = [];
 
+  const { carbohydrates, fat, protein, salt } = product.nutrition;
   rows.push(
     asColumn(
       "Carbohydrates",
       "total",
-      calculateToDisplay(product.carbohydrates.total, amount, baseUnit)
+      calculateToDisplay(carbohydrates.total, amount, baseUnit)
     )
   );
   rows.push(
     asColumn(
       "Carbohydrates",
       "sugar",
-      calculateToDisplay(product.carbohydrates.sugar, amount, baseUnit)
+      calculateToDisplay(carbohydrates.sugar, amount, baseUnit)
     )
   );
   rows.push(
     asColumn(
       "Carbohydrates",
       "added sugar",
-      calculateToDisplay(product.carbohydrates.addedSugar, amount, baseUnit)
+      calculateToDisplay(carbohydrates.addedSugar || 0, amount, baseUnit)
     )
   );
   rows.push(
     asColumn(
       "Carbohydrates",
       "fiber",
-      calculateToDisplay(product.carbohydrates.fiber, amount, baseUnit)
+      calculateToDisplay(carbohydrates.fiber || 0, amount, baseUnit)
     )
   );
   rows.push(
     asColumn(
       "Carbohydrates",
       "starch",
-      calculateToDisplay(product.carbohydrates.starch, amount, baseUnit)
+      calculateToDisplay(carbohydrates.starch || 0, amount, baseUnit)
     )
   );
 
   rows.push(
-    asColumn(
-      "Fat",
-      "total",
-      calculateToDisplay(product.fat.total, amount, baseUnit)
-    )
+    asColumn("Fat", "total", calculateToDisplay(fat.total, amount, baseUnit))
   );
   rows.push(
     asColumn(
       "Fat",
       "saturated",
-      calculateToDisplay(product.fat.saturated, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Fat",
-      "monounsaturated",
-      calculateToDisplay(product.fat.monounsaturated, amount, baseUnit)
+      calculateToDisplay(fat.saturated, amount, baseUnit)
     )
   );
   rows.push(
     asColumn(
       "Fat",
       "trans",
-      calculateToDisplay(product.fat.trans, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Fat",
-      "omega 3",
-      calculateToDisplay(product.fat.polyunsaturated.omega3, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Fat",
-      "omega 6",
-      calculateToDisplay(product.fat.polyunsaturated.omega6, amount, baseUnit)
+      calculateToDisplay(fat.trans || 0, amount, baseUnit)
     )
   );
 
@@ -124,16 +100,12 @@ export const extractTabularNutrients = (
     asColumn(
       "Protein",
       "total",
-      calculateToDisplay(product.protein.total, amount, baseUnit)
+      calculateToDisplay(protein.total, amount, baseUnit)
     )
   );
 
   rows.push(
-    asColumn(
-      "Salt",
-      "total",
-      calculateToDisplay(product.salt.total, amount, baseUnit)
-    )
+    asColumn("Salt", "total", calculateToDisplay(salt.total, amount, baseUnit))
   );
 
   return rows;
@@ -145,50 +117,23 @@ export const reportNutrientsToTable = (product: Product) => {
   }
   const rows = [];
 
-  rows.push(asColumn("Carbohydrates", "total", product.carbohydrates.total));
-  rows.push(asColumn("Carbohydrates", "sugar", product.carbohydrates.sugar));
+  const { carbohydrates, fat, protein, salt } = product.nutrition;
+
+  rows.push(asColumn("Carbohydrates", "total", carbohydrates.total));
+  rows.push(asColumn("Carbohydrates", "sugar", carbohydrates.sugar));
   rows.push(
-    asColumn("Carbohydrates", "added sugar", product.carbohydrates.addedSugar)
+    asColumn("Carbohydrates", "added sugar", carbohydrates.addedSugar || 0)
   );
-  rows.push(asColumn("Carbohydrates", "fiber", product.carbohydrates.fiber));
-  rows.push(asColumn("Carbohydrates", "starch", product.carbohydrates.starch));
+  rows.push(asColumn("Carbohydrates", "fiber", carbohydrates.fiber || 0));
+  rows.push(asColumn("Carbohydrates", "starch", carbohydrates.starch || 0));
 
-  rows.push(asColumn("Fat", "total", product.fat.total));
-  rows.push(asColumn("Fat", "saturated", product.fat.saturated));
-  rows.push(asColumn("Fat", "monounsaturated", product.fat.monounsaturated));
-  rows.push(asColumn("Fat", "trans", product.fat.trans));
-  rows.push(asColumn("Fat", "omega 3", product.fat.polyunsaturated.omega3));
-  rows.push(asColumn("Fat", "omega 6", product.fat.polyunsaturated.omega6));
+  rows.push(asColumn("Fat", "total", fat.total));
+  rows.push(asColumn("Fat", "saturated", fat.saturated));
+  rows.push(asColumn("Fat", "trans", fat.trans || 0));
 
-  rows.push(asColumn("Protein", "total", product.protein.total));
+  rows.push(asColumn("Protein", "total", protein.total));
 
-  rows.push(asColumn("Salt", "total", product.salt.total));
+  rows.push(asColumn("Salt", "total", salt.total));
 
   return rows;
-};
-
-export const flattenProductList = (products: Product[]): Array<FlatProduct> => {
-  const result: Array<FlatProduct> = products.map((product) => {
-    return {
-      name: product.name,
-      manufacturer: product.manufacturer,
-      kcal: product.energy.kcal,
-      kj: product.energy.kj,
-      carbohydrates: product.carbohydrates.total,
-      sugar: product.carbohydrates.sugar,
-      addedSugaer: product.carbohydrates.addedSugar,
-      fiber: product.carbohydrates.fiber,
-      starch: product.carbohydrates.starch,
-      fat: product.fat.total,
-      saturated: product.fat.saturated,
-      monounsaturated: product.fat.monounsaturated,
-      trans: product.fat.trans,
-      protein: product.protein.total,
-      salt: product.salt.total,
-      omega3: product.fat.polyunsaturated.omega3,
-      omega6: product.fat.polyunsaturated.omega6,
-    };
-  });
-
-  return result;
 };

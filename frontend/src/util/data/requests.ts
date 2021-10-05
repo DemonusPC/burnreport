@@ -37,16 +37,6 @@ export const getProductSearchSuggestions = async (
   return result.result;
 };
 
-export const getProductSearch = async (
-  suggestion: string
-): Promise<Array<Product>> => {
-  const request = await fetch(encodeURI(`/api/search?p=${suggestion}`));
-
-  const result: ResultList<Product> = await request.json();
-
-  return result.result;
-};
-
 export const getSingleProductById = async (id: number) => {
   const request = await fetch(encodeURI(`/api/products/${id}`));
 

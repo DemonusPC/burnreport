@@ -1,6 +1,6 @@
 import React from "react";
 import { Heading, Box, Text, FileInput } from "grommet";
-import { Product } from "../../util/schema/product";
+import { Product, Unit } from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
 import ProductForm from "../../containers/ProductForm";
@@ -18,51 +18,48 @@ const toProduct = (flat: any): Product => {
   return {
     id: 0,
     name: flat.name,
-    manufacturer: flat.manufacturer,
-    energy: {
-      kcal: propertyToNumber(flat.kcal),
-      kj: propertyToNumber(flat.kj),
-    },
-    carbohydrates: {
-      total: propertyToNumber(flat.carbohydrates),
-      fiber: propertyToNumber(flat.fiber),
-      sugar: propertyToNumber(flat.sugar),
-      addedSugar: propertyToNumber(flat.addedSugar),
-      starch: propertyToNumber(flat.starch),
-    },
-    fat: {
-      total: propertyToNumber(flat.fat),
-      saturated: propertyToNumber(flat.saturated),
-      monounsaturated: propertyToNumber(flat.monounsaturated),
-      trans: propertyToNumber(flat.trans),
-      polyunsaturated: {
-        omega3: propertyToNumber(flat.omega3),
-        omega6: propertyToNumber(flat.omega6),
+    unit: Unit.Grams,
+    nutrition: {
+      energy: {
+        kcal: propertyToNumber(flat.kcal),
+        kj: propertyToNumber(flat.kj),
       },
-    },
-    protein: {
-      total: propertyToNumber(flat.protein),
-    },
-    salt: {
-      total: propertyToNumber(flat.salt),
-    },
-    vitamins: {
+      carbohydrates: {
+        total: propertyToNumber(flat.carbohydrates),
+        fiber: propertyToNumber(flat.fiber),
+        sugar: propertyToNumber(flat.sugar),
+        addedSugar: propertyToNumber(flat.addedSugar),
+        starch: propertyToNumber(flat.starch),
+      },
       fat: {
-        a: propertyToNumber(flat.a),
-        d: propertyToNumber(flat.d),
-        e: propertyToNumber(flat.e),
-        k: propertyToNumber(flat.k),
+        total: propertyToNumber(flat.fat),
+        saturated: propertyToNumber(flat.saturated),
+        trans: propertyToNumber(flat.trans),
       },
-      water: {
-        b1: propertyToNumber(flat.b1),
-        b2: propertyToNumber(flat.b2),
-        b3: propertyToNumber(flat.b3),
-        b5: propertyToNumber(flat.b5),
-        b6: propertyToNumber(flat.b6),
-        b7: propertyToNumber(flat.b7),
-        b9: propertyToNumber(flat.b9),
-        b12: propertyToNumber(flat.b12),
-        c: propertyToNumber(flat.c),
+      protein: {
+        total: propertyToNumber(flat.protein),
+      },
+      salt: {
+        total: propertyToNumber(flat.salt),
+      },
+      vitamins: {
+        fat: {
+          a: propertyToNumber(flat.a),
+          d: propertyToNumber(flat.d),
+          e: propertyToNumber(flat.e),
+          k: propertyToNumber(flat.k),
+        },
+        water: {
+          b1: propertyToNumber(flat.b1),
+          b2: propertyToNumber(flat.b2),
+          b3: propertyToNumber(flat.b3),
+          b5: propertyToNumber(flat.b5),
+          b6: propertyToNumber(flat.b6),
+          b7: propertyToNumber(flat.b7),
+          b9: propertyToNumber(flat.b9),
+          b12: propertyToNumber(flat.b12),
+          c: propertyToNumber(flat.c),
+        },
       },
     },
   };

@@ -8,10 +8,9 @@ import NutrientTable from "../NutrientTable";
 import NutrientBar from "../NutrientBar";
 import { displayRound } from "../../util/data/calculations";
 import ConsumedItem from "../ConsumedItem";
-import { totalMacroInGrams } from "../../pages/ProductPage";
 import AdditionalTable from "../AdditionalTable";
 import { vitaminsToRow } from "../../util/schema/vitamins";
-import OmegaBar from "../OmegaBar";
+// import OmegaBar from "../OmegaBar";
 
 export interface ReportResult {
   timeDone: number;
@@ -36,27 +35,26 @@ const ReportRender = ({ result }: ReportResult) => {
         <Heading>Report</Heading>
         <Box direction="column">
           <Heading level={2}>Total consumed</Heading>
-          <NutrientBar
+          {/* <NutrientBar
             total={totalMacroInGrams(result.total)}
-            carbohydrates={result.total.carbohydrates.total}
-            fat={result.total.fat.total}
-            protein={result.total.protein.total}
-          />
+            carbohydrates={result.total.nutrition.carbohydrates.total}
+            fat={result.total.nutrition.fat.total}
+            protein={result.total.nutrition.protein.total}
+          /> */}
           <Energy level={4}>
-            {displayRound(result.total.energy.kcal)} kcal
+            {displayRound(result.total.nutrition.energy.kcal)} kcal
           </Energy>
           <NutrientTable product={result.total} amount={100} baseUnit={1} />
 
           <Heading level={2}>Vitamins</Heading>
 
           <AdditionalTable
-            entity={result.total.vitamins}
+            entity={result.total.nutrition.vitamins}
             mapper={vitaminsToRow}
             unit={"mg"}
           />
 
           <Heading level={3}> Omega 3 to Omega 6</Heading>
-        <OmegaBar omega3={result.total.fat.polyunsaturated.omega3} omega6={result.total.fat.polyunsaturated.omega6} />
           <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>{mapConsumed(result.consumed)}</Accordion>
         </Box>

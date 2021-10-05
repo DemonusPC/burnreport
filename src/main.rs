@@ -3,7 +3,6 @@ use routes::{api_routes, frontend, frontend_helper_routes};
 use std::env;
 
 mod api;
-mod body;
 mod config;
 mod nutrients;
 mod products;

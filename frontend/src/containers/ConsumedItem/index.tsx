@@ -4,7 +4,6 @@ import { Product } from "../../util/schema/product";
 import { displayRound } from "../../util/data/calculations";
 import NutrientTable from "../NutrientTable";
 
-
 // const shortName = (name: string) : string => {
 //   const max = 15
 //   if(name.length > max) {
@@ -13,25 +12,12 @@ import NutrientTable from "../NutrientTable";
 //   return name;
 // }
 
-const ConsumedItem = ({
-  id,
-  name,
-  manufacturer,
-  energy,
-  carbohydrates,
-  fat,
-  protein,
-  salt,
-}: Product) => {
-  const product : Product = {
+const ConsumedItem = ({ id, name, unit, nutrition }: Product) => {
+  const product: Product = {
     id,
     name,
-    manufacturer,
-    energy,
-    carbohydrates,
-    fat,
-    protein,
-    salt
+    nutrition,
+    unit,
   };
   return (
     <AccordionPanel label={name} key={name}>
@@ -43,9 +29,8 @@ const ConsumedItem = ({
         }}
         gap="medium"
       >
-        <Text>Energy {displayRound(energy.kcal)} kcal</Text>
+        <Text>Energy {displayRound(nutrition.energy.kcal)} kcal</Text>
         <NutrientTable product={product} amount={100} baseUnit={1} />
-        
       </Box>
     </AccordionPanel>
   );

@@ -3,9 +3,9 @@ import { Box, Heading, Button } from "grommet";
 import SearchForm from "../SearchForm";
 import { Product, ProductSize } from "../../util/schema/product";
 import {
-  getProductSearch,
   postReport,
   getProductSizesById,
+  getProductSearchSuggestions,
 } from "../../util/data/requests";
 import { ConsumedProduct, Report, ConsumedRaw } from "../../util/schema/report";
 import ProductItem from "../ProductItem";
@@ -168,7 +168,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
             addConsumedProduct(product, setState);
             getProductUnitOptions(product.id, setState);
           }}
-          suggestFunction={getProductSearch}
+          suggestFunction={getProductSearchSuggestions}
         />
       </Box>
 

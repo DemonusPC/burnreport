@@ -1,102 +1,125 @@
 import Vitamins from "./vitamins";
 
 export interface Energy {
-    kcal: number,
-    kj: number
+  kcal: number;
+  kj: number;
 }
 
 export interface Carbohydrates {
-    total: number,
-    fiber: number,
-    sugar: number,
-    addedSugar: number,
-    starch: number
+  total: number;
+  sugar: number;
+  fiber?: number;
+  addedSugar?: number;
+  starch?: number;
 }
 
-export interface PolyunsaturatedFats {
-    omega3: number,
-    omega6: number,
+export interface PolyunsaturatedFat {
+  total: number;
+  omega3?: number;
+  omega6?: number;
 }
+export type MonoUnsaturatedFat = {
+  total: number;
+  omega7?: number;
+  omega9: number;
+};
+
+export type UnsaturatedFat = {
+  mono?: MonoUnsaturatedFat;
+  poly?: PolyunsaturatedFat;
+};
 
 export interface Fat {
-    total: number,
-    saturated: number,
-    monounsaturated: number,
-    trans: number,
-    polyunsaturated: PolyunsaturatedFats
+  total: number;
+  saturated: number;
+  unsaturated?: UnsaturatedFat;
+  trans?: number;
 }
 
 export interface Protein {
-    total: number
+  total: number;
 }
 
 export interface Salt {
-    total: number
+  total: number;
 }
 
-export interface Product {
-    id: number,
-    name: string,
-    manufacturer: string,
-    energy: Energy,
-    carbohydrates: Carbohydrates,
-    fat: Fat,
-    protein: Protein,
-    salt: Salt,
-    vitamins?: Vitamins
+export type Nutrition = {
+  energy: Energy;
+  carbohydrates: Carbohydrates;
+  fat: Fat;
+  protein: Protein;
+  salt: Salt;
+  vitamins?: Vitamins;
+};
+
+export enum Unit {
+  Grams,
+  Mililiters,
 }
+export type Product = {
+  id: number;
+  name: string;
+  nutrition: Nutrition;
+  unit: Unit;
+};
+// export interface Product {
+//     id: number,
+//     name: string,
+//     manufacturer: string,
+//     energy: Energy,
+//     carbohydrates: Carbohydrates,
+//     fat: Fat,
+//     protein: Protein,
+//     salt: Salt,
+//     vitamins?: Vitamins
+// }
 
-export const emptyProduct = () : Product => {
-    const result : Product = {
-        id: 0,
-        name: "",
-        manufacturer: "",
-        energy: {
-            kcal: 0,
-            kj: 0
-        },
-        carbohydrates: {
-            total: 0,
-            fiber: 0,
-            sugar: 0,
-            addedSugar: 0,
-            starch: 0
-        },
-        fat: {
-            total: 0,
-            saturated: 0,
-            monounsaturated: 0,
-            trans: 0,
-            polyunsaturated: {
-                omega3: 0,
-                omega6: 0,
-            }           
-        },
-        protein: {
-            total: 0
-        },
-        salt : {
-            total: 0
-        }
-    }
+export const emptyProduct = (): Product => {
+  const result: Product = {
+    id: 0,
+    name: "",
+    nutrition: {
+      energy: {
+        kcal: 0,
+        kj: 0,
+      },
+      carbohydrates: {
+        total: 0,
+        sugar: 0,
+      },
+      fat: {
+        total: 0,
+        saturated: 0,
+        trans: 0,
+      },
+      protein: {
+        total: 0,
+      },
+      salt: {
+        total: 0,
+      },
+    },
+    unit: Unit.Grams,
+  };
 
-    return result;
-} 
+  return result;
+};
 
 export interface ProductAPIStatus {
-    status: string,
-    id?: number 
+  status: string;
+  id?: number;
 }
 
 export interface ProductSize {
-    id: number,
-    product: number,
-    name: string,
-    grams: number
+  id: number;
+  product: number;
+  name: string;
+  grams: number;
 }
 
 export interface Portion {
-    product: number,
-    name: string,
-    grams: number
+  product: number;
+  name: string;
+  grams: number;
 }

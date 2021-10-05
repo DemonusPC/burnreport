@@ -1,127 +1,8 @@
-use crate::nutrients::Vitamins;
-use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
-use actix_web::{Error, HttpRequest, HttpResponse, Responder};
-use futures::future::{ready, Ready};
+use crate::nutrients::{Carbohydrates, Energy, Fat, FatV2, Protein, Salt};
+use crate::nutrients::{Nutrition, Vitamins};
+use actix_web::{HttpRequest, HttpResponse, Responder};
+use log::error;
 use serde_derive::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Product {
-    id: i32,
-    name: String,
-    manufacturer: String,
-    energy: Energy,
-    carbohydrates: Carbohydrates,
-    fat: Fat,
-    protein: Protein,
-    salt: Salt,
-    vitamins: Option<Vitamins>,
-}
-
-impl Product {
-    pub fn new(
-        id: i32,
-        name: String,
-        manufacturer: String,
-        energy: Energy,
-        carbohydrates: Carbohydrates,
-        fat: Fat,
-        protein: Protein,
-        salt: Salt,
-        vitamins: Option<Vitamins>,
-    ) -> Product {
-        return Product {
-            id: id,
-            name: name,
-            manufacturer: manufacturer,
-            energy: energy,
-            carbohydrates: carbohydrates,
-            fat: fat,
-            protein: protein,
-            salt: salt,
-            vitamins,
-        };
-    }
-
-    pub fn new_from_raw_values(
-        id: i32,
-        name: String,
-        manufacturer: String,
-        kcal: f64,
-        k_j: f64,
-        total_carbs: f64,
-        fiber: f64,
-        sugar: f64,
-        added_sugar: f64,
-        starch: f64,
-        total_fat: f64,
-        saturated: f64,
-        mono: f64,
-        trans: f64,
-        protein: f64,
-        salt: f64,
-        total_vitamins: Option<Vitamins>,
-        omega_3: f64,
-        omega_6: f64,
-    ) -> Product {
-        return Product {
-            id: id,
-            name: name,
-            manufacturer: manufacturer,
-            energy: Energy::new(kcal, k_j),
-            carbohydrates: Carbohydrates::new(total_carbs, fiber, sugar, added_sugar, starch),
-            fat: Fat::new(total_fat, saturated, mono, trans, omega_3, omega_6),
-            protein: Protein::new(protein),
-            salt: Salt::new(salt),
-            vitamins: total_vitamins,
-        };
-    }
-
-    pub fn id(&self) -> i32 {
-        return self.id;
-    }
-
-    pub fn name(&self) -> String {
-        return self.name.clone();
-    }
-
-    pub fn manufacturer(&self) -> String {
-        return self.manufacturer.clone();
-    }
-
-    pub fn energy(&self) -> &Energy {
-        return &self.energy;
-    }
-
-    pub fn carbohydrates(&self) -> &Carbohydrates {
-        return &self.carbohydrates;
-    }
-
-    pub fn fat(&self) -> &Fat {
-        return &self.fat;
-    }
-
-    pub fn protein(&self) -> &Protein {
-        return &self.protein;
-    }
-
-    pub fn salt(&self) -> &Salt {
-        return &self.salt;
-    }
-
-    pub fn vitamins(&self) -> Option<Vitamins> {
-        self.vitamins.clone()
-    }
-}
-
-impl Responder for Product {
-    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
-        let body = serde_json::to_string(&self).unwrap();
-
-        HttpResponse::Ok()
-            .content_type("application/json")
-            .body(body)
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProductSubmission {
@@ -200,6 +81,81 @@ impl Responder for Portion {
     fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
         let body = serde_json::to_string(&self).unwrap();
 
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Unit {
+    Grams,
+    Mililiters,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Product {
+    id: i32,
+    name: String,
+    nutrition: Nutrition,
+    unit: Unit,
+}
+
+impl Product {
+    pub fn new(id: i32, name: String, nutrition: Nutrition, unit: Unit) -> Self {
+        Self {
+            id,
+            name,
+            nutrition,
+            unit,
+        }
+    }
+    pub fn id(&self) -> i32 {
+        return self.id;
+    }
+
+    pub fn name(&self) -> String {
+        return self.name.clone();
+    }
+
+    pub fn unit(&self) -> &Unit {
+        &self.unit
+    }
+
+    pub fn energy(&self) -> &Energy {
+        return &self.nutrition.energy();
+    }
+
+    pub fn carbohydrates(&self) -> &Carbohydrates {
+        return &self.nutrition.carbohydrates();
+    }
+
+    pub fn fat(&self) -> &FatV2 {
+        return &self.nutrition.fat();
+    }
+
+    pub fn protein(&self) -> &Protein {
+        return &self.nutrition.protein();
+    }
+
+    pub fn salt(&self) -> &Salt {
+        return &self.nutrition.salt();
+    }
+
+    pub fn vitamins(&self) -> Option<Vitamins> {
+        self.nutrition.vitamins()
+    }
+}
+
+impl Responder for Product {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = match serde_json::to_string(&self) {
+            Ok(v) => v,
+            Err(error) => {
+                error!("Failed to serialize the Product with error: {}", error);
+                return HttpResponse::InternalServerError().finish();
+            }
+        };
         HttpResponse::Ok()
             .content_type("application/json")
             .body(body)

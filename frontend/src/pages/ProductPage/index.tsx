@@ -22,16 +22,6 @@ import { vitaminsToRow } from "../../util/schema/vitamins";
 import { useHistory } from "react-router-dom";
 import AnchorLink from "../../components/AnchorLink";
 
-export const totalMacroInGrams = (product: Product) => {
-  const carbs = product.carbohydrates.total;
-  const fat = product.fat.total;
-  const protein = product.protein.total;
-
-  const total = carbs + fat + protein;
-
-  return total;
-};
-
 const PerWrapper = styled(Box)`
   align-items: center;
   /* max-width: 15em; */
@@ -101,15 +91,16 @@ const ProductPage = () => {
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
-        <NutrientBar
+        {/* <NutrientBar
           total={totalMacroInGrams(data)}
           carbohydrates={data.carbohydrates.total}
           fat={data.fat.total}
           protein={data.protein.total}
-        />
+        /> */}
         <Heading level={4}>
-          {calculate(data.energy.kcal, state.per, state.unit.grams)}
-          kcal /{calculate(data.energy.kj, state.per, state.unit.grams)}
+          {calculate(data.nutrition.energy.kcal, state.per, state.unit.grams)}
+          kcal /
+          {calculate(data.nutrition.energy.kj, state.per, state.unit.grams)}
           kJ
         </Heading>
 
@@ -154,7 +145,7 @@ const ProductPage = () => {
         <Accordion animate={true} multiple={false}>
           <AccordionPanel label="Vitamins">
             <AdditionalTable
-              entity={data.vitamins}
+              entity={data.nutrition.vitamins}
               mapper={vitaminsToRow}
               unit={"mg"}
             />
