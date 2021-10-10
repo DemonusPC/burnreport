@@ -185,6 +185,7 @@ async fn get_product_portions(pool: web::Data<SqlitePool>, path: web::Path<i32>)
     let search_result = match list_portions(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not list portions due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
@@ -206,6 +207,7 @@ async fn post_portions(
     let new_id = match insert_portion(&pool, product.0).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not create a portion due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };

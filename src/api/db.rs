@@ -63,7 +63,7 @@ pub async fn search_product_suggestions(
 }
 
 pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
-    let result = sqlx::query("SELECT * FROM Products WHERE id = ?")
+    let result = sqlx::query("SELECT * FROM full_product WHERE id = ?")
         .bind(id)
         .map(|row: SqliteRow| {
             // let name : String = row.get(0);
@@ -107,8 +107,33 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let protein: Protein = Protein::new(row.get(19));
             let salt: Salt = Salt::new(row.get(20));
 
+            let fat_sol = FatSoluble::new(
+                row.try_get(21).unwrap_or(0.0),
+                row.try_get(22).unwrap_or(0.0),
+                row.try_get(23).unwrap_or(0.0),
+                row.try_get(24).unwrap_or(0.0),
+            );
+            let water_sol = WaterSoluble::new(
+                row.try_get(25).unwrap_or(0.0),
+                row.try_get(26).unwrap_or(0.0),
+                row.try_get(27).unwrap_or(0.0),
+                row.try_get(28).unwrap_or(0.0),
+                row.try_get(29).unwrap_or(0.0),
+                row.try_get(30).unwrap_or(0.0),
+                row.try_get(31).unwrap_or(0.0),
+                row.try_get(32).unwrap_or(0.0),
+                row.try_get(33).unwrap_or(0.0),
+            );
+
+            let vitamin_content = Vitamins::new(fat_sol, water_sol);
+
+            let vitamin_option = match vitamin_content.is_zero() {
+                true => Option::None,
+                false => Some(vitamin_content),
+            };
+
             let nutrition: Nutrients =
-                Nutrients::new(energy, carbs, fat, protein, salt, Option::None);
+                Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
 
             let unit = match row.get(2) {
                 "ml" => Unit::Mililiters,
@@ -277,7 +302,7 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
     };
 
     let (poly_total, omega_3, omega_6) = match polyunsaturated {
-        Some(v) => (v.total(), v.omega_3(), v.omega_3()),
+        Some(v) => (v.total(), v.omega_3(), v.omega_6()),
         None => (0.0, Option::None, Option::None),
     };
 

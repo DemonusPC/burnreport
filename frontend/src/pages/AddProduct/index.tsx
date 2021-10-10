@@ -1,6 +1,11 @@
 import React from "react";
 import { Heading, Box, Text, FileInput } from "grommet";
-import { Product, Unit } from "../../util/schema/product";
+import {
+  MonoUnsaturatedFat,
+  PolyunsaturatedFat,
+  Product,
+  Unit,
+} from "../../util/schema/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
 import ProductForm from "../../containers/ProductForm";
@@ -15,7 +20,7 @@ const propertyToNumber = (property: number): number => {
 };
 
 const toProduct = (flat: any): Product => {
-  return {
+  const result: Product = {
     id: 0,
     name: flat.name,
     unit: Unit.Grams,
@@ -26,15 +31,17 @@ const toProduct = (flat: any): Product => {
       },
       carbohydrates: {
         total: propertyToNumber(flat.carbohydrates),
-        fiber: propertyToNumber(flat.fiber),
         sugar: propertyToNumber(flat.sugar),
-        addedSugar: propertyToNumber(flat.addedSugar),
-        starch: propertyToNumber(flat.starch),
+        fiber: flat.fiber ? propertyToNumber(flat.fiber) : undefined,
+        addedSugar: flat.addedSugar
+          ? propertyToNumber(flat.addedSugar)
+          : undefined,
+        starch: flat.starch ? propertyToNumber(flat.starch) : undefined,
       },
       fat: {
         total: propertyToNumber(flat.fat),
         saturated: propertyToNumber(flat.saturated),
-        trans: propertyToNumber(flat.trans),
+        trans: flat.trans ? propertyToNumber(flat.trans) : undefined,
       },
       protein: {
         total: propertyToNumber(flat.protein),
@@ -63,6 +70,32 @@ const toProduct = (flat: any): Product => {
       },
     },
   };
+
+  const mono: MonoUnsaturatedFat | undefined =
+    flat.monounsaturaed || flat.omega7 || flat.omega9
+      ? {
+          total: propertyToNumber(flat.monounsaturated) || 0,
+          omega7: propertyToNumber(flat.omega7),
+          omega9: propertyToNumber(flat.omega9),
+        }
+      : undefined;
+
+  const poly: PolyunsaturatedFat | undefined =
+    flat.monounsaturaed || flat.omega7 || flat.omega9
+      ? {
+          total: propertyToNumber(flat.polyunsaturated) || 0,
+          omega3: propertyToNumber(flat.omega3),
+          omega6: propertyToNumber(flat.omega6),
+        }
+      : undefined;
+
+  if (poly || mono) {
+    result.nutrients.fat.unsaturated = {
+      mono,
+      poly,
+    };
+  }
+  return result;
 };
 
 const fileChosen = (file: any | undefined, setReport: any) => {

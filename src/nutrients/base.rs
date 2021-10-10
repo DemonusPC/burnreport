@@ -315,6 +315,7 @@ impl UnsaturatedFat {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "camelCase")]
 pub struct MonoUnsaturatedFat {
     total: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -346,6 +347,7 @@ impl TotalAble for MonoUnsaturatedFat {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "camelCase")]
 pub struct PolyUnsaturatedFat {
     total: f64,
     #[serde(skip_serializing_if = "Option::is_none")]

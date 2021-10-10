@@ -52,7 +52,7 @@ export const calculateToDisplay = (
 const nutrientsToTable = (nutrients: any, amount: number, baseUnit: number) => {
   const result: any[] = [];
   Object.keys(nutrients).forEach((key) => {
-    if (key === "energy") {
+    if (key === "energy" || key === "vitamins") {
       return;
     }
     result.push(
@@ -103,31 +103,4 @@ export const extractTabularNutrients = (
 ): Array<NutrientRow> => {
   console.log(nutrients);
   return nutrientsToTable(nutrients, amount, baseUnit);
-};
-
-export const reportNutrientsToTable = (product: Product) => {
-  if (!product) {
-    return [];
-  }
-  const rows = [];
-
-  const { carbohydrates, fat, protein, salt } = product.nutrients;
-
-  rows.push(asColumn("Carbohydrates", "total", carbohydrates.total));
-  rows.push(asColumn("Carbohydrates", "sugar", carbohydrates.sugar));
-  rows.push(
-    asColumn("Carbohydrates", "added sugar", carbohydrates.addedSugar || 0)
-  );
-  rows.push(asColumn("Carbohydrates", "fiber", carbohydrates.fiber || 0));
-  rows.push(asColumn("Carbohydrates", "starch", carbohydrates.starch || 0));
-
-  rows.push(asColumn("Fat", "total", fat.total));
-  rows.push(asColumn("Fat", "saturated", fat.saturated));
-  rows.push(asColumn("Fat", "trans", fat.trans || 0));
-
-  rows.push(asColumn("Protein", "total", protein.total));
-
-  rows.push(asColumn("Salt", "total", salt.total));
-
-  return rows;
 };

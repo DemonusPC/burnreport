@@ -13,15 +13,16 @@ export interface Carbohydrates {
   starch?: number;
 }
 
-export interface PolyunsaturatedFat {
+export type PolyunsaturatedFat = {
   total: number;
   omega3?: number;
   omega6?: number;
-}
+};
+
 export type MonoUnsaturatedFat = {
   total: number;
   omega7?: number;
-  omega9: number;
+  omega9?: number;
 };
 
 export type UnsaturatedFat = {
@@ -54,8 +55,8 @@ export type Nutrients = {
 };
 
 export enum Unit {
-  Grams,
-  Mililiters,
+  Grams = "Grams",
+  Mililiters = "Mililiters",
 }
 export type Product = {
   id: number;
