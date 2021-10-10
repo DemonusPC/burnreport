@@ -195,7 +195,7 @@ impl TotalAble for Salt {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Nutrition {
+pub struct Nutrients {
     energy: Energy,
     carbohydrates: Carbohydrates,
     fat: FatV2,
@@ -205,7 +205,7 @@ pub struct Nutrition {
     vitamins: Option<Vitamins>,
 }
 
-impl Nutrition {
+impl Nutrients {
     pub fn new(
         energy: Energy,
         carbohydrates: Carbohydrates,

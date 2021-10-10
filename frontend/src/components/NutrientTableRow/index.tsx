@@ -1,54 +1,70 @@
 import React from "react";
-import { RawNutrientRow } from "../../util/data/calculations";
 import { Text, Box } from "grommet";
+import { BorderType } from "grommet/utils";
 
 interface NutrientTableRowProps {
-  row: RawNutrientRow;
+  row: NutrientRow;
 }
 
-const NutrientTableRow = ({ row }: NutrientTableRowProps) => {
-  // Nutrient table row groups by Macro Nutrient
-  // Setting it as a main category
-  if (row.nutrient === "total") {
-    return (
-      <Box
-        border={{
-          color: "border",
-          size: "1px",
-          style: "solid",
-          side: "top",
-        }}
-        margin={{
-          top: "small",
-        }}
-        pad={{
-          top: "small"
-        }}
-        direction="row"
-        key={`${row.macronutrient}-${row.nutrient}`}
-      >
-        <Box fill>
-          <Text weight="bold">{row.macronutrient}</Text>
-        </Box>
-        <Box fill alignSelf="end" align="end">
-          <Text weight="bold">{row.amount} g </Text>
-        </Box>
-      </Box>
-    );
+export type NutrientRow = {
+  level: number;
+  name: string;
+  highlight: boolean;
+  amount?: number;
+};
+
+const levelToMargin = (level: number) => {
+  switch (level) {
+    case 1:
+      return "small";
+    case 2:
+      return "medium";
+    case 3:
+      return "large";
+    default:
+      return "0";
   }
+};
+
+const highlightToWeight = (highlight: boolean): "bold" | "normal" => {
+  if (highlight) {
+    return "bold";
+  }
+  return "normal";
+};
+
+const highlightToBorder = (highlight: boolean): BorderType | undefined => {
+  if (highlight) {
+    return {
+      color: "border",
+      size: "1px",
+      style: "solid",
+      side: "top",
+    };
+  }
+  return undefined;
+};
+const NutrientTableRow = ({ row }: NutrientTableRowProps) => {
+  const amount: JSX.Element = row.amount ? (
+    <Box fill alignSelf="end" align="end">
+      <Text weight={highlightToWeight(row.highlight)}>{row.amount} g </Text>
+    </Box>
+  ) : (
+    <></>
+  );
   return (
     <Box
       direction="row"
       margin={{
-        top: "xsmall",
+        top: row.highlight ? "medium" : "small",
       }}
+      border={highlightToBorder(row.highlight)}
+      pad={row.highlight ? { top: "small" } : undefined}
     >
-      <Box fill margin={{ left: "large" }}>
-        {row.nutrient}
+      <Box fill margin={{ left: levelToMargin(row.level) }}>
+        <Text weight={highlightToWeight(row.highlight)}>{row.name} </Text>
       </Box>
-      <Box fill alignSelf="end" align="end">
-        {row.amount} g
-      </Box>
+      {amount}
     </Box>
   );
 };

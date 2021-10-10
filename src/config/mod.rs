@@ -5,42 +5,31 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
 
     sqlx::query!(
         r#"
-        CREATE TABLE IF NOT EXISTS "Food" (
-            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS "Products" (
+            "id"	INTEGER NOT NULL,
             "name"	TEXT NOT NULL,
-            "manufacturer"	TEXT,
-            "kcal"	REAL NOT NULL DEFAULT 0,
-            "kj"	REAL NOT NULL DEFAULT 0,
-            "carbohydrates"	REAL NOT NULL DEFAULT 0,
-            "fiber"	REAL DEFAULT 0,
-            "sugar"	REAL DEFAULT 0,
-            "added_sugar"	REAL DEFAULT 0,
-            "starch"	REAL DEFAULT 0,
-            "fat"	REAL NOT NULL DEFAULT 0,
-            "saturated"	REAL DEFAULT 0,
-            "monounsaturated"	REAL DEFAULT 0,
-            "trans"	REAL DEFAULT 0,
-            "protein"	REAL NOT NULL DEFAULT 0,
-            "salt"	REAL NOT NULL DEFAULT 0,
-            "omegathree" REAL NOT NULL DEFAULT 0,
-	        "omegasix" REAL NOT NULL DEFAULT 0
-        );
-        
-        CREATE TABLE IF NOT EXISTS "Portions" (
-            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            "product"	INTEGER NOT NULL,
-            "name"	TEXT NOT NULL,
-            "grams"	REAL NOt NULL,
-            FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
-        );
-        
-        CREATE TABLE IF NOT EXISTS "Body" (
-            "date"	TEXT NOT NULL UNIQUE,
-            "mass"	REAL,
-            "fat"	REAL,
-            PRIMARY KEY("date")
-        );
-        
+            "unit"	TEXT NOT NULL,
+            "kj"	REAL NOT NULL,
+            "kcal"	REAL NOT NULL,
+            "carbohydrates"	REAL NOT NULL,
+            "sugar"	REAL NOT NULL,
+            "fiber"	REAL,
+            "added_sugar"	REAL,
+            "starch"	REAL,
+            "fat"	REAL NOT NULL,
+            "saturated"	REAL NOT NULL,
+            "monounsaturated"	REAL,
+            "omega_7"	REAL,
+            "omega_9"	REAL,
+            "polyunsaturated"	REAL,
+            "omega_3"	REAL,
+            "omega_6"	REAL,
+            "trans"	REAL,
+            "protein"	REAL NOT NULL,
+            "salt"	REAL NOT NULL,
+            PRIMARY KEY("id" AUTOINCREMENT)
+        );        
+
         CREATE TABLE IF NOT EXISTS "Vitamins" (
             "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             "product"	INTEGER NOT NULL,
@@ -57,7 +46,15 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             "b9"	REAL,
             "b12"	REAL,
             "c"	REAL,
-            FOREIGN KEY("product") REFERENCES "Food"("id") ON DELETE CASCADE
+            FOREIGN KEY("product") REFERENCES "Products"("id") ON DELETE CASCADE
+        );
+        
+        CREATE TABLE IF NOT EXISTS "Portions" (
+            "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            "product"	INTEGER NOT NULL,
+            "name"	TEXT NOT NULL,
+            "grams"	REAL NOt NULL,
+            FOREIGN KEY("product") REFERENCES "Products"("id") ON DELETE CASCADE
         );
         
         CREATE VIEW IF NOT EXISTS full_product

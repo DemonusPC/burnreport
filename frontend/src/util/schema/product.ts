@@ -44,7 +44,7 @@ export interface Salt {
   total: number;
 }
 
-export type Nutrition = {
+export type Nutrients = {
   energy: Energy;
   carbohydrates: Carbohydrates;
   fat: Fat;
@@ -60,26 +60,15 @@ export enum Unit {
 export type Product = {
   id: number;
   name: string;
-  nutrition: Nutrition;
+  nutrients: Nutrients;
   unit: Unit;
 };
-// export interface Product {
-//     id: number,
-//     name: string,
-//     manufacturer: string,
-//     energy: Energy,
-//     carbohydrates: Carbohydrates,
-//     fat: Fat,
-//     protein: Protein,
-//     salt: Salt,
-//     vitamins?: Vitamins
-// }
 
 export const emptyProduct = (): Product => {
   const result: Product = {
     id: 0,
     name: "",
-    nutrition: {
+    nutrients: {
       energy: {
         kcal: 0,
         kj: 0,

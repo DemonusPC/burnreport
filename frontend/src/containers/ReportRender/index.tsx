@@ -42,14 +42,18 @@ const ReportRender = ({ result }: ReportResult) => {
             protein={result.total.nutrition.protein.total}
           /> */}
           <Energy level={4}>
-            {displayRound(result.total.nutrition.energy.kcal)} kcal
+            {displayRound(result.total.nutrients.energy.kcal)} kcal
           </Energy>
-          <NutrientTable product={result.total} amount={100} baseUnit={1} />
+          <NutrientTable
+            nutrients={result.total.nutrients}
+            amount={100}
+            baseUnit={1}
+          />
 
           <Heading level={2}>Vitamins</Heading>
 
           <AdditionalTable
-            entity={result.total.nutrition.vitamins}
+            entity={result.total.nutrients.vitamins}
             mapper={vitaminsToRow}
             unit={"mg"}
           />

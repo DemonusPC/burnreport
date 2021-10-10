@@ -12,11 +12,11 @@ import NutrientTable from "../NutrientTable";
 //   return name;
 // }
 
-const ConsumedItem = ({ id, name, unit, nutrition }: Product) => {
+const ConsumedItem = ({ id, name, unit, nutrients: nutrition }: Product) => {
   const product: Product = {
     id,
     name,
-    nutrition,
+    nutrients: nutrition,
     unit,
   };
   return (
@@ -30,7 +30,7 @@ const ConsumedItem = ({ id, name, unit, nutrition }: Product) => {
         gap="medium"
       >
         <Text>Energy {displayRound(nutrition.energy.kcal)} kcal</Text>
-        <NutrientTable product={product} amount={100} baseUnit={1} />
+        {/* <NutrientTable product={product} amount={100} baseUnit={1} /> */}
       </Box>
     </AccordionPanel>
   );

@@ -1,35 +1,27 @@
 import React from "react";
-import { Product, emptyProduct } from "../../util/schema/product";
-import {
-  extractTabularNutrients,
-  RawNutrientRow,
-} from "../../util/data/calculations";
+import { Nutrients, emptyProduct } from "../../util/schema/product";
+import { extractTabularNutrients } from "../../util/data/calculations";
 import NutrientTableRow from "../../components/NutrientTableRow";
 
 interface NutrientTableProps {
-  product: Product;
+  nutrients: Nutrients;
   amount: number;
   baseUnit: number;
 }
 
-const mapExtractedRows = (rows: Array<RawNutrientRow>) => {
-  return rows.map((row) => (
-    <NutrientTableRow key={`${row.macronutrient}-${row.nutrient}`} row={row} />
-  ));
-};
+const NutrientTable = ({ nutrients, amount, baseUnit }: NutrientTableProps) => {
+  const rows = extractTabularNutrients(nutrients, amount, baseUnit);
 
-const NutrientTable = ({ product, amount, baseUnit }: NutrientTableProps) => {
-  const rows = extractTabularNutrients(product, amount, baseUnit);
-  return (
-      <>
-            {mapExtractedRows(rows)}
-      </>
-  );
+  const rowElements = rows.map((row) => (
+    <NutrientTableRow key={`${row.name}-${row.level}`} row={row} />
+  ));
+
+  return <>{rowElements}</>;
 };
 
 NutrientTable.defaultProps = {
   product: emptyProduct(),
-  amount: 100
+  amount: 100,
 };
 
 export default NutrientTable;

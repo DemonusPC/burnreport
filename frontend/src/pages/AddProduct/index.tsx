@@ -19,7 +19,7 @@ const toProduct = (flat: any): Product => {
     id: 0,
     name: flat.name,
     unit: Unit.Grams,
-    nutrition: {
+    nutrients: {
       energy: {
         kcal: propertyToNumber(flat.kcal),
         kj: propertyToNumber(flat.kj),

@@ -1,7 +1,7 @@
 use crate::nutrients::FatSoluble;
 use crate::nutrients::FatV2;
 use crate::nutrients::MonoUnsaturatedFat;
-use crate::nutrients::Nutrition;
+use crate::nutrients::Nutrients;
 use crate::nutrients::PolyUnsaturatedFat;
 use crate::nutrients::TotalAble;
 use crate::nutrients::UnsaturatedFat;
@@ -107,8 +107,8 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let protein: Protein = Protein::new(row.get(19));
             let salt: Salt = Salt::new(row.get(20));
 
-            let nutrition: Nutrition =
-                Nutrition::new(energy, carbs, fat, protein, salt, Option::None);
+            let nutrition: Nutrients =
+                Nutrients::new(energy, carbs, fat, protein, salt, Option::None);
 
             let unit = match row.get(2) {
                 "ml" => Unit::Mililiters,
@@ -210,7 +210,7 @@ pub async fn amount_adjusted_product(
         let protein: Protein = Protein::new(row.get(19));
         let salt: Salt = Salt::new(row.get(20));
 
-        let nutrition: Nutrition = Nutrition::new(energy, carbs, fat, protein, salt, Option::None);
+        let nutrition: Nutrients = Nutrients::new(energy, carbs, fat, protein, salt, Option::None);
 
         let unit = match row.get(2) {
             "ml" => Unit::Mililiters,
@@ -308,34 +308,34 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
 
     let product_id = result.last_insert_rowid();
 
-    // match product.vitamins() {
-    //     Some(v) => {
-    //         sqlx::query(
-    //             r#"
-    //         INSERT INTO "Vitamins"
-    //         ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
-    //          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
-    //         "#,
-    //         )
-    //         .bind(product_id)
-    //         .bind(v.a())
-    //         .bind(v.d())
-    //         .bind(v.e())
-    //         .bind(v.k())
-    //         .bind(v.b1())
-    //         .bind(v.b2())
-    //         .bind(v.b3())
-    //         .bind(v.b5())
-    //         .bind(v.b6())
-    //         .bind(v.b7())
-    //         .bind(v.b9())
-    //         .bind(v.b12())
-    //         .bind(v.c())
-    //         .execute(&mut tx)
-    //         .await?;
-    //     }
-    //     None => {}
-    // }
+    match product.vitamins() {
+        Some(v) => {
+            sqlx::query(
+                r#"
+            INSERT INTO "Vitamins"
+            ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
+            "#,
+            )
+            .bind(product_id)
+            .bind(v.a())
+            .bind(v.d())
+            .bind(v.e())
+            .bind(v.k())
+            .bind(v.b1())
+            .bind(v.b2())
+            .bind(v.b3())
+            .bind(v.b5())
+            .bind(v.b6())
+            .bind(v.b7())
+            .bind(v.b9())
+            .bind(v.b12())
+            .bind(v.c())
+            .execute(&mut tx)
+            .await?;
+        }
+        None => {}
+    }
 
     tx.commit().await?;
 

@@ -13,7 +13,7 @@ import styled from "styled-components";
 import useSWR from "swr";
 import NutrientBar from "../../containers/NutrientBar";
 import NutrientTable from "../../containers/NutrientTable";
-import { calculatePer, displayRound } from "../../util/data/calculations";
+import { calculateToDisplay } from "../../util/data/calculations";
 import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
 import { Product, ProductSize } from "../../util/schema/product";
 import { Return } from "grommet-icons";
@@ -24,16 +24,10 @@ import AnchorLink from "../../components/AnchorLink";
 
 const PerWrapper = styled(Box)`
   align-items: center;
-  /* max-width: 15em; */
 `;
 
 const urlToPortion = (id: number): string => {
   return encodeURI(`/products/${id}/portions`);
-};
-
-const calculate = (value: number, per: number, baseUnit: number): number => {
-  const result = calculatePer(value, per, baseUnit);
-  return displayRound(result);
 };
 
 const base: ProductSize = {
@@ -91,16 +85,19 @@ const ProductPage = () => {
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
-        {/* <NutrientBar
-          total={totalMacroInGrams(data)}
-          carbohydrates={data.carbohydrates.total}
-          fat={data.fat.total}
-          protein={data.protein.total}
-        /> */}
+        <NutrientBar nutrients={data.nutrients} />
         <Heading level={4}>
-          {calculate(data.nutrition.energy.kcal, state.per, state.unit.grams)}
+          {calculateToDisplay(
+            data.nutrients.energy.kcal,
+            state.per,
+            state.unit.grams
+          )}
           kcal /
-          {calculate(data.nutrition.energy.kj, state.per, state.unit.grams)}
+          {calculateToDisplay(
+            data.nutrients.energy.kj,
+            state.per,
+            state.unit.grams
+          )}
           kJ
         </Heading>
 
@@ -138,14 +135,14 @@ const ProductPage = () => {
         </PerWrapper>
 
         <NutrientTable
-          product={data}
+          nutrients={data.nutrients}
           amount={state.per}
           baseUnit={state.unit.grams}
         />
         <Accordion animate={true} multiple={false}>
           <AccordionPanel label="Vitamins">
             <AdditionalTable
-              entity={data.nutrition.vitamins}
+              entity={data.nutrients.vitamins}
               mapper={vitaminsToRow}
               unit={"mg"}
             />

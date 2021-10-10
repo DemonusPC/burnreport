@@ -1,5 +1,5 @@
-import { Product } from "../schema/product";
-import { FlatProduct } from "../schema/report";
+import { Nutrients, Product } from "../schema/product";
+import { NutrientRow } from "../../components/NutrientTableRow";
 
 export const calculatePer = (value: number, per: number, baseUnit: number) => {
   const one = value / 100;
@@ -26,89 +26,83 @@ const asColumn = (
   amount,
 });
 
-const calculateToDisplay = (value: number, per: number, baseUnit: number) => {
+const toRow = (
+  level: number,
+  name: string,
+  highlight: boolean,
+  amount?: number
+): NutrientRow => {
+  return {
+    level,
+    name,
+    highlight,
+    amount,
+  };
+};
+
+export const calculateToDisplay = (
+  value: number,
+  per: number,
+  baseUnit: number
+) => {
   const result = calculatePer(value, per, baseUnit);
   return displayRound(result);
 };
 
-export const extractTabularNutrients = (
-  product: Product,
+const nutrientsToTable = (nutrients: any, amount: number, baseUnit: number) => {
+  const result: any[] = [];
+  Object.keys(nutrients).forEach((key) => {
+    if (key === "energy") {
+      return;
+    }
+    result.push(
+      toRow(
+        0,
+        key,
+        true,
+        calculateToDisplay(nutrients[key].total, amount, baseUnit)
+      )
+    );
+    result.push(...microNutrient(nutrients[key], amount, baseUnit, 1));
+  });
+
+  return result;
+};
+
+const microNutrient = (
+  nutrient: any,
   amount: number,
-  baseUnit: number
-): Array<RawNutrientRow> => {
-  if (!product) {
-    return [];
-  }
-  const rows = [];
-
-  const { carbohydrates, fat, protein, salt } = product.nutrition;
-  rows.push(
-    asColumn(
-      "Carbohydrates",
-      "total",
-      calculateToDisplay(carbohydrates.total, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Carbohydrates",
-      "sugar",
-      calculateToDisplay(carbohydrates.sugar, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Carbohydrates",
-      "added sugar",
-      calculateToDisplay(carbohydrates.addedSugar || 0, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Carbohydrates",
-      "fiber",
-      calculateToDisplay(carbohydrates.fiber || 0, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Carbohydrates",
-      "starch",
-      calculateToDisplay(carbohydrates.starch || 0, amount, baseUnit)
-    )
-  );
-
-  rows.push(
-    asColumn("Fat", "total", calculateToDisplay(fat.total, amount, baseUnit))
-  );
-  rows.push(
-    asColumn(
-      "Fat",
-      "saturated",
-      calculateToDisplay(fat.saturated, amount, baseUnit)
-    )
-  );
-  rows.push(
-    asColumn(
-      "Fat",
-      "trans",
-      calculateToDisplay(fat.trans || 0, amount, baseUnit)
-    )
-  );
-
-  rows.push(
-    asColumn(
-      "Protein",
-      "total",
-      calculateToDisplay(protein.total, amount, baseUnit)
-    )
-  );
-
-  rows.push(
-    asColumn("Salt", "total", calculateToDisplay(salt.total, amount, baseUnit))
-  );
+  baseUnit: number,
+  level: number
+): any => {
+  let rows: any[] = [];
+  Object.keys(nutrient).forEach((key) => {
+    if (key === "total") {
+      return;
+    }
+    const n = nutrient[key];
+    if (typeof n === "object" && n) {
+      const next: any[] = microNutrient(n, amount, baseUnit, level + 1);
+      rows.push(toRow(level, key, false));
+      next.forEach((r) => rows.push(r));
+    } else {
+      rows.push(
+        toRow(level, key, false, calculateToDisplay(n, amount, baseUnit))
+      );
+      // rows.push(asColumn(base, key, calculateToDisplay(n, amount, baseUnit)));
+    }
+  });
 
   return rows;
+};
+
+export const extractTabularNutrients = (
+  nutrients: Nutrients,
+  amount: number,
+  baseUnit: number
+): Array<NutrientRow> => {
+  console.log(nutrients);
+  return nutrientsToTable(nutrients, amount, baseUnit);
 };
 
 export const reportNutrientsToTable = (product: Product) => {
@@ -117,7 +111,7 @@ export const reportNutrientsToTable = (product: Product) => {
   }
   const rows = [];
 
-  const { carbohydrates, fat, protein, salt } = product.nutrition;
+  const { carbohydrates, fat, protein, salt } = product.nutrients;
 
   rows.push(asColumn("Carbohydrates", "total", carbohydrates.total));
   rows.push(asColumn("Carbohydrates", "sugar", carbohydrates.sugar));

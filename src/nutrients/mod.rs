@@ -6,7 +6,7 @@ pub use self::base::Energy;
 pub use self::base::Fat;
 pub use self::base::FatV2;
 pub use self::base::MonoUnsaturatedFat;
-pub use self::base::Nutrition;
+pub use self::base::Nutrients;
 pub use self::base::PolyUnsaturatedFat;
 pub use self::base::Protein;
 pub use self::base::Salt;

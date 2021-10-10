@@ -1,5 +1,5 @@
 use crate::nutrients::{Carbohydrates, Energy, Fat, FatV2, Protein, Salt};
-use crate::nutrients::{Nutrition, Vitamins};
+use crate::nutrients::{Nutrients, Vitamins};
 use actix_web::{HttpRequest, HttpResponse, Responder};
 use log::error;
 use serde_derive::{Deserialize, Serialize};
@@ -97,16 +97,16 @@ pub enum Unit {
 pub struct Product {
     id: i32,
     name: String,
-    nutrition: Nutrition,
+    nutrients: Nutrients,
     unit: Unit,
 }
 
 impl Product {
-    pub fn new(id: i32, name: String, nutrition: Nutrition, unit: Unit) -> Self {
+    pub fn new(id: i32, name: String, nutrition: Nutrients, unit: Unit) -> Self {
         Self {
             id,
             name,
-            nutrition,
+            nutrients: nutrition,
             unit,
         }
     }
@@ -123,27 +123,27 @@ impl Product {
     }
 
     pub fn energy(&self) -> &Energy {
-        return &self.nutrition.energy();
+        return &self.nutrients.energy();
     }
 
     pub fn carbohydrates(&self) -> &Carbohydrates {
-        return &self.nutrition.carbohydrates();
+        return &self.nutrients.carbohydrates();
     }
 
     pub fn fat(&self) -> &FatV2 {
-        return &self.nutrition.fat();
+        return &self.nutrients.fat();
     }
 
     pub fn protein(&self) -> &Protein {
-        return &self.nutrition.protein();
+        return &self.nutrients.protein();
     }
 
     pub fn salt(&self) -> &Salt {
-        return &self.nutrition.salt();
+        return &self.nutrients.salt();
     }
 
     pub fn vitamins(&self) -> Option<Vitamins> {
-        self.nutrition.vitamins()
+        self.nutrients.vitamins()
     }
 }
 

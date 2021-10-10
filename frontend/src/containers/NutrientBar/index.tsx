@@ -1,44 +1,39 @@
 import React from "react";
 import { Meter } from "grommet";
+import { Nutrients } from "../../util/schema/product";
 
 export interface NutrientBarProps {
-    carbohydrates: number,
-    fat: number,
-    protein: number,
-    total: number
+  nutrients: Nutrients;
 }
 
 const mapToValues = (carbohydrates: number, fat: number, protein: number) => {
-    const result = [];
+  const result = [];
 
-    result.push({value: carbohydrates, label: "Carbohydrates", color: "#ffb347"});
-    result.push({value: fat, label: "fat", color: "#1e90ff"});
-    result.push({value: protein, label: "protein", color: "#dc143c"});
+  result.push({
+    value: carbohydrates,
+    label: "Carbohydrates",
+    color: "#ffb347",
+  });
+  result.push({ value: fat, label: "fat", color: "#1e90ff" });
+  result.push({ value: protein, label: "protein", color: "#dc143c" });
 
-    return result;
+  return result;
+};
 
-}
-
-const NutrientBar = ({carbohydrates, fat, protein, total}: NutrientBarProps) => {
-  const values = mapToValues(carbohydrates,fat,protein);
-
+const NutrientBar = ({ nutrients }: NutrientBarProps) => {
+  const { carbohydrates, fat, protein } = nutrients;
+  const total = carbohydrates.total + fat.total + protein.total;
+  const values = mapToValues(carbohydrates.total, fat.total, protein.total);
 
   // Base height is 24px
-  return (
-    <Meter
-    size="full"
-      values={values}
-      max={total}
-      aria-label="meter"
-    />
-  );
+  return <Meter size="full" values={values} max={total} aria-label="meter" />;
 };
 
 NutrientBar.defaultProps = {
-    carbohydrates: 0,
-    fat: 0,
-    protein: 0,
-    total: 0
-}
+  carbohydrates: 0,
+  fat: 0,
+  protein: 0,
+  total: 0,
+};
 
 export default NutrientBar;
