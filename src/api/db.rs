@@ -1,3 +1,5 @@
+use std::fmt::Result;
+
 use crate::nutrients::FatSoluble;
 use crate::nutrients::FatV2;
 use crate::nutrients::MonoUnsaturatedFat;
@@ -8,41 +10,77 @@ use crate::nutrients::UnsaturatedFat;
 use crate::nutrients::WaterSoluble;
 use crate::nutrients::{Carbohydrates, Energy, Protein, Salt};
 use crate::nutrients::{FatSolubleApi, Vitamins, WaterSolubleApi};
+use crate::products::FlatProduct;
 use crate::products::{Portion, Product, SearchSuggestion, Unit};
 use sqlx::sqlite::SqliteRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
 
-// pub async fn import_file(pool: &SqlitePool, products: &[Product]) -> Result<(), sqlx::Error> {
-//     let mut tx = pool.begin().await?;
-//     for product in products {
-//         let result = sqlx::query(r#"INSERT INTO Food ( name, manufacturer, kcal, kj, carbohydrates, fiber, sugar, added_sugar, starch, fat, saturated, monounsaturated, trans, protein, salt, omegathree, omegasix)
-//         VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)"#)
-//         .bind(product.name())
-//         .bind(product.manufacturer())
-//         .bind(product.energy().kcal())
-//         .bind(product.energy().k_j())
-//         .bind(product.carbohydrates().total())
-//         .bind(product.carbohydrates().fiber())
-//         .bind(product.carbohydrates().sugar())
-//         .bind(product.carbohydrates().added_sugar())
-//         .bind(product.carbohydrates().starch())
-//         .bind(product.fat().total())
-//         .bind(product.fat().saturated())
-//         .bind(product.fat().monounsaturated())
-//         .bind(product.fat().trans())
-//         .bind(product.protein().total())
-//         .bind(product.salt().total())
-//         .bind(product.fat().omega_3())
-//         .bind(product.fat().omega_6())
-//         .execute(&mut tx)
-//         .await?;
-//     }
+pub async fn import_file(pool: &SqlitePool, products: &[FlatProduct]) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    for p in products {
+        let unit = match p.unit.as_str() {
+            "Grams" => "Grams",
+            "Mililiters" => "Mililiters",
+            _ => "Grams",
+        };
 
-//     tx.commit().await?;
+        let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt")  
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) "#)
+        .bind(p.name.as_str())
+        .bind(unit)
+        .bind(p.kj)
+        .bind(p.kcal)
+        .bind(p.carbohydrates)
+        .bind(p.sugar)
+        .bind(p.fiber)
+        .bind(p.added_sugar)
+        .bind(p.starch)
+        .bind(p.fat)
+        .bind(p.saturated)
+        .bind(p.monounsaturated)
+        .bind(p.omega_7)
+        .bind(p.omega_9)
+        .bind(p.polyunsaturated)
+        .bind(p.omega_3)
+        .bind(p.omega_6)
+        .bind(p.trans)
+        .bind(p.protein)
+        .bind(p.salt)
+        .execute(&mut tx)
+        .await?;
 
-//     Ok(())
-// }
+        let product_id = result.last_insert_rowid();
+
+        sqlx::query(
+            r#"
+        INSERT INTO "Vitamins"
+        ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
+        "#,
+        )
+        .bind(product_id)
+        .bind(p.a)
+        .bind(p.d)
+        .bind(p.e)
+        .bind(p.k)
+        .bind(p.b1)
+        .bind(p.b2)
+        .bind(p.b3)
+        .bind(p.b5)
+        .bind(p.b6)
+        .bind(p.b7)
+        .bind(p.b9)
+        .bind(p.b12)
+        .bind(p.c)
+        .execute(&mut tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+
+    Ok(())
+}
 
 pub async fn search_product_suggestions(
     pool: &SqlitePool,
@@ -108,21 +146,21 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let salt: Salt = Salt::new(row.get(20));
 
             let fat_sol = FatSoluble::new(
-                row.try_get(21).unwrap_or(0.0),
-                row.try_get(22).unwrap_or(0.0),
-                row.try_get(23).unwrap_or(0.0),
-                row.try_get(24).unwrap_or(0.0),
+                row.try_get(21).unwrap_or(Option::None),
+                row.try_get(22).unwrap_or(Option::None),
+                row.try_get(23).unwrap_or(Option::None),
+                row.try_get(24).unwrap_or(Option::None),
             );
             let water_sol = WaterSoluble::new(
-                row.try_get(25).unwrap_or(0.0),
-                row.try_get(26).unwrap_or(0.0),
-                row.try_get(27).unwrap_or(0.0),
-                row.try_get(28).unwrap_or(0.0),
-                row.try_get(29).unwrap_or(0.0),
-                row.try_get(30).unwrap_or(0.0),
-                row.try_get(31).unwrap_or(0.0),
-                row.try_get(32).unwrap_or(0.0),
-                row.try_get(33).unwrap_or(0.0),
+                row.try_get(25).unwrap_or(Option::None),
+                row.try_get(26).unwrap_or(Option::None),
+                row.try_get(27).unwrap_or(Option::None),
+                row.try_get(28).unwrap_or(Option::None),
+                row.try_get(29).unwrap_or(Option::None),
+                row.try_get(30).unwrap_or(Option::None),
+                row.try_get(31).unwrap_or(Option::None),
+                row.try_get(32).unwrap_or(Option::None),
+                row.try_get(33).unwrap_or(Option::None),
             );
 
             let vitamin_content = Vitamins::new(fat_sol, water_sol);
@@ -243,21 +281,21 @@ pub async fn amount_adjusted_product(
         };
 
         let fat_sol = FatSoluble::new(
-            row.try_get(16).unwrap_or(0.0),
-            row.try_get(17).unwrap_or(0.0),
-            row.try_get(18).unwrap_or(0.0),
-            row.try_get(19).unwrap_or(0.0),
+            row.try_get(16).unwrap_or(Option::None),
+            row.try_get(17).unwrap_or(Option::None),
+            row.try_get(18).unwrap_or(Option::None),
+            row.try_get(19).unwrap_or(Option::None),
         );
         let water_sol = WaterSoluble::new(
-            row.try_get(20).unwrap_or(0.0),
-            row.try_get(21).unwrap_or(0.0),
-            row.try_get(22).unwrap_or(0.0),
-            row.try_get(23).unwrap_or(0.0),
-            row.try_get(24).unwrap_or(0.0),
-            row.try_get(25).unwrap_or(0.0),
-            row.try_get(26).unwrap_or(0.0),
-            row.try_get(27).unwrap_or(0.0),
-            row.try_get(28).unwrap_or(0.0),
+            row.try_get(20).unwrap_or(Option::None),
+            row.try_get(21).unwrap_or(Option::None),
+            row.try_get(22).unwrap_or(Option::None),
+            row.try_get(23).unwrap_or(Option::None),
+            row.try_get(24).unwrap_or(Option::None),
+            row.try_get(25).unwrap_or(Option::None),
+            row.try_get(26).unwrap_or(Option::None),
+            row.try_get(27).unwrap_or(Option::None),
+            row.try_get(28).unwrap_or(Option::None),
         );
 
         let vitamin_content = Vitamins::new(fat_sol, water_sol);

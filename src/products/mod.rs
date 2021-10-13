@@ -1,6 +1,7 @@
 mod base;
 use actix_web::{HttpRequest, HttpResponse, Responder};
 
+pub use self::base::FlatProduct;
 pub use self::base::Product;
 pub use self::base::ProductSubmission;
 pub use self::base::Report;

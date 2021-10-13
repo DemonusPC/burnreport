@@ -1,4 +1,5 @@
-use crate::nutrients::{Carbohydrates, Energy, Fat, Protein, Salt};
+use crate::api::db::import_file;
+use crate::products::FlatProduct;
 use crate::{
     api::{
         db::{
@@ -76,92 +77,46 @@ async fn post_product(pool: web::Data<SqlitePool>, product: web::Json<Product>) 
         Some(new_id),
     ))
 }
-// #[post("/api/products/csv")]
-// async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart) -> impl Responder {
-//     while let Ok(Some(mut field)) = payload.try_next().await {
-//         while let Some(chunk) = field.next().await {
-//             let data = chunk.unwrap();
 
-//             let mut rdr = csv::Reader::from_reader(data.as_ref());
+#[post("/api/products/csv")]
+async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart) -> impl Responder {
+    while let Ok(Some(mut field)) = payload.try_next().await {
+        while let Some(chunk) = field.next().await {
+            let data = chunk.unwrap();
 
-//             let products: Vec<Product> = rdr
-//                 .records()
-//                 .map(|res| {
-//                     let record = res.unwrap();
-//                     let name = record.get(0).unwrap_or("");
-//                     let manufacturer = record.get(1).unwrap_or("");
+            let mut rdr = csv::Reader::from_reader(data.as_ref());
 
-//                     let kcal = record.get(2).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let kj = record.get(3).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let carbs = record.get(4).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let fiber = record.get(5).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let sugar = record.get(6).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let added_sugar = record.get(7).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let starch = record.get(8).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let fat = record.get(9).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-//                     let saturated = record
-//                         .get(10)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
-//                     let monounsat = record
-//                         .get(11)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
-//                     let trans = record
-//                         .get(12)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
-//                     let protein = record
-//                         .get(13)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
-//                     let salt = record
-//                         .get(14)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
+            let products: Vec<FlatProduct> = rdr
+                .deserialize()
+                .map(|res| {
+                    // TODO: This unwrap needs fixing
+                    let product: FlatProduct = res.unwrap();
+                    println!("{:?}", product);
+                    product
+                })
+                .collect();
 
-//                     let omega_3 = record
-//                         .get(15)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
+            match import_file(&pool, &products).await {
+                Ok(()) => {
+                    return Ok(ApiResult::new(
+                        201,
+                        Some("CREATED".to_owned()),
+                        Option::None,
+                    ))
+                }
+                Err(err) => {
+                    error!(
+                        "Could not complete importing the csv file due to error: {}",
+                        err
+                    );
+                    return Err(ApiError::InternalServer);
+                }
+            }
+        }
+    }
 
-//                     let omega_6 = record
-//                         .get(16)
-//                         .unwrap_or("0.0")
-//                         .parse::<f64>()
-//                         .unwrap_or(0.0);
-
-//                     return Product::new(
-//                         -1,
-//                         name.to_owned(),
-//                         manufacturer.to_owned(),
-//                         Energy::new(kcal, kj),
-//                         Carbohydrates::new(carbs, fiber, sugar, added_sugar, starch),
-//                         Fat::new(fat, saturated, monounsat, trans, omega_3, omega_6),
-//                         Protein::new(protein),
-//                         Salt::new(salt),
-//                         Option::None,
-//                     );
-//                 })
-//                 .collect();
-
-//             match import_file(&pool, &products).await {
-//                 Ok(()) => {}
-//                 Err(err) => {
-//                     return Err(ApiError::InternalServer);
-//                 }
-//             }
-//         }
-//     }
-
-//     Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
-// }
+    Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
+}
 
 #[delete("/api/products/{id}")]
 async fn delete_single_product(
