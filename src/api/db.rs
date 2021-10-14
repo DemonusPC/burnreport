@@ -1,5 +1,3 @@
-use std::fmt::Result;
-
 use crate::nutrients::FatSoluble;
 use crate::nutrients::FatV2;
 use crate::nutrients::MonoUnsaturatedFat;
@@ -80,6 +78,56 @@ pub async fn import_file(pool: &SqlitePool, products: &[FlatProduct]) -> Result<
     tx.commit().await?;
 
     Ok(())
+}
+
+pub async fn export_file(pool: &SqlitePool) -> Result<Vec<FlatProduct>, sqlx::Error> {
+    let result = sqlx::query("SELECT * FROM full_product")
+        .map(|row: SqliteRow| {
+            let unit = match row.get(2) {
+                "Grams" => "Grams",
+                "Mililiters" => "Mililiters",
+                _ => "Grams",
+            };
+            FlatProduct {
+                name: row.get(1),
+                unit: unit.to_string(),
+                kj: row.get(3),
+                kcal: row.get(4),
+                carbohydrates: row.get(5),
+                sugar: row.get(6),
+                fiber: row.try_get(7).unwrap_or(Option::None),
+                added_sugar: row.try_get(8).unwrap_or(Option::None),
+                starch: row.try_get(9).unwrap_or(Option::None),
+                fat: row.get(10),
+                saturated: row.get(11),
+                monounsaturated: row.try_get(12).unwrap_or(Option::None),
+                omega_7: row.try_get(13).unwrap_or_default(),
+                omega_9: row.try_get(14).unwrap_or_default(),
+                polyunsaturated: row.try_get(15).unwrap_or_default(),
+                omega_3: row.try_get(16).unwrap_or_default(),
+                omega_6: row.try_get(17).unwrap_or_default(),
+                trans: row.try_get(18).unwrap_or_default(),
+                protein: row.get(19),
+                salt: row.get(20),
+                a: row.try_get(21).unwrap_or_default(),
+                d: row.try_get(22).unwrap_or_default(),
+                e: row.try_get(23).unwrap_or_default(),
+                k: row.try_get(24).unwrap_or_default(),
+                b1: row.try_get(25).unwrap_or_default(),
+                b2: row.try_get(26).unwrap_or_default(),
+                b3: row.try_get(27).unwrap_or_default(),
+                b5: row.try_get(28).unwrap_or_default(),
+                b6: row.try_get(29).unwrap_or_default(),
+                b7: row.try_get(30).unwrap_or_default(),
+                b9: row.try_get(31).unwrap_or_default(),
+                b12: row.try_get(32).unwrap_or_default(),
+                c: row.try_get(33).unwrap_or_default(),
+            }
+        })
+        .fetch_all(pool)
+        .await?;
+
+    Ok(result)
 }
 
 pub async fn search_product_suggestions(

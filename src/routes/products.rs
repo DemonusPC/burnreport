@@ -1,4 +1,4 @@
-use crate::api::db::import_file;
+use crate::api::db::{export_file, import_file};
 use crate::products::FlatProduct;
 use crate::{
     api::{
@@ -11,11 +11,12 @@ use crate::{
     products::{ApiResult, Portion, Product, ResultList},
 };
 use actix_multipart::Multipart;
-use actix_web::{delete, get, post, web, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
+use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchQuery {
@@ -116,6 +117,44 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
     }
 
     Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
+}
+
+fn to_csv(products: &[FlatProduct]) -> Result<String, Box<dyn Error>> {
+    let mut wtr = csv::Writer::from_writer(vec![]);
+
+    for p in products {
+        wtr.serialize(p)?;
+    }
+
+    wtr.flush()?;
+    let data = String::from_utf8(wtr.into_inner()?)?;
+
+    Ok(data)
+}
+
+#[get("/api/data/products/csv")]
+async fn get_product_batch(pool: web::Data<SqlitePool>) -> HttpResponse {
+    let all_products = match export_file(&pool).await {
+        Ok(p) => p,
+        Err(err) => {
+            error!(
+                "Could not export products from database due to error: {}",
+                err
+            );
+            return HttpResponse::InternalServerError().finish();
+        }
+    };
+
+    match to_csv(&all_products) {
+        Ok(body) => HttpResponse::Ok()
+            .content_type("text/csv")
+            .insert_header(("Content-Disposition", "attachment;filename=products.csv"))
+            .body(body),
+        Err(err) => {
+            error!("Could not generate the csv file due to error: {}", err);
+            return HttpResponse::InternalServerError().finish();
+        }
+    }
 }
 
 #[delete("/api/products/{id}")]
