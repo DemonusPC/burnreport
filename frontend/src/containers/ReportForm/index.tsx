@@ -9,6 +9,7 @@ import {
 } from "../../util/data/requests";
 import { ConsumedProduct, Report, ConsumedRaw } from "../../util/schema/report";
 import ProductItem from "../ProductItem";
+import { SearchSuggestion } from "../ProductSearchForm";
 
 const emptyState = (): Map<number, ConsumedRaw> => {
   return new Map();
@@ -49,10 +50,10 @@ const baseUnit: ProductSize = {
 };
 
 // Add Product Items
-const addConsumedProduct = (product: Product, setState: any) => {
+const addConsumedProduct = (suggestion: SearchSuggestion, setState: any) => {
   const boxedProduct: ConsumedRaw = {
-    id: product.id,
-    name: product.name,
+    id: suggestion.id,
+    name: suggestion.text,
     amount: 100,
     unit: baseUnit,
     unitOptions: [baseUnit],
@@ -60,7 +61,7 @@ const addConsumedProduct = (product: Product, setState: any) => {
 
   setState((prevState: any) => {
     const newState = new Map(prevState);
-    newState.set(product.id, boxedProduct);
+    newState.set(suggestion.id, boxedProduct);
     return newState;
   });
 };
@@ -164,9 +165,9 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
 
       <Box pad={{ bottom: "large" }}>
         <SearchForm
-          selectedFunction={(product: Product) => {
-            addConsumedProduct(product, setState);
-            getProductUnitOptions(product.id, setState);
+          selectedFunction={(suggestion: SearchSuggestion) => {
+            addConsumedProduct(suggestion, setState);
+            getProductUnitOptions(suggestion.id, setState);
           }}
           suggestFunction={getProductSearchSuggestions}
         />

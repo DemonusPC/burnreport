@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Box, TextInput } from "grommet";
 import { Search } from "grommet-icons";
 import { emptyProduct, Product } from "../../util/schema/product";
+import { SearchSuggestion } from "../ProductSearchForm";
 
 interface SearchProps {
-  selectedFunction: (product: Product) => void;
+  selectedFunction: (product: SearchSuggestion) => void;
   suggestFunction: (suggestion: string) => Promise<any>;
 }
 
@@ -12,20 +13,23 @@ const buildSuggestionStringArray = (): string[] => {
   return [];
 };
 
-const emptyOriginal = (): Product[] => {
+const emptyOriginal = (): SearchSuggestion[] => {
   return [];
 };
 
-const confirmProduct = (name: string, original: Product[]) => {
-  const found =
-    original.find((element) => element.name === name) || emptyProduct();
+const confirmProduct = (name: string, original: SearchSuggestion[]) => {
+  const found = original.find((element) => element.text === name) || undefined;
   return found;
 };
 
+type SearchFormState = {
+  value: string;
+  selectedProduct: SearchSuggestion | undefined;
+};
 const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
-  const [state, setState] = useState({
+  const [state, setState] = useState<SearchFormState>({
     value: "",
-    selectedProduct: emptyProduct(),
+    selectedProduct: undefined,
   });
   const [sug, setSug] = useState({
     suggestions: buildSuggestionStringArray(),
@@ -40,9 +44,9 @@ const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
     // [ \ ^ $ . | ? * + ( )
     const escapedText = value.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
 
-    suggestFunction(escapedText).then((json: Array<Product>) => {
-      const suggestions = json.map((product: Product) => {
-        return product.name;
+    suggestFunction(escapedText).then((json: Array<SearchSuggestion>) => {
+      const suggestions = json.map((product: SearchSuggestion) => {
+        return product.text;
       });
       setSug({ suggestions, original: json });
     });
@@ -57,7 +61,9 @@ const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
       value: event.suggestion,
       selectedProduct: selected,
     });
-    selectedFunction(selected);
+    if (selected) {
+      selectedFunction(selected);
+    }
   };
 
   return (

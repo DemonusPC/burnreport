@@ -1,16 +1,16 @@
 import React from "react";
 import { Heading, Box, FileInput } from "grommet";
-import { emptyProduct } from "../../util/schema/product";
 
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
 
 import ReportForm from "../../containers/ReportForm";
+import { emptyNutrients } from "../../util/schema/product";
 
 const emptyReport = (): ReportResult => {
   return {
     timeDone: Date.now(),
     result: {
-      total: emptyProduct(),
+      total: emptyNutrients(),
       consumed: [],
     },
   };

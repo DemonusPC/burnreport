@@ -273,7 +273,7 @@ pub async fn amount_adjusted_product(
                 (b7/100) * $1 as b7,
                 (b9/100) * $1 as b9,
                 (b12/100) * $1 as b12,
-                (c/100) * $1 as c,
+                (c/100) * $1 as c
                 FROM full_product WHERE id = $2"#,
     )
     .bind(amount)

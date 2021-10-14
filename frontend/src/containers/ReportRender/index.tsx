@@ -1,5 +1,5 @@
 import React from "react";
-import { Product } from "../../util/schema/product";
+import { Nutrients, Product } from "../../util/schema/product";
 import { Box, Heading, Accordion, Button } from "grommet";
 import { saveAs } from "file-saver";
 
@@ -15,7 +15,7 @@ import { vitaminsToRow } from "../../util/schema/vitamins";
 export interface ReportResult {
   timeDone: number;
   result: {
-    total: Product;
+    total: Nutrients;
     consumed: Product[];
   };
 }
@@ -35,25 +35,14 @@ const ReportRender = ({ result }: ReportResult) => {
         <Heading>Report</Heading>
         <Box direction="column">
           <Heading level={2}>Total consumed</Heading>
-          {/* <NutrientBar
-            total={totalMacroInGrams(result.total)}
-            carbohydrates={result.total.nutrition.carbohydrates.total}
-            fat={result.total.nutrition.fat.total}
-            protein={result.total.nutrition.protein.total}
-          /> */}
+          <NutrientBar nutrients={result.total} />
           <Energy level={4}>
-            {displayRound(result.total.nutrients.energy.kcal)} kcal
+            {displayRound(result.total.energy.kcal)} kcal
           </Energy>
-          <NutrientTable
-            nutrients={result.total.nutrients}
-            amount={100}
-            baseUnit={1}
-          />
-
+          <NutrientTable nutrients={result.total} amount={100} baseUnit={1} />
           <Heading level={2}>Vitamins</Heading>
-
           <AdditionalTable
-            entity={result.total.nutrients.vitamins}
+            entity={result.total.vitamins}
             mapper={vitaminsToRow}
             unit={"mg"}
           />
