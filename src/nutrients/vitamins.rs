@@ -1,6 +1,8 @@
 use serde_derive::{Deserialize, Serialize};
 use std::ops::Add;
 
+use super::add_options;
+
 pub trait FatSolubleApi {
     fn a(&self) -> Option<f64>;
     fn d(&self) -> Option<f64>;
@@ -57,31 +59,15 @@ impl FatSolubleApi for FatSoluble {
     }
 }
 
-fn add_vitamin(a: &Option<f64>, b: &Option<f64>) -> Option<f64> {
-    if a.is_some() && b.is_none() {
-        return a.clone();
-    }
-
-    if a.is_none() && b.is_some() {
-        return b.clone();
-    }
-
-    if a.is_some() && b.is_some() {
-        return Some(a.clone().unwrap() + b.clone().unwrap());
-    }
-
-    Option::None
-}
-
 impl Add for FatSoluble {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
         Self {
-            a: add_vitamin(&self.a, &other.a),
-            d: add_vitamin(&self.d, &other.d),
-            e: add_vitamin(&self.e, &other.e),
-            k: add_vitamin(&self.k, &other.k),
+            a: add_options(&self.a, &other.a),
+            d: add_options(&self.d, &other.d),
+            e: add_options(&self.e, &other.e),
+            k: add_options(&self.k, &other.k),
         }
     }
 }
@@ -181,15 +167,15 @@ impl Add for WaterSoluble {
 
     fn add(self, other: Self) -> Self {
         Self {
-            b1: add_vitamin(&self.b1, &other.b1),
-            b2: add_vitamin(&self.b2, &other.b2),
-            b3: add_vitamin(&self.b3, &other.b3),
-            b5: add_vitamin(&self.b5, &other.b5),
-            b6: add_vitamin(&self.b6, &other.b6),
-            b7: add_vitamin(&self.b7, &other.b7),
-            b9: add_vitamin(&self.b9, &other.b9),
-            b12: add_vitamin(&self.b12, &other.b12),
-            c: add_vitamin(&self.c, &other.c),
+            b1: add_options(&self.b1, &other.b1),
+            b2: add_options(&self.b2, &other.b2),
+            b3: add_options(&self.b3, &other.b3),
+            b5: add_options(&self.b5, &other.b5),
+            b6: add_options(&self.b6, &other.b6),
+            b7: add_options(&self.b7, &other.b7),
+            b9: add_options(&self.b9, &other.b9),
+            b12: add_options(&self.b12, &other.b12),
+            c: add_options(&self.c, &other.c),
         }
     }
 }

@@ -1,5 +1,4 @@
-use crate::nutrients::{Carbohydrates, Energy, Fat, FatV2, Protein, Salt};
-use crate::nutrients::{Nutrients, Vitamins};
+use crate::nutrients::{Carbohydrates, Energy, Fat, Nutrients, Protein, Salt, Vitamins};
 use actix_web::{HttpRequest, HttpResponse, Responder};
 use log::error;
 use serde_derive::{Deserialize, Serialize};
@@ -122,6 +121,10 @@ impl Product {
         &self.unit
     }
 
+    pub fn nutrients(&self) -> Nutrients {
+        self.nutrients.clone()
+    }
+
     pub fn energy(&self) -> &Energy {
         return &self.nutrients.energy();
     }
@@ -130,7 +133,7 @@ impl Product {
         return &self.nutrients.carbohydrates();
     }
 
-    pub fn fat(&self) -> &FatV2 {
+    pub fn fat(&self) -> &Fat {
         return &self.nutrients.fat();
     }
 

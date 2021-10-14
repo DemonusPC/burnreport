@@ -1,12 +1,13 @@
 use serde_derive::{Deserialize, Serialize};
+use std::ops::Add;
 
-use super::Vitamins;
+use super::{add_options, Vitamins};
 
 pub trait TotalAble {
     fn total(&self) -> f64;
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Energy {
     kcal: f64,
     kj: f64,
@@ -32,7 +33,18 @@ impl TotalAble for Energy {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Add for Energy {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            kj: self.kj + other.kj,
+            kcal: self.kcal + other.kcal,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Carbohydrates {
     total: f64,
     sugar: f64,
@@ -82,85 +94,21 @@ impl TotalAble for Carbohydrates {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PolyunsaturatedFats {
-    omega_3: f64,
-    omega_6: f64,
-}
+impl Add for Carbohydrates {
+    type Output = Self;
 
-impl PolyunsaturatedFats {
-    pub fn omega_3(&self) -> f64 {
-        self.omega_3
-    }
-
-    pub fn omega_6(&self) -> f64 {
-        self.omega_6
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Fat {
-    total: f64,
-    saturated: f64,
-    monounsaturated: f64,
-    trans: f64,
-    polyunsaturated: PolyunsaturatedFats,
-}
-
-impl Fat {
-    pub fn new(
-        total: f64,
-        saturated: f64,
-        mono: f64,
-        trans: f64,
-        omega_3: f64,
-        omega_6: f64,
-    ) -> Fat {
-        Fat {
-            total: total,
-            saturated: saturated,
-            monounsaturated: mono,
-            trans: trans,
-            polyunsaturated: PolyunsaturatedFats { omega_3, omega_6 },
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+            sugar: self.sugar + other.total,
+            fiber: add_options(&self.fiber, &other.fiber),
+            added_sugar: add_options(&self.added_sugar, &other.added_sugar),
+            starch: add_options(&self.starch, &other.starch),
         }
     }
-
-    pub fn saturated(&self) -> f64 {
-        return self.saturated;
-    }
-
-    pub fn monounsaturated(&self) -> f64 {
-        return self.monounsaturated;
-    }
-
-    pub fn trans(&self) -> f64 {
-        return self.trans;
-    }
-
-    pub fn omega_3(&self) -> f64 {
-        return self.polyunsaturated.omega_3();
-    }
-
-    pub fn omega_6(&self) -> f64 {
-        return self.polyunsaturated.omega_6();
-    }
-
-    pub fn contains_trans(&self) -> bool {
-        if self.trans > 0.0 {
-            return true;
-        }
-        return false;
-    }
 }
 
-impl TotalAble for Fat {
-    fn total(&self) -> f64 {
-        return self.total;
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Protein {
     total: f64,
 }
@@ -177,7 +125,17 @@ impl TotalAble for Protein {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Add for Protein {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Salt {
     total: f64,
 }
@@ -194,11 +152,21 @@ impl TotalAble for Salt {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Add for Salt {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Nutrients {
     energy: Energy,
     carbohydrates: Carbohydrates,
-    fat: FatV2,
+    fat: Fat,
     protein: Protein,
     salt: Salt,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -209,7 +177,7 @@ impl Nutrients {
     pub fn new(
         energy: Energy,
         carbohydrates: Carbohydrates,
-        fat: FatV2,
+        fat: Fat,
         protein: Protein,
         salt: Salt,
         vitamins: Option<Vitamins>,
@@ -232,7 +200,7 @@ impl Nutrients {
         return &self.carbohydrates;
     }
 
-    pub fn fat(&self) -> &FatV2 {
+    pub fn fat(&self) -> &Fat {
         return &self.fat;
     }
 
@@ -249,8 +217,23 @@ impl Nutrients {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FatV2 {
+impl Add for Nutrients {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            energy: self.energy + other.energy,
+            carbohydrates: self.carbohydrates + other.carbohydrates,
+            fat: self.fat + other.fat,
+            protein: self.protein + other.protein,
+            salt: self.salt + other.salt,
+            vitamins: add_options(&self.vitamins, &other.vitamins),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct Fat {
     total: f64,
     saturated: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -259,7 +242,7 @@ pub struct FatV2 {
     trans: Option<f64>,
 }
 
-impl FatV2 {
+impl Fat {
     pub fn new(
         total: f64,
         saturated: f64,
@@ -287,9 +270,22 @@ impl FatV2 {
     }
 }
 
-impl TotalAble for FatV2 {
+impl TotalAble for Fat {
     fn total(&self) -> f64 {
         return self.total;
+    }
+}
+
+impl Add for Fat {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+            saturated: self.saturated + other.saturated,
+            unsaturated: add_options(&self.unsaturated, &other.unsaturated),
+            trans: add_options(&self.trans, &other.trans),
+        }
     }
 }
 
@@ -311,6 +307,17 @@ impl UnsaturatedFat {
     }
     pub fn poly(&self) -> Option<PolyUnsaturatedFat> {
         self.poly.clone()
+    }
+}
+
+impl Add for UnsaturatedFat {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            mono: add_options(&self.mono, &other.mono),
+            poly: add_options(&self.poly, &other.poly),
+        }
     }
 }
 
@@ -346,6 +353,18 @@ impl TotalAble for MonoUnsaturatedFat {
     }
 }
 
+impl Add for MonoUnsaturatedFat {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+            omega_7: add_options(&self.omega_7, &other.omega_7),
+            omega_9: add_options(&self.omega_9, &other.omega_9),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct PolyUnsaturatedFat {
@@ -370,6 +389,18 @@ impl PolyUnsaturatedFat {
 
     pub fn omega_6(&self) -> Option<f64> {
         self.omega_6.clone()
+    }
+}
+
+impl Add for PolyUnsaturatedFat {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            total: self.total + other.total,
+            omega_3: add_options(&self.omega_3, &other.omega_3),
+            omega_6: add_options(&self.omega_6, &other.omega_6),
+        }
     }
 }
 
