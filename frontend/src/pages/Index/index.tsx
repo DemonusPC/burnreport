@@ -1,10 +1,10 @@
 import React from "react";
 import { Heading, Box, FileInput } from "grommet";
 
-import ReportRender, { ReportResult } from "../../containers/ReportRender";
+import ReportRender from "../../containers/ReportRender";
 
 import ReportForm from "../../containers/ReportForm";
-import { emptyReport } from "../../report/report";
+import { emptyReport, ReportResult } from "../../report/report";
 
 const fileChosen = (file: any | undefined, setReport: any) => {
   const reader = new FileReader();

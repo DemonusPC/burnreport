@@ -1,5 +1,13 @@
-import { ReportResult } from "../containers/ReportRender";
-import { emptyNutrients, Portion } from "../product/product";
+import { Nutrients } from "../nutrients/nutrients";
+import { emptyNutrients, Portion, Product } from "../product/product";
+
+export type ReportResult = {
+  timeDone: number;
+  result: {
+    total: Nutrients;
+    consumed: Product[];
+  };
+};
 
 export interface ConsumedRaw {
   id: number;

@@ -10,12 +10,6 @@ export const displayRound = (value: number): number => {
   return +value.toFixed(3);
 };
 
-export interface RawNutrientRow {
-  macronutrient: string;
-  nutrient: string;
-  amount: number;
-}
-
 const toRow = (
   level: number,
   name: string,

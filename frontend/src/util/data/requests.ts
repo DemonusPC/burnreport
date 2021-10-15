@@ -1,6 +1,5 @@
 import { Product, ProductAPIStatus, Portion } from "../../product/product";
-import { Report } from "../../report/report";
-import { ReportResult } from "../../containers/ReportRender";
+import { Report, ReportResult } from "../../report/report";
 import { SearchSuggestion } from "../../containers/ProductSearchForm";
 
 export interface RestResult<T> {

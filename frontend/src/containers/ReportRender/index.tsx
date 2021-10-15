@@ -10,19 +10,11 @@ import ConsumedItem from "../ConsumedItem";
 import AdditionalTable from "../AdditionalTable";
 import { vitaminsToRow } from "../../nutrients/vitamins";
 import {
-  Nutrients,
   nutrientsToBarTotal,
   nutrientsToBarValues,
 } from "../../nutrients/nutrients";
 import Bar from "../Bar";
-
-export interface ReportResult {
-  timeDone: number;
-  result: {
-    total: Nutrients;
-    consumed: Product[];
-  };
-}
+import { ReportResult } from "../../report/report";
 
 const Energy = styled(Heading)`
   font-size: 2em;
