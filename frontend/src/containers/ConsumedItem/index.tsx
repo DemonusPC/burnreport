@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text, AccordionPanel } from "grommet";
-import { Product } from "../../util/schema/product";
+import { Product } from "../../product/product";
 import { displayRound } from "../../util/data/calculations";
 import NutrientTable from "../NutrientTable";
 

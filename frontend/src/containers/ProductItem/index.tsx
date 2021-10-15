@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Button, Box, Text, Select, MaskedInput } from "grommet";
 import { Close } from "grommet-icons";
-import { ProductSize } from "../../util/schema/product";
+import { ProductSize } from "../../product/product";
 import { standardMask } from "../../util/schema/masks";
 
 const PerWrapper = styled(Box)`

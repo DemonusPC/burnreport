@@ -15,10 +15,10 @@ import NutrientBar from "../../containers/NutrientBar";
 import NutrientTable from "../../containers/NutrientTable";
 import { calculateToDisplay } from "../../util/data/calculations";
 import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
-import { Product, ProductSize } from "../../util/schema/product";
+import { Product, ProductSize } from "../../product/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
-import { vitaminsToRow } from "../../util/schema/vitamins";
+import { vitaminsToRow } from "../../nutrients/vitamins";
 import { useHistory } from "react-router-dom";
 import AnchorLink from "../../components/AnchorLink";
 

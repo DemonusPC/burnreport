@@ -1,37 +1,39 @@
 import React from "react";
-import { render, getNodeText, waitFor, screen, fireEvent  } from "@testing-library/react";
-import { MemoryRouter, Router, Route } from "react-router-dom";
+import {
+  render,
+  getNodeText,
+  waitFor,
+  screen,
+  fireEvent,
+} from "@testing-library/react";
+import { MemoryRouter, Route } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import Portions from "./index";
-import { worker } from '../../mocks';
+import { worker } from "../../mocks";
 
 import { rest } from "msw";
 
 beforeAll(() => {
-
   // we're using fake timers because we don't want to
 
   // wait a full second for this test to run.
 
-  jest.useFakeTimers()
-
-})
+  jest.useFakeTimers();
+});
 
 afterAll(() => {
-
-  jest.useRealTimers()
-
-})
+  jest.useRealTimers();
+});
 
 test("heading is displayed", async () => {
-  const { container, getByText } = render(<Portions />, {
+  const { getByText } = render(<Portions />, {
     wrapper: MemoryRouter,
   });
   // verify page content for expected route
 
   await waitFor(() => {
-    expect(screen.getByText('Portions')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Portions")).toBeInTheDocument();
+  });
 
   const heading = getByText("Portions");
   expect(getNodeText(heading)).toMatch("Portions");
@@ -44,8 +46,8 @@ it("has a table of portions, with name and mass in grams", async () => {
   });
 
   await waitFor(() => {
-    expect(screen.getByText('Name')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Name")).toBeInTheDocument();
+  });
 
   const name = getByText("Name");
   const mass = getByText("Mass (grams)");
@@ -57,7 +59,7 @@ it("has a table of portions, with name and mass in grams", async () => {
 it("updates the table after a correct rest call", async () => {
   const history = createMemoryHistory();
   history.push("/products/21/portions");
-  
+
   const { container, getByText } = render(
     <MemoryRouter initialEntries={["/products/21/portions"]}>
       <Route path="/products/:id/portions">
@@ -67,11 +69,11 @@ it("updates the table after a correct rest call", async () => {
   );
 
   await waitFor(() => {
-    expect(getByText('portion')).toBeInTheDocument()
-  })
+    expect(getByText("portion")).toBeInTheDocument();
+  });
 
-  const name = getByText('portion');
-  const mass = getByText('50');
+  const name = getByText("portion");
+  const mass = getByText("50");
   expect(name.parentElement?.nodeName).toMatch("TD");
   expect(mass.parentElement?.nodeName).toMatch("TD");
 });
@@ -79,7 +81,7 @@ it("updates the table after a correct rest call", async () => {
 test("clicking the add portion button reveals the add portion form", async () => {
   const history = createMemoryHistory();
   history.push("/products/21/portions");
-  
+
   const { findByText, getByText } = render(
     <MemoryRouter initialEntries={["/products/21/portions"]}>
       <Route path="/products/:id/portions">
@@ -88,20 +90,19 @@ test("clicking the add portion button reveals the add portion form", async () =>
     </MemoryRouter>
   );
 
-  fireEvent.click(getByText('Add portion'));
+  fireEvent.click(getByText("Add portion"));
 
   const addButton = await findByText("Add");
   const portionField = await findByText("Portion (in grams)");
 
   expect(addButton.parentElement?.nodeName).toStrictEqual("BUTTON");
   expect(portionField.nodeName).toStrictEqual("LABEL");
-
 });
 
 test("not filling out the form prevents sending", async () => {
   const history = createMemoryHistory();
   history.push("/products/21/portions");
-  
+
   const { getByText, findAllByText } = render(
     <MemoryRouter initialEntries={["/products/21/portions"]}>
       <Route path="/products/:id/portions">
@@ -110,25 +111,23 @@ test("not filling out the form prevents sending", async () => {
     </MemoryRouter>
   );
 
-  fireEvent.click(getByText('Add portion'));
+  fireEvent.click(getByText("Add portion"));
 
   await waitFor(() => {
-    expect(getByText('Add')).toBeInTheDocument()
-  })
+    expect(getByText("Add")).toBeInTheDocument();
+  });
 
-  fireEvent.click(getByText('Add'));
+  fireEvent.click(getByText("Add"));
 
   const required_labels = await findAllByText("required");
 
   expect(required_labels).toHaveLength(2);
-
-  
 });
 
 test("sending the form creates a new element", async () => {
   const history = createMemoryHistory();
   history.push("/products/21/portions");
-  
+
   const { getByText, findAllByText } = render(
     <MemoryRouter initialEntries={["/products/21/portions"]}>
       <Route path="/products/:id/portions">
@@ -137,23 +136,22 @@ test("sending the form creates a new element", async () => {
     </MemoryRouter>
   );
 
-  fireEvent.click(getByText('Add portion'));
+  fireEvent.click(getByText("Add portion"));
 
   await waitFor(() => {
-    expect(getByText('Add')).toBeInTheDocument()
-  })
+    expect(getByText("Add")).toBeInTheDocument();
+  });
 
-  fireEvent.click(getByText('Add'));
+  fireEvent.click(getByText("Add"));
 
   const required_labels = await findAllByText("required");
 
   expect(required_labels).toHaveLength(2);
 
   worker.use(
-
     rest.get("/api/products/:id/portions", (req, res, ctx) => {
       const { id } = req.params;
-  
+
       return res(
         ctx.json([
           {
@@ -176,10 +174,6 @@ test("sending the form creates a new element", async () => {
           },
         ])
       );
-    }),
-
-  )
-
-  
+    })
+  );
 });
-

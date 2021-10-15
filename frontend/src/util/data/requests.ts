@@ -3,7 +3,7 @@ import {
   ProductAPIStatus,
   ProductSize,
   Portion,
-} from "../schema/product";
+} from "../../product/product";
 import { Report } from "../schema/report";
 import { ReportResult } from "../../containers/ReportRender";
 import { SearchSuggestion } from "../../containers/ProductSearchForm";
@@ -33,14 +33,6 @@ export const getProductSearchSuggestions = async (
   );
 
   const result: ResultList<SearchSuggestion> = await request.json();
-
-  return result.result;
-};
-
-export const getSingleProductById = async (id: number) => {
-  const request = await fetch(encodeURI(`/api/products/${id}`));
-
-  const result: ResultList<Product> = await request.json();
 
   return result.result;
 };

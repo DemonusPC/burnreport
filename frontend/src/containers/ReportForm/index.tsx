@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Heading, Button } from "grommet";
 import SearchForm from "../SearchForm";
-import { Product, ProductSize } from "../../util/schema/product";
+import { Product, ProductSize } from "../../product/product";
 import {
   postReport,
   getProductSizesById,

@@ -4,7 +4,7 @@ import { Heading, Box, FileInput } from "grommet";
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
 
 import ReportForm from "../../containers/ReportForm";
-import { emptyNutrients } from "../../util/schema/product";
+import { emptyNutrients } from "../../product/product";
 
 const emptyReport = (): ReportResult => {
   return {

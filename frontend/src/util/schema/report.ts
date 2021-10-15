@@ -1,4 +1,4 @@
-import { ProductSize } from "./product";
+import { ProductSize } from "../../product/product";
 
 export interface ConsumedRaw {
   id: number;

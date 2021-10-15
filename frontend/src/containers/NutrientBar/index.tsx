@@ -1,6 +1,6 @@
 import React from "react";
 import { Meter } from "grommet";
-import { Nutrients } from "../../util/schema/product";
+import { Nutrients } from "../../product/product";
 
 export interface NutrientBarProps {
   nutrients: Nutrients;

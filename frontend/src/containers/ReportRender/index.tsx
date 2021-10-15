@@ -1,5 +1,5 @@
 import React from "react";
-import { Nutrients, Product } from "../../util/schema/product";
+import { Nutrients, Product } from "../../product/product";
 import { Box, Heading, Accordion, Button } from "grommet";
 import { saveAs } from "file-saver";
 
@@ -9,7 +9,7 @@ import NutrientBar from "../NutrientBar";
 import { displayRound } from "../../util/data/calculations";
 import ConsumedItem from "../ConsumedItem";
 import AdditionalTable from "../AdditionalTable";
-import { vitaminsToRow } from "../../util/schema/vitamins";
+import { vitaminsToRow } from "../../nutrients/vitamins";
 // import OmegaBar from "../OmegaBar";
 
 export interface ReportResult {

@@ -1,5 +1,5 @@
-import { Nutrients, Product } from "../schema/product";
 import { NutrientRow } from "../../components/NutrientTableRow";
+import { Nutrients } from "../../nutrients/nutrients";
 
 export const calculatePer = (value: number, per: number, baseUnit: number) => {
   const one = value / 100;
@@ -15,16 +15,6 @@ export interface RawNutrientRow {
   nutrient: string;
   amount: number;
 }
-
-const asColumn = (
-  macronutrient: string,
-  nutrient: string,
-  amount: number
-): RawNutrientRow => ({
-  macronutrient,
-  nutrient,
-  amount,
-});
 
 const toRow = (
   level: number,

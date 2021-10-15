@@ -1,14 +1,13 @@
 import React from "react";
 import { Heading, Box, Text, FileInput } from "grommet";
-import {
-  MonoUnsaturatedFat,
-  PolyunsaturatedFat,
-  Product,
-  Unit,
-} from "../../util/schema/product";
+import { Product, Unit } from "../../product/product";
 import { Redirect } from "react-router-dom";
 import { postProduct, postCSVProducts } from "../../util/data/requests";
 import ProductForm from "../../containers/ProductForm";
+import {
+  MonoUnsaturatedFat,
+  PolyunsaturatedFat,
+} from "../../nutrients/nutrients";
 
 const propertyToNumber = (property: number): number => {
   if (property) {

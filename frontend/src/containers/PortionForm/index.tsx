@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, TextInput, Form, Button, FormField, Heading } from "grommet";
-import { Portion } from "../../util/schema/product";
+import { Portion } from "../../product/product";
 
 import { AddCircle } from "grommet-icons";
 

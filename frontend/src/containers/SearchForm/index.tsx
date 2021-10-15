@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Box, TextInput } from "grommet";
 import { Search } from "grommet-icons";
-import { emptyProduct, Product } from "../../util/schema/product";
 import { SearchSuggestion } from "../ProductSearchForm";
 
 interface SearchProps {

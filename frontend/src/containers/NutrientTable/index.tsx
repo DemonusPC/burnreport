@@ -1,5 +1,5 @@
 import React from "react";
-import { Nutrients, emptyProduct } from "../../util/schema/product";
+import { Nutrients, emptyProduct } from "../../product/product";
 import { extractTabularNutrients } from "../../util/data/calculations";
 import NutrientTableRow from "../../components/NutrientTableRow";
 

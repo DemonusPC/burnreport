@@ -3,7 +3,7 @@ import { Heading, Box, Button } from "grommet";
 import { AddCircle } from "grommet-icons";
 import { useParams } from "react-router";
 
-import { Portion } from "../../util/schema/product";
+import { Portion } from "../../product/product";
 import PortionForm from "../../containers/PortionForm";
 
 import {
