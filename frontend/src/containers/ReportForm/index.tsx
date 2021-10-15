@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Heading, Button } from "grommet";
 import SearchForm from "../SearchForm";
-import { Product, ProductSize } from "../../product/product";
+import { Portion } from "../../product/product";
 import {
   postReport,
   getProductSizesById,
   getProductSearchSuggestions,
 } from "../../util/data/requests";
-import { ConsumedProduct, Report, ConsumedRaw } from "../../util/schema/report";
+import { ConsumedProduct, Report, ConsumedRaw } from "../../report/report";
 import ProductItem from "../ProductItem";
 import { SearchSuggestion } from "../ProductSearchForm";
 
@@ -42,7 +42,7 @@ interface ReportFormProps {
 
 // Report Opertaions
 
-const baseUnit: ProductSize = {
+const baseUnit: Portion = {
   id: 0,
   product: 0,
   name: "grams",
@@ -95,11 +95,7 @@ const changeProductAmount = (
 };
 
 // Change Unit
-const changeProductUnit = (
-  productId: number,
-  unit: ProductSize,
-  setState: any
-) => {
+const changeProductUnit = (productId: number, unit: Portion, setState: any) => {
   setState((prevState: any) => {
     const target = prevState.get(productId);
     if (target) {
@@ -148,7 +144,7 @@ const mapProductItems = (state: any, setState: any) => {
       }}
       unit={product.unit}
       unitOptions={product.unitOptions}
-      setUnit={(option: ProductSize) => {
+      setUnit={(option: Portion) => {
         changeProductUnit(product.id, option, setState);
       }}
     />

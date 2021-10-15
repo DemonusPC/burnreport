@@ -51,15 +51,9 @@ export interface ProductAPIStatus {
   id?: number;
 }
 
-export interface ProductSize {
-  id: number;
+export type Portion = {
+  id?: number;
   product: number;
   name: string;
   grams: number;
-}
-
-export interface Portion {
-  product: number;
-  name: string;
-  grams: number;
-}
+};

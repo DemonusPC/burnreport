@@ -1,18 +1,18 @@
 import { BarValue } from "../containers/Bar";
 import Vitamins from "./vitamins";
 
-export interface Energy {
+export type Energy = {
   kcal: number;
   kj: number;
-}
+};
 
-export interface Carbohydrates {
+export type Carbohydrates = {
   total: number;
   sugar: number;
   fiber?: number;
   addedSugar?: number;
   starch?: number;
-}
+};
 
 export type PolyunsaturatedFat = {
   total: number;
@@ -31,20 +31,20 @@ export type UnsaturatedFat = {
   poly?: PolyunsaturatedFat;
 };
 
-export interface Fat {
+export type Fat = {
   total: number;
   saturated: number;
   unsaturated?: UnsaturatedFat;
   trans?: number;
-}
+};
 
-export interface Protein {
+export type Protein = {
   total: number;
-}
+};
 
-export interface Salt {
+export type Salt = {
   total: number;
-}
+};
 
 export type Nutrients = {
   energy: Energy;

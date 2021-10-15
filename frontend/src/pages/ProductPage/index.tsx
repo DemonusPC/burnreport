@@ -14,7 +14,7 @@ import useSWR from "swr";
 import NutrientTable from "../../containers/NutrientTable";
 import { calculateToDisplay } from "../../util/data/calculations";
 import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
-import { Product, ProductSize } from "../../product/product";
+import { Product, Portion } from "../../product/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../nutrients/vitamins";
@@ -34,7 +34,7 @@ const urlToPortion = (id: number): string => {
   return encodeURI(`/products/${id}/portions`);
 };
 
-const base: ProductSize = {
+const base: Portion = {
   id: 0,
   product: 0,
   name: "grams",
@@ -59,7 +59,7 @@ const ProductPage = () => {
     encodeURI(`/api/products/${parsed}`),
     fetcher
   );
-  const portions = useSWR<ResultList<ProductSize>>(
+  const portions = useSWR<ResultList<Portion>>(
     encodeURI(`/api/products/${parsed}/portions`),
     fetcher
   );

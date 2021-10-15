@@ -29,11 +29,11 @@ const App = () => {
               <Route path="/products/add">
                 <AddProduct />
               </Route>
-              <Route path="/products/:id/portions">
-                <Portions />
-              </Route>
               <Route path="/products/list">
                 <ProductsList />
+              </Route>
+              <Route path="/products/:id/portions">
+                <Portions />
               </Route>
               <Route path="/products/:id">
                 <ProductPage />

@@ -1,10 +1,5 @@
-import {
-  Product,
-  ProductAPIStatus,
-  ProductSize,
-  Portion,
-} from "../../product/product";
-import { Report } from "../schema/report";
+import { Product, ProductAPIStatus, Portion } from "../../product/product";
+import { Report } from "../../report/report";
 import { ReportResult } from "../../containers/ReportRender";
 import { SearchSuggestion } from "../../containers/ProductSearchForm";
 
@@ -89,7 +84,7 @@ export const postCSVProducts = async (data: any): Promise<ProductAPIStatus> => {
 
 export const getProductSizesById = async (id: number) => {
   const request = await fetch(encodeURI(`/api/products/${id}/portions`));
-  const result: ResultList<ProductSize> = await request.json();
+  const result: ResultList<Portion> = await request.json();
 
   return result.result;
 };

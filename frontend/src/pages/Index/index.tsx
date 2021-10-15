@@ -4,17 +4,7 @@ import { Heading, Box, FileInput } from "grommet";
 import ReportRender, { ReportResult } from "../../containers/ReportRender";
 
 import ReportForm from "../../containers/ReportForm";
-import { emptyNutrients } from "../../product/product";
-
-const emptyReport = (): ReportResult => {
-  return {
-    timeDone: Date.now(),
-    result: {
-      total: emptyNutrients(),
-      consumed: [],
-    },
-  };
-};
+import { emptyReport } from "../../report/report";
 
 const fileChosen = (file: any | undefined, setReport: any) => {
   const reader = new FileReader();
