@@ -11,7 +11,6 @@ import React from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import useSWR from "swr";
-import NutrientBar from "../../containers/NutrientBar";
 import NutrientTable from "../../containers/NutrientTable";
 import { calculateToDisplay } from "../../util/data/calculations";
 import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
@@ -21,6 +20,11 @@ import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../nutrients/vitamins";
 import { useHistory } from "react-router-dom";
 import AnchorLink from "../../components/AnchorLink";
+import {
+  nutrientsToBarTotal,
+  nutrientsToBarValues,
+} from "../../nutrients/nutrients";
+import Bar from "../../containers/Bar";
 
 const PerWrapper = styled(Box)`
   align-items: center;
@@ -56,7 +60,8 @@ const ProductPage = () => {
     fetcher
   );
   const portions = useSWR<ResultList<ProductSize>>(
-    encodeURI(`/api/products/${parsed}/portions`)
+    encodeURI(`/api/products/${parsed}/portions`),
+    fetcher
   );
 
   if (error || portions.error) return <div>Error</div>;
@@ -85,7 +90,11 @@ const ProductPage = () => {
       </Box>
       <Box>
         <Heading level={2}>{data.name}</Heading>
-        <NutrientBar nutrients={data.nutrients} />
+        <Bar
+          data={data.nutrients}
+          mapToBarValues={nutrientsToBarValues}
+          calculateTotal={nutrientsToBarTotal}
+        />
         <Heading level={4}>
           {calculateToDisplay(
             data.nutrients.energy.kcal,

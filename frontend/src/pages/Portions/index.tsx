@@ -10,6 +10,7 @@ import {
   postPortions,
   deletePortion,
   ResultList,
+  fetcher,
 } from "../../util/data/requests";
 import PortionList from "../../components/PortionList";
 import useSWR, { mutate } from "swr";
@@ -43,7 +44,8 @@ const mutatePortions = async (
 const Portions = () => {
   const { id } = useParams<IdParams>();
   const { data, error } = useSWR<ResultList<Portion>>(
-    encodeURI(`/api/products/${id}/portions`)
+    encodeURI(`/api/products/${id}/portions`),
+    fetcher
   );
   const [adding, setAdding] = useState(false);
 

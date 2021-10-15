@@ -1,3 +1,4 @@
+import { BarValue } from "../containers/Bar";
 import Vitamins from "./vitamins";
 
 export interface Energy {
@@ -76,4 +77,36 @@ export const emptyNutrients = (): Nutrients => {
       total: 0,
     },
   };
+};
+
+export const nutrientsToBarValues = (data: Nutrients): BarValue[] => {
+  const result: BarValue[] = [];
+  const { carbohydrates, fat, protein } = data;
+
+  result.push({
+    value: carbohydrates.total,
+    label: "Carbohydrates",
+    color: "#ffb347",
+  });
+  result.push({ value: fat.total, label: "fat", color: "#1e90ff" });
+  result.push({ value: protein.total, label: "protein", color: "#dc143c" });
+
+  return result;
+};
+
+export const nutrientsToBarTotal = (data: Nutrients): number => {
+  return data.carbohydrates.total + data.fat.total + data.protein.total;
+};
+
+export const polyunsaturatedToBarValues = (data: PolyunsaturatedFat) => {
+  const result = [];
+
+  result.push({ value: data.omega3 || 0, label: "Omega 3", color: "#1eddff" });
+  result.push({ value: data.omega6 || 0, label: "Omega 6", color: "#875b6f" });
+
+  return result;
+};
+
+export const polyunsaturatedToBarTotal = (data: PolyunsaturatedFat) => {
+  return (data.omega3 || 0) + (data.omega6 || 0);
 };

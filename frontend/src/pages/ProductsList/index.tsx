@@ -3,14 +3,15 @@ import ProductSearchForm, {
   SearchSuggestion,
 } from "../../containers/ProductSearchForm";
 import useQuery from "../../util/useQuery";
-import { ResultList } from "../../util/data/requests";
+import { fetcher, ResultList } from "../../util/data/requests";
 import useSWR from "swr";
 import ProductCell from "../../components/ProductCell";
 
 const ProductsList = () => {
   const toSearch = useQuery().get("p") || "";
   const { data, error } = useSWR<ResultList<SearchSuggestion>>(
-    encodeURI(`/api/search/suggestions?p=${toSearch}`)
+    encodeURI(`/api/search/suggestions?p=${toSearch}`),
+    fetcher
   );
 
   if (error) return <div>An error occured</div>;

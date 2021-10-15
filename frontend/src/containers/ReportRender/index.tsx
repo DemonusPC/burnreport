@@ -1,16 +1,20 @@
 import React from "react";
-import { Nutrients, Product } from "../../product/product";
+import { Product } from "../../product/product";
 import { Box, Heading, Accordion, Button } from "grommet";
 import { saveAs } from "file-saver";
 
 import styled from "styled-components";
 import NutrientTable from "../NutrientTable";
-import NutrientBar from "../NutrientBar";
 import { displayRound } from "../../util/data/calculations";
 import ConsumedItem from "../ConsumedItem";
 import AdditionalTable from "../AdditionalTable";
 import { vitaminsToRow } from "../../nutrients/vitamins";
-// import OmegaBar from "../OmegaBar";
+import {
+  Nutrients,
+  nutrientsToBarTotal,
+  nutrientsToBarValues,
+} from "../../nutrients/nutrients";
+import Bar from "../Bar";
 
 export interface ReportResult {
   timeDone: number;
@@ -35,7 +39,11 @@ const ReportRender = ({ result }: ReportResult) => {
         <Heading>Report</Heading>
         <Box direction="column">
           <Heading level={2}>Total consumed</Heading>
-          <NutrientBar nutrients={result.total} />
+          <Bar
+            data={result.total}
+            mapToBarValues={nutrientsToBarValues}
+            calculateTotal={nutrientsToBarTotal}
+          />
           <Energy level={4}>
             {displayRound(result.total.energy.kcal)} kcal
           </Energy>
@@ -48,6 +56,7 @@ const ReportRender = ({ result }: ReportResult) => {
           />
 
           <Heading level={3}> Omega 3 to Omega 6</Heading>
+
           <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>{mapConsumed(result.consumed)}</Accordion>
         </Box>

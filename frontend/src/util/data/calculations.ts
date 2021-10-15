@@ -91,6 +91,5 @@ export const extractTabularNutrients = (
   amount: number,
   baseUnit: number
 ): Array<NutrientRow> => {
-  console.log(nutrients);
   return nutrientsToTable(nutrients, amount, baseUnit);
 };
