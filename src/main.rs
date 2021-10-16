@@ -5,6 +5,7 @@ use std::env;
 mod config;
 mod nutrients;
 mod product;
+mod report;
 mod routes;
 
 use crate::config::setup;

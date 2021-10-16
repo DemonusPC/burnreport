@@ -1,12 +1,9 @@
-mod base;
 mod portion;
 mod product;
 mod search;
 
 use actix_web::{HttpRequest, HttpResponse, Responder};
 
-pub use self::base::ProductSubmission;
-pub use self::base::Report;
 pub use self::product::amount_adjusted_product;
 pub use self::product::delete_product;
 pub use self::product::export_file;
