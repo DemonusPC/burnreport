@@ -204,12 +204,12 @@ pub async fn export_file(pool: &SqlitePool) -> Result<Vec<FlatProduct>, sqlx::Er
                 kcal: row.get(4),
                 carbohydrates: row.get(5),
                 sugar: row.get(6),
-                fiber: row.try_get(7).unwrap_or(Option::None),
-                added_sugar: row.try_get(8).unwrap_or(Option::None),
-                starch: row.try_get(9).unwrap_or(Option::None),
+                fiber: row.try_get(7).unwrap_or_default(),
+                added_sugar: row.try_get(8).unwrap_or_default(),
+                starch: row.try_get(9).unwrap_or_default(),
                 fat: row.get(10),
                 saturated: row.get(11),
-                monounsaturated: row.try_get(12).unwrap_or(Option::None),
+                monounsaturated: row.try_get(12).unwrap_or_default(),
                 omega_7: row.try_get(13).unwrap_or_default(),
                 omega_9: row.try_get(14).unwrap_or_default(),
                 polyunsaturated: row.try_get(15).unwrap_or_default(),
@@ -248,24 +248,24 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
             let carbs: Carbohydrates = Carbohydrates::new(
                 row.get(5),
                 row.get(6),
-                row.try_get(7).unwrap_or(Option::None),
-                row.try_get(8).unwrap_or(Option::None),
+                row.try_get(7).unwrap_or_default(),
+                row.try_get(8).unwrap_or_default(),
                 row.get(9),
             );
 
             let monounsaturated = match row.try_get(12) {
                 Ok(v) => Some(MonoUnsaturatedFat::new(
                     v,
-                    row.try_get(13).unwrap_or(Option::None),
-                    row.try_get(14).unwrap_or(Option::None),
+                    row.try_get(13).unwrap_or_default(),
+                    row.try_get(14).unwrap_or_default(),
                 )),
                 Err(_error) => Option::None,
             };
             let polysaturated = match row.try_get(15) {
                 Ok(v) => Some(PolyUnsaturatedFat::new(
                     v,
-                    row.try_get(16).unwrap_or(Option::None),
-                    row.try_get(17).unwrap_or(Option::None),
+                    row.try_get(16).unwrap_or_default(),
+                    row.try_get(17).unwrap_or_default(),
                 )),
                 Err(_error) => Option::None,
             };
@@ -278,28 +278,28 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
                 row.get(10),
                 row.get(11),
                 unsaturated,
-                row.try_get(18).unwrap_or(Option::None),
+                row.try_get(18).unwrap_or_default(),
             );
 
             let protein: Protein = Protein::new(row.get(19));
             let salt: Salt = Salt::new(row.get(20));
 
             let fat_sol = FatSoluble::new(
-                row.try_get(21).unwrap_or(Option::None),
-                row.try_get(22).unwrap_or(Option::None),
-                row.try_get(23).unwrap_or(Option::None),
-                row.try_get(24).unwrap_or(Option::None),
+                row.try_get(21).unwrap_or_default(),
+                row.try_get(22).unwrap_or_default(),
+                row.try_get(23).unwrap_or_default(),
+                row.try_get(24).unwrap_or_default(),
             );
             let water_sol = WaterSoluble::new(
-                row.try_get(25).unwrap_or(Option::None),
-                row.try_get(26).unwrap_or(Option::None),
-                row.try_get(27).unwrap_or(Option::None),
-                row.try_get(28).unwrap_or(Option::None),
-                row.try_get(29).unwrap_or(Option::None),
-                row.try_get(30).unwrap_or(Option::None),
-                row.try_get(31).unwrap_or(Option::None),
-                row.try_get(32).unwrap_or(Option::None),
-                row.try_get(33).unwrap_or(Option::None),
+                row.try_get(25).unwrap_or_default(),
+                row.try_get(26).unwrap_or_default(),
+                row.try_get(27).unwrap_or_default(),
+                row.try_get(28).unwrap_or_default(),
+                row.try_get(29).unwrap_or_default(),
+                row.try_get(30).unwrap_or_default(),
+                row.try_get(31).unwrap_or_default(),
+                row.try_get(32).unwrap_or_default(),
+                row.try_get(33).unwrap_or_default(),
             );
 
             let vitamin_content = Vitamins::new(fat_sol, water_sol);
@@ -375,24 +375,24 @@ pub async fn amount_adjusted_product(
         let carbs: Carbohydrates = Carbohydrates::new(
             row.get(5),
             row.get(6),
-            row.try_get(7).unwrap_or(Option::None),
-            row.try_get(8).unwrap_or(Option::None),
+            row.try_get(7).unwrap_or_default(),
+            row.try_get(8).unwrap_or_default(),
             row.get(9),
         );
 
         let monounsaturated = match row.try_get(12) {
             Ok(v) => Some(MonoUnsaturatedFat::new(
                 v,
-                row.try_get(13).unwrap_or(Option::None),
-                row.try_get(14).unwrap_or(Option::None),
+                row.try_get(13).unwrap_or_default(),
+                row.try_get(14).unwrap_or_default(),
             )),
             Err(_error) => Option::None,
         };
         let polysaturated = match row.try_get(15) {
             Ok(v) => Some(PolyUnsaturatedFat::new(
                 v,
-                row.try_get(16).unwrap_or(Option::None),
-                row.try_get(17).unwrap_or(Option::None),
+                row.try_get(16).unwrap_or_default(),
+                row.try_get(17).unwrap_or_default(),
             )),
             Err(_error) => Option::None,
         };
@@ -405,28 +405,28 @@ pub async fn amount_adjusted_product(
             row.get(10),
             row.get(11),
             unsaturated,
-            row.try_get(18).unwrap_or(Option::None),
+            row.try_get(18).unwrap_or_default(),
         );
 
         let protein: Protein = Protein::new(row.get(19));
         let salt: Salt = Salt::new(row.get(20));
 
         let fat_sol = FatSoluble::new(
-            row.try_get(16).unwrap_or(Option::None),
-            row.try_get(17).unwrap_or(Option::None),
-            row.try_get(18).unwrap_or(Option::None),
-            row.try_get(19).unwrap_or(Option::None),
+            row.try_get(21).unwrap_or_default(),
+            row.try_get(22).unwrap_or_default(),
+            row.try_get(23).unwrap_or_default(),
+            row.try_get(24).unwrap_or_default(),
         );
         let water_sol = WaterSoluble::new(
-            row.try_get(20).unwrap_or(Option::None),
-            row.try_get(21).unwrap_or(Option::None),
-            row.try_get(22).unwrap_or(Option::None),
-            row.try_get(23).unwrap_or(Option::None),
-            row.try_get(24).unwrap_or(Option::None),
-            row.try_get(25).unwrap_or(Option::None),
-            row.try_get(26).unwrap_or(Option::None),
-            row.try_get(27).unwrap_or(Option::None),
-            row.try_get(28).unwrap_or(Option::None),
+            row.try_get(25).unwrap_or_default(),
+            row.try_get(26).unwrap_or_default(),
+            row.try_get(27).unwrap_or_default(),
+            row.try_get(28).unwrap_or_default(),
+            row.try_get(29).unwrap_or_default(),
+            row.try_get(30).unwrap_or_default(),
+            row.try_get(31).unwrap_or_default(),
+            row.try_get(32).unwrap_or_default(),
+            row.try_get(33).unwrap_or_default(),
         );
 
         let vitamin_content = Vitamins::new(fat_sol, water_sol);

@@ -6,7 +6,7 @@ import NutrientTable from "../NutrientTable";
 
 const ConsumedItem = ({ name, nutrients }: Product) => {
   return (
-    <AccordionPanel label={name} key={name}>
+    <AccordionPanel key={`cosumed-item-${name}`} label={name}>
       <Box
         pad={{
           bottom: "medium",
