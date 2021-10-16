@@ -1,18 +1,127 @@
-use crate::nutrients::Fat;
-use crate::nutrients::FatSoluble;
-use crate::nutrients::MonoUnsaturatedFat;
-use crate::nutrients::Nutrients;
-use crate::nutrients::PolyUnsaturatedFat;
-use crate::nutrients::TotalAble;
-use crate::nutrients::UnsaturatedFat;
-use crate::nutrients::WaterSoluble;
-use crate::nutrients::{Carbohydrates, Energy, Protein, Salt};
-use crate::nutrients::{FatSolubleApi, Vitamins, WaterSolubleApi};
-use crate::products::FlatProduct;
-use crate::products::{Portion, Product, SearchSuggestion, Unit};
-use sqlx::sqlite::SqliteRow;
-use sqlx::Row;
-use sqlx::SqlitePool;
+use crate::nutrients::{
+    Carbohydrates, Energy, Fat, FatSoluble, FatSolubleApi, MonoUnsaturatedFat, Nutrients,
+    PolyUnsaturatedFat, Protein, Salt, TotalAble, UnsaturatedFat, Vitamins, WaterSoluble,
+    WaterSolubleApi,
+};
+use actix_web::{HttpRequest, HttpResponse, Responder};
+use log::error;
+use serde_derive::{Deserialize, Serialize};
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Unit {
+    Grams,
+    Mililiters,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Product {
+    id: i32,
+    name: String,
+    nutrients: Nutrients,
+    unit: Unit,
+}
+
+impl Product {
+    pub fn new(id: i32, name: String, nutrition: Nutrients, unit: Unit) -> Self {
+        Self {
+            id,
+            name,
+            nutrients: nutrition,
+            unit,
+        }
+    }
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn unit(&self) -> &Unit {
+        &self.unit
+    }
+
+    pub fn nutrients(&self) -> Nutrients {
+        self.nutrients.clone()
+    }
+
+    pub fn energy(&self) -> &Energy {
+        self.nutrients.energy()
+    }
+
+    pub fn carbohydrates(&self) -> &Carbohydrates {
+        self.nutrients.carbohydrates()
+    }
+
+    pub fn fat(&self) -> &Fat {
+        self.nutrients.fat()
+    }
+
+    pub fn protein(&self) -> &Protein {
+        self.nutrients.protein()
+    }
+
+    pub fn salt(&self) -> &Salt {
+        self.nutrients.salt()
+    }
+
+    pub fn vitamins(&self) -> Option<Vitamins> {
+        self.nutrients.vitamins()
+    }
+}
+
+impl Responder for Product {
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
+        let body = match serde_json::to_string(&self) {
+            Ok(v) => v,
+            Err(error) => {
+                error!("Failed to serialize the Product with error: {}", error);
+                return HttpResponse::InternalServerError().finish();
+            }
+        };
+        HttpResponse::Ok()
+            .content_type("application/json")
+            .body(body)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FlatProduct {
+    // pub id: i32,
+    pub name: String,
+    pub unit: String,
+    pub kj: f64,
+    pub kcal: f64,
+    pub carbohydrates: f64,
+    pub sugar: f64,
+    pub fiber: Option<f64>,
+    pub added_sugar: Option<f64>,
+    pub starch: Option<f64>,
+    pub fat: f64,
+    pub saturated: f64,
+    pub monounsaturated: Option<f64>,
+    pub omega_7: Option<f64>,
+    pub omega_9: Option<f64>,
+    pub polyunsaturated: Option<f64>,
+    pub omega_3: Option<f64>,
+    pub omega_6: Option<f64>,
+    pub trans: f64,
+    pub protein: f64,
+    pub salt: f64,
+    // vitamins
+    pub a: Option<f64>,
+    pub d: Option<f64>,
+    pub e: Option<f64>,
+    pub k: Option<f64>,
+    pub b1: Option<f64>,
+    pub b2: Option<f64>,
+    pub b3: Option<f64>,
+    pub b5: Option<f64>,
+    pub b6: Option<f64>,
+    pub b7: Option<f64>,
+    pub b9: Option<f64>,
+    pub b12: Option<f64>,
+    pub c: Option<f64>,
+}
 
 pub async fn import_file(pool: &SqlitePool, products: &[FlatProduct]) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
@@ -130,24 +239,6 @@ pub async fn export_file(pool: &SqlitePool) -> Result<Vec<FlatProduct>, sqlx::Er
     Ok(result)
 }
 
-pub async fn search_product_suggestions(
-    pool: &SqlitePool,
-    term: &str,
-) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
-    // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-    let result = sqlx::query("SELECT id, name, unit FROM Products WHERE name LIKE $1 LIMIT 15")
-        .bind(format!("%{}%", term))
-        .map(|row: SqliteRow| {
-            let id: i32 = row.get(0);
-            let text: String = row.get(1);
-            let sub_text: String = row.get(2);
-            SearchSuggestion::new(id, text, Some(sub_text), Some("Product".to_owned()))
-        })
-        .fetch_all(pool)
-        .await?;
-    Ok(result)
-}
-
 pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
     let result = sqlx::query("SELECT * FROM full_product WHERE id = ?")
         .bind(id)
@@ -232,7 +323,6 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
     Ok(result)
 }
 
-// SELECT id, manufacturer, (kcal/100) * 20 as kcal, (kj/100) * 20 as kj,  (carbohydrates/100) * 20 as carbohydrates,  (fiber/100) * 20 as fiber, (sugar/100) * 20 as sugar, (added_sugar/100) * 20 as added_sugar,  (starch/100) * 20 as starch, (fat/100) * 20 as fat, (saturated/100) * 20 as saturated, (monounsaturated/100) * 20 as monounsaturated, (trans/100) * 20 as trans, (protein/100) * 20 as protein, (salt/100) * 20 as salt FROM Food WHERE id = 1
 pub async fn amount_adjusted_product(
     pool: &SqlitePool,
     id: i32,
@@ -458,67 +548,3 @@ pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Erro
 
     Ok(())
 }
-
-// Portions
-
-pub async fn list_portions(
-    pool: &SqlitePool,
-    product_id: i32,
-) -> Result<Vec<Portion>, sqlx::Error> {
-    let result = sqlx::query("SELECT id, product, name, grams FROM Portions WHERE product = $1")
-        .bind(product_id)
-        .map(|row: SqliteRow| Portion::new(row.get(0), row.get(1), row.get(2), row.get(3)))
-        .fetch_all(pool)
-        .await?;
-    Ok(result)
-}
-
-pub async fn insert_portion(
-    pool: &SqlitePool,
-    product_sizes: Vec<Portion>,
-) -> Result<bool, sqlx::Error> {
-    let mut tx = pool.begin().await?;
-
-    for size in product_sizes {
-        let p = size.product();
-        let name = size.name();
-        let grams = size.grams();
-        sqlx::query(
-            r#"
-        INSERT INTO "Portions"
-        ("product", "name", "grams")
-        VALUES (?1, ?2, ?3);
-        "#,
-        )
-        .bind(p)
-        .bind(name)
-        .bind(grams)
-        .execute(&mut tx)
-        .await?;
-    }
-
-    tx.commit().await?;
-
-    Ok(true)
-}
-
-pub async fn remove_portion(
-    pool: &SqlitePool,
-    product: i32,
-    name: &str,
-) -> Result<u64, sqlx::Error> {
-    let mut tx = pool.begin().await?;
-
-    sqlx::query(r#"DELETE FROM Portions WHERE product = ?1 AND name = ?2"#)
-        .bind(product)
-        .bind(name)
-        .execute(&mut tx)
-        .await?;
-
-    tx.commit().await?;
-    Ok(1)
-}
-
-// Modify a product Size
-// TODO: Add functionality for modifying product sizes
-// Lol still didnt do that todo

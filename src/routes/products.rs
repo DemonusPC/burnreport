@@ -1,15 +1,9 @@
-use crate::api::db::{export_file, import_file};
-use crate::products::FlatProduct;
-use crate::{
-    api::{
-        db::{
-            delete_product, insert_portion, insert_product, list_portions, remove_portion,
-            search_product_suggestions, single_product,
-        },
-        ApiError,
-    },
-    products::{ApiResult, Portion, Product, ResultList},
+use crate::product::{
+    delete_product, export_file, import_file, insert_portion, insert_product, list_portions,
+    remove_portion, search_product_suggestions, single_product, FlatProduct,
 };
+use crate::product::{ApiResult, Portion, Product, ResultList};
+use crate::routes::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};

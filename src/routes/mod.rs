@@ -1,7 +1,10 @@
 use actix_web::web;
+mod api_error;
 mod frontend;
 mod products;
 mod report;
+
+pub use self::api_error::ApiError;
 
 pub use self::frontend::frontend;
 

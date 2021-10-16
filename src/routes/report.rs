@@ -1,14 +1,11 @@
-use crate::nutrients::Nutrients;
+use crate::{nutrients::Nutrients, product::amount_adjusted_product};
 use actix_web::{post, web, Responder};
 use chrono::{DateTime, Utc};
 use log::error;
 use serde_json::json;
 use sqlx::SqlitePool;
 
-use crate::{
-    api::db::amount_adjusted_product,
-    products::{Product, Report},
-};
+use crate::product::{Product, Report};
 
 #[post("/api/report")]
 async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> impl Responder {
