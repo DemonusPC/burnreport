@@ -11,10 +11,6 @@ pub struct ProductSubmission {
 }
 
 impl ProductSubmission {
-    pub fn new(id: i32, name: String, amount: f64) -> ProductSubmission {
-        ProductSubmission { id, name, amount }
-    }
-
     pub fn id(&self) -> i32 {
         self.id
     }
@@ -41,15 +37,11 @@ pub struct Portion {
 impl Portion {
     pub fn new(id: i32, product: i32, name: String, grams: f64) -> Self {
         Portion {
-            id: id,
-            product: product,
-            name: name,
-            grams: grams,
+            id,
+            product,
+            name,
+            grams,
         }
-    }
-
-    pub fn id(&self) -> i32 {
-        self.id
     }
 
     pub fn product(&self) -> i32 {
@@ -109,12 +101,9 @@ impl Product {
             unit,
         }
     }
-    pub fn id(&self) -> i32 {
-        return self.id;
-    }
 
     pub fn name(&self) -> String {
-        return self.name.clone();
+        self.name.clone()
     }
 
     pub fn unit(&self) -> &Unit {
@@ -126,23 +115,23 @@ impl Product {
     }
 
     pub fn energy(&self) -> &Energy {
-        return &self.nutrients.energy();
+        self.nutrients.energy()
     }
 
     pub fn carbohydrates(&self) -> &Carbohydrates {
-        return &self.nutrients.carbohydrates();
+        self.nutrients.carbohydrates()
     }
 
     pub fn fat(&self) -> &Fat {
-        return &self.nutrients.fat();
+        self.nutrients.fat()
     }
 
     pub fn protein(&self) -> &Protein {
-        return &self.nutrients.protein();
+        self.nutrients.protein()
     }
 
     pub fn salt(&self) -> &Salt {
-        return &self.nutrients.salt();
+        self.nutrients.salt()
     }
 
     pub fn vitamins(&self) -> Option<Vitamins> {

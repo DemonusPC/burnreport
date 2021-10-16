@@ -15,21 +15,21 @@ pub struct Energy {
 
 impl Energy {
     pub fn new(kcal: f64, kj: f64) -> Energy {
-        Energy { kcal: kcal, kj: kj }
+        Energy { kcal, kj }
     }
 
     pub fn kcal(&self) -> f64 {
-        return self.kcal;
+        self.kcal
     }
 
     pub fn k_j(&self) -> f64 {
-        return self.kj;
+        self.kj
     }
 }
 
 impl TotalAble for Energy {
     fn total(&self) -> f64 {
-        return self.kcal;
+        self.kcal
     }
 }
 
@@ -71,26 +71,23 @@ impl Carbohydrates {
         }
     }
     pub fn sugar(&self) -> f64 {
-        return self.sugar;
+        self.sugar
     }
 
     pub fn fiber(&self) -> Option<f64> {
-        return self.fiber.clone();
+        self.fiber
     }
     pub fn added_sugar(&self) -> Option<f64> {
-        return self.added_sugar.clone();
+        self.added_sugar
     }
     pub fn starch(&self) -> Option<f64> {
-        return self.starch.clone();
-    }
-    pub fn contains_added_sugar(&self) -> bool {
-        self.added_sugar().is_some()
+        self.starch
     }
 }
 
 impl TotalAble for Carbohydrates {
     fn total(&self) -> f64 {
-        return self.total;
+        self.total
     }
 }
 
@@ -115,13 +112,13 @@ pub struct Protein {
 
 impl Protein {
     pub fn new(total: f64) -> Protein {
-        Protein { total: total }
+        Protein { total }
     }
 }
 
 impl TotalAble for Protein {
     fn total(&self) -> f64 {
-        return self.total;
+        self.total
     }
 }
 
@@ -142,13 +139,13 @@ pub struct Salt {
 
 impl Salt {
     pub fn new(total: f64) -> Salt {
-        Salt { total: total }
+        Salt { total }
     }
 }
 
 impl TotalAble for Salt {
     fn total(&self) -> f64 {
-        return self.total;
+        self.total
     }
 }
 
@@ -193,23 +190,23 @@ impl Nutrients {
     }
 
     pub fn energy(&self) -> &Energy {
-        return &self.energy;
+        &self.energy
     }
 
     pub fn carbohydrates(&self) -> &Carbohydrates {
-        return &self.carbohydrates;
+        &self.carbohydrates
     }
 
     pub fn fat(&self) -> &Fat {
-        return &self.fat;
+        &self.fat
     }
 
     pub fn protein(&self) -> &Protein {
-        return &self.protein;
+        &self.protein
     }
 
     pub fn salt(&self) -> &Salt {
-        return &self.salt;
+        &self.salt
     }
 
     pub fn vitamins(&self) -> Option<Vitamins> {
@@ -262,17 +259,17 @@ impl Fat {
     }
 
     pub fn unsaturated(&self) -> Option<UnsaturatedFat> {
-        self.unsaturated.clone()
+        self.unsaturated
     }
 
     pub fn trans(&self) -> Option<f64> {
-        self.trans.clone()
+        self.trans
     }
 }
 
 impl TotalAble for Fat {
     fn total(&self) -> f64 {
-        return self.total;
+        self.total
     }
 }
 
@@ -303,10 +300,10 @@ impl UnsaturatedFat {
     }
 
     pub fn mono(&self) -> Option<MonoUnsaturatedFat> {
-        self.mono.clone()
+        self.mono
     }
     pub fn poly(&self) -> Option<PolyUnsaturatedFat> {
-        self.poly.clone()
+        self.poly
     }
 }
 
@@ -340,10 +337,10 @@ impl MonoUnsaturatedFat {
         }
     }
     pub fn omega_7(&self) -> Option<f64> {
-        self.omega_7.clone()
+        self.omega_7
     }
     pub fn omega_9(&self) -> Option<f64> {
-        self.omega_9.clone()
+        self.omega_9
     }
 }
 
@@ -384,11 +381,11 @@ impl PolyUnsaturatedFat {
         }
     }
     pub fn omega_3(&self) -> Option<f64> {
-        self.omega_3.clone()
+        self.omega_3
     }
 
     pub fn omega_6(&self) -> Option<f64> {
-        self.omega_6.clone()
+        self.omega_6
     }
 }
 

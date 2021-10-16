@@ -321,13 +321,6 @@ pub async fn amount_adjusted_product(
         let protein: Protein = Protein::new(row.get(19));
         let salt: Salt = Salt::new(row.get(20));
 
-        let nutrition: Nutrients = Nutrients::new(energy, carbs, fat, protein, salt, Option::None);
-
-        let unit = match row.get(2) {
-            "ml" => Unit::Mililiters,
-            _ => Unit::Grams,
-        };
-
         let fat_sol = FatSoluble::new(
             row.try_get(16).unwrap_or(Option::None),
             row.try_get(17).unwrap_or(Option::None),
@@ -353,6 +346,9 @@ pub async fn amount_adjusted_product(
             false => Some(vitamin_content),
         };
 
+        let nutrition: Nutrients =
+            Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
+
         let unit = match row.get(2) {
             "ml" => Unit::Mililiters,
             _ => Unit::Grams,
@@ -368,8 +364,8 @@ pub async fn amount_adjusted_product(
 pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
     let mut tx = pool.begin().await?;
     let raw_unit = match product.unit() {
-        &Unit::Grams => "g".to_owned(),
-        &Unit::Mililiters => "ml".to_owned(),
+        Unit::Grams => "g".to_owned(),
+        Unit::Mililiters => "ml".to_owned(),
     };
 
     let monounsaturated = match product.fat().unsaturated() {
@@ -419,33 +415,30 @@ pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, 
 
     let product_id = result.last_insert_rowid();
 
-    match product.vitamins() {
-        Some(v) => {
-            sqlx::query(
-                r#"
+    if let Some(v) = product.vitamins() {
+        sqlx::query(
+            r#"
             INSERT INTO "Vitamins"
             ("product", "a", "d", "e", "k", "b1", "b2", "b3", "b5", "b6", "b7", "b9", "b12", "c")
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
             "#,
-            )
-            .bind(product_id)
-            .bind(v.a())
-            .bind(v.d())
-            .bind(v.e())
-            .bind(v.k())
-            .bind(v.b1())
-            .bind(v.b2())
-            .bind(v.b3())
-            .bind(v.b5())
-            .bind(v.b6())
-            .bind(v.b7())
-            .bind(v.b9())
-            .bind(v.b12())
-            .bind(v.c())
-            .execute(&mut tx)
-            .await?;
-        }
-        None => {}
+        )
+        .bind(product_id)
+        .bind(v.a())
+        .bind(v.d())
+        .bind(v.e())
+        .bind(v.k())
+        .bind(v.b1())
+        .bind(v.b2())
+        .bind(v.b3())
+        .bind(v.b5())
+        .bind(v.b6())
+        .bind(v.b7())
+        .bind(v.b9())
+        .bind(v.b12())
+        .bind(v.c())
+        .execute(&mut tx)
+        .await?;
     }
 
     tx.commit().await?;

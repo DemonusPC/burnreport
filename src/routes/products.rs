@@ -198,7 +198,7 @@ async fn post_portions(
     pool: web::Data<SqlitePool>,
     product: web::Json<Vec<Portion>>,
 ) -> impl Responder {
-    let new_id = match insert_portion(&pool, product.0).await {
+    match insert_portion(&pool, product.0).await {
         Ok(res) => res,
         Err(err) => {
             error!("Could not create a portion due to error: {}", err);
@@ -219,6 +219,7 @@ async fn delete_portion(
     match remove_portion(&pool, path.0, &path.1).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not delete a portion due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
