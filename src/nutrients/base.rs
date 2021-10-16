@@ -97,7 +97,7 @@ impl Add for Carbohydrates {
     fn add(self, other: Self) -> Self {
         Self {
             total: self.total + other.total,
-            sugar: self.sugar + other.total,
+            sugar: self.sugar + other.sugar,
             fiber: add_options(&self.fiber, &other.fiber),
             added_sugar: add_options(&self.added_sugar, &other.added_sugar),
             starch: add_options(&self.starch, &other.starch),
@@ -404,5 +404,96 @@ impl Add for PolyUnsaturatedFat {
 impl TotalAble for PolyUnsaturatedFat {
     fn total(&self) -> f64 {
         self.total
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_add_basic_nutrients() {
+        let one = Nutrients::new(
+            Energy::new(55.2, 19.0),
+            Carbohydrates::new(20.2, 19.2, Option::None, Option::None, Option::None),
+            Fat::new(5.0, 0.0, Option::None, Option::None),
+            Protein::new(44.9),
+            Salt::new(0.02),
+            Option::None,
+        );
+        let two = Nutrients::new(
+            Energy::new(125.0, 20.0),
+            Carbohydrates::new(5.1, 0.2, Option::None, Option::None, Option::None),
+            Fat::new(33.0, 10.0, Option::None, Option::None),
+            Protein::new(0.0),
+            Salt::new(0.003),
+            Option::None,
+        );
+
+        let expected = Nutrients::new(
+            Energy::new(180.2, 39.0),
+            Carbohydrates::new(25.2, 19.4, Option::None, Option::None, Option::None),
+            Fat::new(38.0, 10.0, Option::None, Option::None),
+            Protein::new(44.9),
+            Salt::new(0.023),
+            Option::None,
+        );
+
+        let result = one + two;
+
+        assert_eq!(result.energy().kcal(), expected.energy().kcal());
+        assert_eq!(result.energy().k_j(), expected.energy().k_j());
+        assert_eq!(
+            result.carbohydrates().total().round(),
+            expected.carbohydrates().total().round()
+        );
+        assert_eq!(
+            result.carbohydrates().sugar(),
+            expected.carbohydrates().sugar()
+        );
+        assert_eq!(result.fat().total(), expected.fat().total());
+        assert_eq!(result.fat().saturated(), expected.fat().saturated());
+        assert_eq!(
+            result.protein().total().round(),
+            expected.protein().total().round()
+        );
+        assert_eq!(result.salt().total(), expected.salt().total());
+    }
+
+    #[test]
+    fn can_add_complex_carbohydrates() {
+        let one = Carbohydrates::new(20.0, 2.2, Some(1.5), Option::None, Some(12.5));
+        let two = Carbohydrates::new(53.8, 0.0, Option::None, Some(100.0), Some(12.5));
+
+        let result = one + two;
+
+        assert_eq!(result.total(), 73.8);
+        assert_eq!(result.sugar(), 2.2);
+        assert_eq!(result.fiber().unwrap(), 1.5);
+        assert_eq!(result.added_sugar().unwrap(), 100.0);
+        assert_eq!(result.starch().unwrap(), 25.0);
+    }
+
+    #[test]
+    fn can_add_complex_fats() {
+        let mono = MonoUnsaturatedFat::new(12.5, Some(0.5), Some(1.5));
+        let poly = PolyUnsaturatedFat::new(15.0, Some(10.0), Some(5.0));
+        let unsaturated = UnsaturatedFat::new(Some(mono), Some(poly));
+
+        let one = Fat::new(50.0, 10.5, Some(unsaturated), Some(5.0));
+        let two = one.clone();
+
+        let result = one + two;
+
+        assert_eq!(result.total(), 100.0);
+        assert_eq!(result.saturated(), 21.0);
+        let res_mono = result.unsaturated().unwrap().mono().unwrap();
+        let res_poly = result.unsaturated().unwrap().poly().unwrap();
+        assert_eq!(res_mono.total(), 25.0);
+        assert_eq!(res_mono.omega_7().unwrap(), 1.0);
+        assert_eq!(res_mono.omega_9().unwrap(), 3.0);
+        assert_eq!(res_poly.total(), 30.0);
+        assert_eq!(res_poly.omega_3().unwrap(), 20.0);
+        assert_eq!(res_poly.omega_6().unwrap(), 10.0);
     }
 }
