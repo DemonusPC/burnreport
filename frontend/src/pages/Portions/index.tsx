@@ -3,13 +3,14 @@ import { Heading, Box, Button } from "grommet";
 import { AddCircle } from "grommet-icons";
 import { useParams } from "react-router";
 
-import { Portion } from "../../util/schema/product";
+import { Portion } from "../../product/product";
 import PortionForm from "../../containers/PortionForm";
 
 import {
   postPortions,
   deletePortion,
   ResultList,
+  fetcher,
 } from "../../util/data/requests";
 import PortionList from "../../components/PortionList";
 import useSWR, { mutate } from "swr";
@@ -43,15 +44,14 @@ const mutatePortions = async (
 const Portions = () => {
   const { id } = useParams<IdParams>();
   const { data, error } = useSWR<ResultList<Portion>>(
-    encodeURI(`/api/products/${id}/portions`)
+    encodeURI(`/api/products/${id}/portions`),
+    fetcher
   );
   const [adding, setAdding] = useState(false);
 
   if (error) return <div>Error</div>;
   if (!data) return <div>loading...</div>;
-
   const current = data.result;
-
   return (
     <>
       <Box pad="large" gridArea="main">

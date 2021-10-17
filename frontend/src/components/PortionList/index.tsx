@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, Button, Box } from "grommet";
-import { Portion } from "../../util/schema/product";
+import { Portion } from "../../product/product";
 import { Close } from "grommet-icons";
 
 interface PortionTableProps {

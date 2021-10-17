@@ -1,81 +1,31 @@
-use crate::nutrients::TotalAble;
-use crate::nutrients::Vitamins;
+use crate::{nutrients::Nutrients, product::amount_adjusted_product, report::Report};
 use actix_web::{post, web, Responder};
 use chrono::{DateTime, Utc};
+use log::error;
 use serde_json::json;
 use sqlx::SqlitePool;
 
-use crate::{
-    api::db::one_single_product,
-    products::{Product, Report},
-};
+use crate::product::Product;
 
 #[post("/api/report")]
 async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> impl Responder {
     let mut result: Vec<Product> = vec![];
 
-    // Energy
-    let mut total_kcal: f64 = 0.0;
-    let mut total_kj: f64 = 0.0;
-
-    // Carbs
-    let mut total_carbs: f64 = 0.0;
-    let mut total_sugar: f64 = 0.0;
-    let mut total_added_sugar: f64 = 0.0;
-    let mut total_fiber: f64 = 0.0;
-    let mut total_starch: f64 = 0.0;
-
-    // Fat
-    let mut total_fat: f64 = 0.0;
-    let mut total_saturated: f64 = 0.0;
-    let mut total_monounsaturated: f64 = 0.0;
-    let mut total_trans: f64 = 0.0;
-
-    // Protein
-    let mut total_protein: f64 = 0.0;
-
-    // Salt
-    let mut total_salt: f64 = 0.0;
-
-    let mut total_vitamins: Vitamins = Vitamins::default();
-
-    let mut total_omega_3: f64 = 0.0;
-    let mut total_omega_6: f64 = 0.0;
+    let mut total = Nutrients::default();
 
     for v in &report.consumed {
-        match one_single_product(&pool, v.id(), v.amount()).await {
+        match amount_adjusted_product(&pool, v.id(), v.amount()).await {
             Ok(product) => {
-                total_kcal += &product.energy().kcal();
-                total_kj += &product.energy().k_j();
-
-                total_carbs += &product.carbohydrates().total();
-                total_sugar += &product.carbohydrates().sugar();
-                total_added_sugar += &product.carbohydrates().added_sugar();
-                total_fiber += &product.carbohydrates().fiber();
-                total_starch += &product.carbohydrates().starch();
-
-                total_fat += &product.fat().total();
-                total_saturated += &product.fat().saturated();
-                total_monounsaturated += &product.fat().monounsaturated();
-                total_trans += &product.fat().trans();
-
-                total_protein += &product.protein().total();
-
-                total_salt += &product.salt().total();
-
-                total_omega_3 += &product.fat().omega_3();
-                total_omega_6 += &product.fat().omega_6();
-
-                match product.vitamins() {
-                    Some(v) => {
-                        total_vitamins = total_vitamins + v;
-                    }
-                    None => {}
-                };
-
+                total = total + product.nutrients();
                 result.push(product);
             }
-            Err(err) => println!("{:?}", err),
+            Err(err) => {
+                error!(
+                    "Failed to return amount adjusted product due to error: {}",
+                    err
+                );
+                return web::HttpResponse::InternalServerError().finish();
+            }
         }
     }
 
@@ -84,7 +34,7 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
     let reply = json!({
         "timeDone": utc,
         "result": {
-        "total" : Product::new_from_raw_values(-1, "Total".to_owned(), "Total".to_owned(), total_kcal, total_kj, total_carbs, total_fiber, total_sugar, total_added_sugar, total_starch, total_fat, total_saturated, total_monounsaturated, total_trans, total_protein, total_salt, Some(total_vitamins), total_omega_3, total_omega_6),
+        "total" : total,
         "consumed": result,
         }
     });

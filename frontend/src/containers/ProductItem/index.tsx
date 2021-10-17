@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { Button, Box, Text, Select, MaskedInput } from "grommet";
 import { Close } from "grommet-icons";
-import { ProductSize } from "../../util/schema/product";
 import { standardMask } from "../../util/schema/masks";
+import { Portion } from "../../product/product";
 
 const PerWrapper = styled(Box)`
   align-items: center;
@@ -24,8 +24,8 @@ interface ProductItemProps {
   amount: number;
   changeFunc: (event: any) => void;
   deleteFunc: () => void;
-  unit: ProductSize;
-  unitOptions: Array<ProductSize>;
+  unit: Portion;
+  unitOptions: Array<Portion>;
   setUnit: any;
 }
 

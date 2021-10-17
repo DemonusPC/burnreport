@@ -16,10 +16,10 @@ interface Sug {
 }
 
 interface SearchFormProps {
-    initialText?: string;
+  initialText?: string;
 }
 
-const ProductSearchForm = ({initialText} : SearchFormProps) : JSX.Element => {
+const ProductSearchForm = ({ initialText }: SearchFormProps): JSX.Element => {
   const history = useHistory();
   const [value, setValue] = React.useState<Sug>({ text: initialText || "" });
   const [suggestions, setSuggestions] = React.useState<Array<string>>([]);
@@ -45,13 +45,11 @@ const ProductSearchForm = ({initialText} : SearchFormProps) : JSX.Element => {
       }}
       onReset={() => setValue({ text: "" })}
       onSubmit={({ value }) => {
-
-        history.push(`/products/list?p=${encodeURI(value.text)}`)
-
+        history.push(`/products/list?p=${encodeURI(value.text)}`);
       }}
     >
       <TextInput name="text" icon={<Search />} suggestions={suggestions} />
-      <Box direction="row" gap="medium" margin={{top: '1em'}}>
+      <Box direction="row" gap="medium" margin={{ top: "1em" }}>
         <Button type="submit" primary label="Search" />
       </Box>
     </Form>

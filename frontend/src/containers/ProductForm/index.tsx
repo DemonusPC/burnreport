@@ -37,11 +37,6 @@ const requiredFields: Array<Category> = [
         fieldType: "text",
         required: true,
       },
-      {
-        name: "manufacturer",
-        fieldType: "text",
-        required: true,
-      },
     ],
   },
   {
@@ -77,19 +72,19 @@ const requiredFields: Array<Category> = [
       {
         name: "addedSugar",
         fieldType: "masked",
-        required: true,
+        required: false,
         unit: "g",
       },
       {
         name: "fiber",
         fieldType: "masked",
-        required: true,
+        required: false,
         unit: "g",
       },
       {
         name: "starch",
         fieldType: "masked",
-        required: true,
+        required: false,
         unit: "g",
       },
     ],
@@ -110,28 +105,47 @@ const requiredFields: Array<Category> = [
         unit: "g",
       },
       {
-        name: "monosaturated",
+        name: "monounsaturated",
         fieldType: "masked",
-        required: true,
+        required: false,
+        unit: "g",
+      },
+
+      {
+        name: "omega7",
+        fieldType: "masked",
+        required: false,
         unit: "g",
       },
       {
-        name: "trans",
+        name: "omega9",
         fieldType: "masked",
-        required: true,
+        required: false,
+        unit: "g",
+      },
+      {
+        name: "polyunsaturated",
+        fieldType: "masked",
+        required: false,
         unit: "g",
       },
       {
         name: "omega3",
         fieldType: "masked",
-        required: true,
+        required: false,
         unit: "g",
       },
 
       {
         name: "omega6",
         fieldType: "masked",
-        required: true,
+        required: false,
+        unit: "g",
+      },
+      {
+        name: "trans",
+        fieldType: "masked",
+        required: false,
         unit: "g",
       },
     ],

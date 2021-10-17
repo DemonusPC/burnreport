@@ -2,11 +2,10 @@ use dotenv::dotenv;
 use routes::{api_routes, frontend, frontend_helper_routes};
 use std::env;
 
-mod api;
-mod body;
 mod config;
 mod nutrients;
-mod products;
+mod product;
+mod report;
 mod routes;
 
 use crate::config::setup;
@@ -40,6 +39,7 @@ async fn main() -> Result<(), sqlx::Error> {
         App::new()
             .data(pool.clone())
             .wrap(middleware::Logger::default())
+            .wrap(middleware::Compress::default())
             .configure(api_routes)
             .configure(frontend_helper_routes)
             .service(Files::new("/static", "./frontend/build/static/"))

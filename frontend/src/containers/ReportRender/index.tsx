@@ -1,25 +1,22 @@
 import React from "react";
-import { Product } from "../../util/schema/product";
+import { Product } from "../../product/product";
 import { Box, Heading, Accordion, Button } from "grommet";
 import { saveAs } from "file-saver";
 
 import styled from "styled-components";
 import NutrientTable from "../NutrientTable";
-import NutrientBar from "../NutrientBar";
 import { displayRound } from "../../util/data/calculations";
 import ConsumedItem from "../ConsumedItem";
-import { totalMacroInGrams } from "../../pages/ProductPage";
 import AdditionalTable from "../AdditionalTable";
-import { vitaminsToRow } from "../../util/schema/vitamins";
-import OmegaBar from "../OmegaBar";
-
-export interface ReportResult {
-  timeDone: number;
-  result: {
-    total: Product;
-    consumed: Product[];
-  };
-}
+import { vitaminsToRow } from "../../nutrients/vitamins";
+import {
+  nutrientsToBarTotal,
+  nutrientsToBarValues,
+  polyunsaturatedToBarTotal,
+  polyunsaturatedToBarValues,
+} from "../../nutrients/nutrients";
+import Bar from "../Bar";
+import { ReportResult } from "../../report/report";
 
 const Energy = styled(Heading)`
   font-size: 2em;
@@ -36,19 +33,16 @@ const ReportRender = ({ result }: ReportResult) => {
         <Heading>Report</Heading>
         <Box direction="column">
           <Heading level={2}>Total consumed</Heading>
-          <NutrientBar
-            total={totalMacroInGrams(result.total)}
-            carbohydrates={result.total.carbohydrates.total}
-            fat={result.total.fat.total}
-            protein={result.total.protein.total}
+          <Bar
+            data={result.total}
+            mapToBarValues={nutrientsToBarValues}
+            calculateTotal={nutrientsToBarTotal}
           />
           <Energy level={4}>
             {displayRound(result.total.energy.kcal)} kcal
           </Energy>
-          <NutrientTable product={result.total} amount={100} baseUnit={1} />
-
+          <NutrientTable nutrients={result.total} amount={100} baseUnit={1} />
           <Heading level={2}>Vitamins</Heading>
-
           <AdditionalTable
             entity={result.total.vitamins}
             mapper={vitaminsToRow}
@@ -56,7 +50,14 @@ const ReportRender = ({ result }: ReportResult) => {
           />
 
           <Heading level={3}> Omega 3 to Omega 6</Heading>
-        <OmegaBar omega3={result.total.fat.polyunsaturated.omega3} omega6={result.total.fat.polyunsaturated.omega6} />
+          {result.total.fat.unsaturated &&
+            result.total.fat.unsaturated.poly && (
+              <Bar
+                data={result.total.fat.unsaturated.poly}
+                mapToBarValues={polyunsaturatedToBarValues}
+                calculateTotal={polyunsaturatedToBarTotal}
+              />
+            )}
           <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>{mapConsumed(result.consumed)}</Accordion>
         </Box>

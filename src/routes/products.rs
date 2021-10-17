@@ -1,23 +1,16 @@
-use crate::{
-    api::{db::import_file, search_products},
-    nutrients::{Carbohydrates, Energy, Fat, Protein, Salt},
+use crate::product::{
+    delete_product, export_file, import_file, insert_portion, insert_product, list_portions,
+    remove_portion, search_product_suggestions, single_product, FlatProduct,
 };
-use crate::{
-    api::{
-        db::{
-            delete_product, insert_portion, insert_product, list_portions, remove_portion,
-            search_product_suggestions, single_product,
-        },
-        ApiError,
-    },
-    products::{ApiResult, Portion, Product, ResultList},
-};
+use crate::product::{ApiResult, Portion, Product, ResultList};
+use crate::routes::ApiError;
 use actix_multipart::Multipart;
-use actix_web::{delete, get, post, web, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
+use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchQuery {
@@ -32,25 +25,7 @@ async fn get_search_products_suggestions(
     let search_result = match search_product_suggestions(&pool, &search.p).await {
         Ok(res) => res,
         Err(err) => {
-            return Err(ApiError::InternalServer);
-        }
-    };
-
-    let result = ResultList {
-        result: search_result,
-    };
-
-    Ok(result)
-}
-
-#[get("/api/search")]
-async fn get_search_products(
-    pool: web::Data<SqlitePool>,
-    web::Query(search): web::Query<SearchQuery>,
-) -> impl Responder {
-    let search_result = match search_products(&pool, &search.p).await {
-        Ok(res) => res,
-        Err(err) => {
+            error!("Search product suggestions failed due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
@@ -97,6 +72,7 @@ async fn post_product(pool: web::Data<SqlitePool>, product: web::Json<Product>) 
         Some(new_id),
     ))
 }
+
 #[post("/api/products/csv")]
 async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart) -> impl Responder {
     while let Ok(Some(mut field)) = payload.try_next().await {
@@ -105,76 +81,29 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
 
             let mut rdr = csv::Reader::from_reader(data.as_ref());
 
-            let products: Vec<Product> = rdr
-                .records()
+            let products: Vec<FlatProduct> = rdr
+                .deserialize()
                 .map(|res| {
-                    let record = res.unwrap();
-                    let name = record.get(0).unwrap_or("");
-                    let manufacturer = record.get(1).unwrap_or("");
-
-                    let kcal = record.get(2).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let kj = record.get(3).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let carbs = record.get(4).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let fiber = record.get(5).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let sugar = record.get(6).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let added_sugar = record.get(7).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let starch = record.get(8).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let fat = record.get(9).unwrap_or("0.0").parse::<f64>().unwrap_or(0.0);
-                    let saturated = record
-                        .get(10)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-                    let monounsat = record
-                        .get(11)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-                    let trans = record
-                        .get(12)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-                    let protein = record
-                        .get(13)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-                    let salt = record
-                        .get(14)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-
-                    let omega_3 = record
-                        .get(15)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-
-                    let omega_6 = record
-                        .get(16)
-                        .unwrap_or("0.0")
-                        .parse::<f64>()
-                        .unwrap_or(0.0);
-
-                    return Product::new(
-                        -1,
-                        name.to_owned(),
-                        manufacturer.to_owned(),
-                        Energy::new(kcal, kj),
-                        Carbohydrates::new(carbs, fiber, sugar, added_sugar, starch),
-                        Fat::new(fat, saturated, monounsat, trans, omega_3, omega_6),
-                        Protein::new(protein),
-                        Salt::new(salt),
-                        Option::None,
-                    );
+                    // TODO: This unwrap needs fixing
+                    let product: FlatProduct = res.unwrap();
+                    println!("{:?}", product);
+                    product
                 })
                 .collect();
 
             match import_file(&pool, &products).await {
-                Ok(()) => {}
+                Ok(()) => {
+                    return Ok(ApiResult::new(
+                        201,
+                        Some("CREATED".to_owned()),
+                        Option::None,
+                    ))
+                }
                 Err(err) => {
+                    error!(
+                        "Could not complete importing the csv file due to error: {}",
+                        err
+                    );
                     return Err(ApiError::InternalServer);
                 }
             }
@@ -182,6 +111,44 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
     }
 
     Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
+}
+
+fn to_csv(products: &[FlatProduct]) -> Result<String, Box<dyn Error>> {
+    let mut wtr = csv::Writer::from_writer(vec![]);
+
+    for p in products {
+        wtr.serialize(p)?;
+    }
+
+    wtr.flush()?;
+    let data = String::from_utf8(wtr.into_inner()?)?;
+
+    Ok(data)
+}
+
+#[get("/api/data/products/csv")]
+async fn get_product_batch(pool: web::Data<SqlitePool>) -> HttpResponse {
+    let all_products = match export_file(&pool).await {
+        Ok(p) => p,
+        Err(err) => {
+            error!(
+                "Could not export products from database due to error: {}",
+                err
+            );
+            return HttpResponse::InternalServerError().finish();
+        }
+    };
+
+    match to_csv(&all_products) {
+        Ok(body) => HttpResponse::Ok()
+            .content_type("text/csv")
+            .insert_header(("Content-Disposition", "attachment;filename=products.csv"))
+            .body(body),
+        Err(err) => {
+            error!("Could not generate the csv file due to error: {}", err);
+            return HttpResponse::InternalServerError().finish();
+        }
+    }
 }
 
 #[delete("/api/products/{id}")]
@@ -192,6 +159,7 @@ async fn delete_single_product(
     match delete_product(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Failed to delete the product due error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
@@ -205,6 +173,7 @@ async fn get_product_portions(pool: web::Data<SqlitePool>, path: web::Path<i32>)
     let search_result = match list_portions(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not list portions due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
@@ -223,9 +192,10 @@ async fn post_portions(
     pool: web::Data<SqlitePool>,
     product: web::Json<Vec<Portion>>,
 ) -> impl Responder {
-    let new_id = match insert_portion(&pool, product.0).await {
+    match insert_portion(&pool, product.0).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not create a portion due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
@@ -243,6 +213,7 @@ async fn delete_portion(
     match remove_portion(&pool, path.0, &path.1).await {
         Ok(res) => res,
         Err(err) => {
+            error!("Could not delete a portion due to error: {}", err);
             return Err(ApiError::InternalServer);
         }
     };
