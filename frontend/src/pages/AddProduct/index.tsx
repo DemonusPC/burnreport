@@ -80,7 +80,7 @@ const toProduct = (flat: any): Product => {
       : undefined;
 
   const poly: PolyunsaturatedFat | undefined =
-    flat.monounsaturaed || flat.omega7 || flat.omega9
+    flat.polyunsaturated || flat.omega7 || flat.omega9
       ? {
           total: propertyToNumber(flat.polyunsaturated) || 0,
           omega3: propertyToNumber(flat.omega3),

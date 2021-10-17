@@ -12,6 +12,8 @@ import { vitaminsToRow } from "../../nutrients/vitamins";
 import {
   nutrientsToBarTotal,
   nutrientsToBarValues,
+  polyunsaturatedToBarTotal,
+  polyunsaturatedToBarValues,
 } from "../../nutrients/nutrients";
 import Bar from "../Bar";
 import { ReportResult } from "../../report/report";
@@ -48,7 +50,14 @@ const ReportRender = ({ result }: ReportResult) => {
           />
 
           <Heading level={3}> Omega 3 to Omega 6</Heading>
-
+          {result.total.fat.unsaturated &&
+            result.total.fat.unsaturated.poly && (
+              <Bar
+                data={result.total.fat.unsaturated.poly}
+                mapToBarValues={polyunsaturatedToBarValues}
+                calculateTotal={polyunsaturatedToBarTotal}
+              />
+            )}
           <Heading level={2}>Products consumed</Heading>
           <Accordion multiple>{mapConsumed(result.consumed)}</Accordion>
         </Box>

@@ -447,8 +447,8 @@ pub async fn amount_adjusted_product(
 pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
     let mut tx = pool.begin().await?;
     let raw_unit = match product.unit() {
-        Unit::Grams => "g".to_owned(),
-        Unit::Mililiters => "ml".to_owned(),
+        Unit::Grams => "Grams".to_owned(),
+        Unit::Mililiters => "Mililiters".to_owned(),
     };
 
     let monounsaturated = match product.fat().unsaturated() {
