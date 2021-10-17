@@ -51,9 +51,7 @@ const Portions = () => {
 
   if (error) return <div>Error</div>;
   if (!data) return <div>loading...</div>;
-
   const current = data.result;
-
   return (
     <>
       <Box pad="large" gridArea="main">
