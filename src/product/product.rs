@@ -245,13 +245,11 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
         .map(|row: SqliteRow| {
             // let name : String = row.get(0);
             let energy: Energy = Energy::new(row.get(3), row.get(4));
-            let carbs: Carbohydrates = Carbohydrates::new(
-                row.get(5),
-                row.get(6),
-                row.try_get(7).unwrap_or_default(),
-                row.try_get(8).unwrap_or_default(),
-                row.get(9),
-            );
+            let carbs: Carbohydrates = Carbohydrates::new(row.get(5), row.get(6))
+                .with_fiber(row.try_get(7).unwrap_or_default())
+                .with_added_sugar(row.try_get(8).unwrap_or_default())
+                .with_starch(row.try_get(9).unwrap_or_default())
+                .build();
 
             let monounsaturated = match row.try_get(12) {
                 Ok(v) => Some(MonoUnsaturatedFat::new(
@@ -274,12 +272,10 @@ pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx:
                 true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
                 false => Option::None,
             };
-            let fat: Fat = Fat::new(
-                row.get(10),
-                row.get(11),
-                unsaturated,
-                row.try_get(18).unwrap_or_default(),
-            );
+            let fat: Fat = Fat::new(row.get(10), row.get(11))
+                .with_unsaturated(unsaturated)
+                .with_trans(row.try_get(18).unwrap_or_default())
+                .build();
 
             let protein: Protein = Protein::new(row.get(19));
             let salt: Salt = Salt::new(row.get(20));
@@ -372,13 +368,11 @@ pub async fn amount_adjusted_product(
         // let name : String = row.get(0);
 
         let energy: Energy = Energy::new(row.get(3), row.get(4));
-        let carbs: Carbohydrates = Carbohydrates::new(
-            row.get(5),
-            row.get(6),
-            row.try_get(7).unwrap_or_default(),
-            row.try_get(8).unwrap_or_default(),
-            row.get(9),
-        );
+        let carbs: Carbohydrates = Carbohydrates::new(row.get(5), row.get(6))
+            .with_fiber(row.try_get(7).unwrap_or_default())
+            .with_added_sugar(row.try_get(8).unwrap_or_default())
+            .with_starch(row.try_get(9).unwrap_or_default())
+            .build();
 
         let monounsaturated = match row.try_get(12) {
             Ok(v) => Some(MonoUnsaturatedFat::new(
@@ -401,12 +395,11 @@ pub async fn amount_adjusted_product(
             true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
             false => Option::None,
         };
-        let fat: Fat = Fat::new(
-            row.get(10),
-            row.get(11),
-            unsaturated,
-            row.try_get(18).unwrap_or_default(),
-        );
+
+        let fat: Fat = Fat::new(row.get(10), row.get(11))
+            .with_unsaturated(unsaturated)
+            .with_trans(row.try_get(18).unwrap_or_default())
+            .build();
 
         let protein: Protein = Protein::new(row.get(19));
         let salt: Salt = Salt::new(row.get(20));

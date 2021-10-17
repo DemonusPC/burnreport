@@ -44,7 +44,7 @@ impl Add for Energy {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
 pub struct Carbohydrates {
     total: f64,
     sugar: f64,
@@ -55,21 +55,31 @@ pub struct Carbohydrates {
 }
 
 impl Carbohydrates {
-    pub fn new(
-        total: f64,
-        sugar: f64,
-        fiber: Option<f64>,
-        added_sugar: Option<f64>,
-        starch: Option<f64>,
-    ) -> Carbohydrates {
+    pub fn new(total: f64, sugar: f64) -> Carbohydrates {
         Carbohydrates {
             total,
             sugar,
-            fiber,
-            added_sugar,
-            starch,
+            ..Default::default()
         }
     }
+
+    pub fn with_fiber<'a>(&'a mut self, fiber: Option<f64>) -> &'a mut Carbohydrates {
+        self.fiber = fiber;
+        self
+    }
+    pub fn with_added_sugar<'a>(&'a mut self, added_sugar: Option<f64>) -> &'a mut Carbohydrates {
+        self.added_sugar = added_sugar;
+        self
+    }
+    pub fn with_starch<'a>(&'a mut self, starch: Option<f64>) -> &'a mut Carbohydrates {
+        self.starch = starch;
+        self
+    }
+
+    pub fn build(self) -> Carbohydrates {
+        self
+    }
+
     pub fn sugar(&self) -> f64 {
         self.sugar
     }
@@ -229,7 +239,7 @@ impl Add for Nutrients {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
 pub struct Fat {
     total: f64,
     saturated: f64,
@@ -240,18 +250,26 @@ pub struct Fat {
 }
 
 impl Fat {
-    pub fn new(
-        total: f64,
-        saturated: f64,
-        unsaturated: Option<UnsaturatedFat>,
-        trans: Option<f64>,
-    ) -> Self {
+    pub fn new(total: f64, saturated: f64) -> Self {
         Self {
             total,
             saturated,
-            unsaturated,
-            trans,
+            ..Default::default()
         }
+    }
+
+    pub fn with_unsaturated<'a>(&'a mut self, unsaturated: Option<UnsaturatedFat>) -> &'a mut Fat {
+        self.unsaturated = unsaturated;
+        self
+    }
+
+    pub fn with_trans<'a>(&'a mut self, trans: Option<f64>) -> &'a mut Fat {
+        self.trans = trans;
+        self
+    }
+
+    pub fn build(self) -> Fat {
+        self
     }
 
     pub fn saturated(&self) -> f64 {
@@ -415,16 +433,16 @@ mod tests {
     fn can_add_basic_nutrients() {
         let one = Nutrients::new(
             Energy::new(55.2, 19.0),
-            Carbohydrates::new(20.2, 19.2, Option::None, Option::None, Option::None),
-            Fat::new(5.0, 0.0, Option::None, Option::None),
+            Carbohydrates::new(20.2, 19.2),
+            Fat::new(5.0, 0.0),
             Protein::new(44.9),
             Salt::new(0.02),
             Option::None,
         );
         let two = Nutrients::new(
             Energy::new(125.0, 20.0),
-            Carbohydrates::new(5.1, 0.2, Option::None, Option::None, Option::None),
-            Fat::new(33.0, 10.0, Option::None, Option::None),
+            Carbohydrates::new(5.1, 0.2),
+            Fat::new(33.0, 10.0),
             Protein::new(0.0),
             Salt::new(0.003),
             Option::None,
@@ -432,8 +450,8 @@ mod tests {
 
         let expected = Nutrients::new(
             Energy::new(180.2, 39.0),
-            Carbohydrates::new(25.2, 19.4, Option::None, Option::None, Option::None),
-            Fat::new(38.0, 10.0, Option::None, Option::None),
+            Carbohydrates::new(25.2, 19.4),
+            Fat::new(38.0, 10.0),
             Protein::new(44.9),
             Salt::new(0.023),
             Option::None,
@@ -462,8 +480,14 @@ mod tests {
 
     #[test]
     fn can_add_complex_carbohydrates() {
-        let one = Carbohydrates::new(20.0, 2.2, Some(1.5), Option::None, Some(12.5));
-        let two = Carbohydrates::new(53.8, 0.0, Option::None, Some(100.0), Some(12.5));
+        let one = Carbohydrates::new(20.0, 2.2)
+            .with_fiber(Some(1.5))
+            .with_starch(Some(12.5))
+            .build();
+        let two = Carbohydrates::new(53.8, 0.0)
+            .with_added_sugar(Some(100.0))
+            .with_starch(Some(12.5))
+            .build();
 
         let result = one + two;
 
@@ -480,7 +504,10 @@ mod tests {
         let poly = PolyUnsaturatedFat::new(15.0, Some(10.0), Some(5.0));
         let unsaturated = UnsaturatedFat::new(Some(mono), Some(poly));
 
-        let one = Fat::new(50.0, 10.5, Some(unsaturated), Some(5.0));
+        let one = Fat::new(50.0, 10.5)
+            .with_unsaturated(Some(unsaturated))
+            .with_trans(Some(5.0))
+            .build();
         let two = one.clone();
 
         let result = one + two;
