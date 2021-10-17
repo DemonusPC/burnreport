@@ -45,12 +45,12 @@ const highlightToBorder = (highlight: boolean): BorderType | undefined => {
   return undefined;
 };
 const NutrientTableRow = ({ row }: NutrientTableRowProps) => {
-  const amount: JSX.Element = row.amount ? (
+  const amount: JSX.Element = (
     <Box fill alignSelf="end" align="end">
-      <Text weight={highlightToWeight(row.highlight)}>{row.amount} g </Text>
+      <Text weight={highlightToWeight(row.highlight)}>
+        {row.amount || 0} g{" "}
+      </Text>
     </Box>
-  ) : (
-    <></>
   );
   return (
     <Box
@@ -64,7 +64,7 @@ const NutrientTableRow = ({ row }: NutrientTableRowProps) => {
       <Box fill margin={{ left: levelToMargin(row.level) }}>
         <Text weight={highlightToWeight(row.highlight)}>{row.name} </Text>
       </Box>
-      {amount}
+      {amount || 0}
     </Box>
   );
 };
