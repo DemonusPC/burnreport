@@ -73,7 +73,6 @@ const microNutrient = (
       rows.push(
         toRow(level, key, false, calculateToDisplay(n, amount, baseUnit))
       );
-      // rows.push(asColumn(base, key, calculateToDisplay(n, amount, baseUnit)));
     }
   });
 
