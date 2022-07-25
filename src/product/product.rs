@@ -3,8 +3,6 @@ use crate::nutrients::{
     PolyUnsaturatedFat, Protein, Salt, TotalAble, UnsaturatedFat, Vitamins, WaterSoluble,
     WaterSolubleApi,
 };
-use actix_web::{HttpRequest, HttpResponse, Responder};
-use log::error;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
@@ -66,21 +64,6 @@ impl Product {
 
     pub fn vitamins(&self) -> Option<Vitamins> {
         self.nutrients.vitamins()
-    }
-}
-
-impl Responder for Product {
-    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
-        let body = match serde_json::to_string(&self) {
-            Ok(v) => v,
-            Err(error) => {
-                error!("Failed to serialize the Product with error: {}", error);
-                return HttpResponse::InternalServerError().finish();
-            }
-        };
-        HttpResponse::Ok()
-            .content_type("application/json")
-            .body(body)
     }
 }
 

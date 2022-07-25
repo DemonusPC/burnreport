@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use log::error;
 use routes::{api_routes, frontend, frontend_helper_routes};
 use std::env;
 
@@ -35,9 +36,9 @@ async fn main() -> Result<(), sqlx::Error> {
         panic!("Error while setting up database");
     }
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
+            .app_data(pool.clone())
             .wrap(middleware::Logger::default())
             .wrap(middleware::Compress::default())
             .configure(api_routes)
@@ -48,6 +49,13 @@ async fn main() -> Result<(), sqlx::Error> {
     .bind("127.0.0.1:8080")?
     .run()
     .await;
+
+    if server.is_err() {
+        error!(
+            "Failed creating the server due to error: {}",
+            server.unwrap_err()
+        );
+    }
 
     Ok(())
 }

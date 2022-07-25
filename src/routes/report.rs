@@ -1,5 +1,5 @@
 use crate::{nutrients::Nutrients, product::amount_adjusted_product, report::Report};
-use actix_web::{post, web, Responder};
+use actix_web::{post, web, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use log::error;
 use serde_json::json;
@@ -24,7 +24,7 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
                     "Failed to return amount adjusted product due to error: {}",
                     err
                 );
-                return web::HttpResponse::InternalServerError().finish();
+                return HttpResponse::InternalServerError().finish();
             }
         }
     }
@@ -39,5 +39,5 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
         }
     });
 
-    web::HttpResponse::Ok().json(reply)
+    HttpResponse::Ok().json(reply)
 }

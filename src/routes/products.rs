@@ -3,7 +3,6 @@ use crate::product::{
     remove_portion, search_product_suggestions, single_product, FlatProduct,
 };
 use crate::product::{ApiResult, Portion, Product, ResultList};
-use crate::routes::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};
@@ -26,7 +25,8 @@ async fn get_search_products_suggestions(
         Ok(res) => res,
         Err(err) => {
             error!("Search product suggestions failed due to error: {}", err);
-            return Err(ApiError::InternalServer);
+
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
@@ -34,7 +34,7 @@ async fn get_search_products_suggestions(
         result: search_result,
     };
 
-    Ok(result)
+    HttpResponse::Ok().json(result)
 }
 
 // TODO: List Products with pagination
@@ -45,15 +45,15 @@ async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -
         Ok(res) => res,
         Err(err) => match err {
             sqlx::Error::RowNotFound => {
-                return Err(ApiError::NotFound);
+                return HttpResponse::NotFound().finish();
             }
             _ => {
-                return Err(ApiError::InternalServer);
+                return HttpResponse::InternalServerError().finish();
             }
         },
     };
 
-    Ok(product)
+    HttpResponse::Ok().json(product)
 }
 
 #[post("/api/products")]
@@ -62,11 +62,11 @@ async fn post_product(pool: web::Data<SqlitePool>, product: web::Json<Product>) 
         Ok(res) => res,
         Err(err) => {
             error!("Error: {}", err);
-            return Err(ApiError::InternalServer);
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
-    Ok(ApiResult::new(
+    HttpResponse::Created().json(ApiResult::new(
         201,
         Some("CREATED".to_owned()),
         Some(new_id),
@@ -93,24 +93,24 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
 
             match import_file(&pool, &products).await {
                 Ok(()) => {
-                    return Ok(ApiResult::new(
+                    return HttpResponse::Created().json(ApiResult::new(
                         201,
                         Some("CREATED".to_owned()),
-                        Option::None,
-                    ))
+                        None,
+                    ));
                 }
                 Err(err) => {
                     error!(
                         "Could not complete importing the csv file due to error: {}",
                         err
                     );
-                    return Err(ApiError::InternalServer);
+                    return HttpResponse::InternalServerError().finish();
                 }
             }
         }
     }
 
-    Ok(ApiResult::new(201, Some("CREATED".to_owned()), Some(0)))
+    HttpResponse::Created().json(ApiResult::new(201, Some("CREATED".to_owned()), None))
 }
 
 fn to_csv(products: &[FlatProduct]) -> Result<String, Box<dyn Error>> {
@@ -160,11 +160,11 @@ async fn delete_single_product(
         Ok(res) => res,
         Err(err) => {
             error!("Failed to delete the product due error: {}", err);
-            return Err(ApiError::InternalServer);
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
-    Ok(ApiResult::new(200, Some("DELETED".to_owned()), None))
+    HttpResponse::Ok().json(ApiResult::new(200, Some("DELETED".to_owned()), None))
 }
 
 // Portions
@@ -174,7 +174,7 @@ async fn get_product_portions(pool: web::Data<SqlitePool>, path: web::Path<i32>)
         Ok(res) => res,
         Err(err) => {
             error!("Could not list portions due to error: {}", err);
-            return Err(ApiError::InternalServer);
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
@@ -182,7 +182,7 @@ async fn get_product_portions(pool: web::Data<SqlitePool>, path: web::Path<i32>)
         result: search_result,
     };
 
-    Ok(result)
+    HttpResponse::Ok().json(result)
 }
 
 // Add a portion
@@ -196,11 +196,11 @@ async fn post_portions(
         Ok(res) => res,
         Err(err) => {
             error!("Could not create a portion due to error: {}", err);
-            return Err(ApiError::InternalServer);
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
-    Ok(ApiResult::new(201, Some("CREATED".to_owned()), None))
+    HttpResponse::Created().json(ApiResult::new(201, Some("CREATED".to_owned()), None))
 }
 
 // Delete a portion
@@ -214,9 +214,9 @@ async fn delete_portion(
         Ok(res) => res,
         Err(err) => {
             error!("Could not delete a portion due to error: {}", err);
-            return Err(ApiError::InternalServer);
+            return HttpResponse::InternalServerError().finish();
         }
     };
 
-    Ok(ApiResult::new(200, Some("DELETED".to_owned()), None))
+    HttpResponse::Ok().json(ApiResult::new(200, Some("DELETED".to_owned()), None))
 }
