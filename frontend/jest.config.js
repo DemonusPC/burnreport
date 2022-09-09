@@ -4,9 +4,8 @@ module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["./src/setupTests.ts"],
   resetMocks: true,
-  globals: {
-    "ts-jest": {
-      isolatedModules: true,
-    },
+  transform: {
+    "^.+\\.ts?$": "ts-jest",
+    "^.+\\.tsx?$": "ts-jest",
   },
 };
