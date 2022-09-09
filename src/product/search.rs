@@ -1,4 +1,3 @@
-use actix_web::{HttpRequest, HttpResponse, Responder};
 use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
@@ -19,15 +18,6 @@ impl SearchSuggestion {
             sub_text,
             entity,
         }
-    }
-}
-
-impl Responder for SearchSuggestion {
-    fn respond_to(self, _req: &HttpRequest) -> HttpResponse {
-        let body = serde_json::to_string(&self).unwrap();
-        HttpResponse::Ok()
-            .content_type("application/json")
-            .body(body)
     }
 }
 

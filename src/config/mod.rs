@@ -3,7 +3,7 @@ use sqlx::SqlitePool;
 pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
-    sqlx::query!(
+    sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS "Products" (
             "id"	INTEGER NOT NULL,
