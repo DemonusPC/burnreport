@@ -13,7 +13,11 @@ use crate::config::setup;
 use sqlx::SqlitePool;
 
 use actix_files::Files;
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{
+    middleware,
+    web::{self, Data},
+    App, HttpServer,
+};
 
 #[actix_web::main]
 async fn main() -> Result<(), sqlx::Error> {
@@ -38,7 +42,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let server = HttpServer::new(move || {
         App::new()
-            .app_data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             .wrap(middleware::Logger::default())
             .wrap(middleware::Compress::default())
             .configure(api_routes)
