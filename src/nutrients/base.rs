@@ -199,6 +199,17 @@ impl Nutrients {
         }
     }
 
+    pub fn empty() -> Self {
+        Self {
+            energy: Energy::default(),
+            carbohydrates: Carbohydrates::default(),
+            fat: Fat::default(),
+            protein: Protein::default(),
+            salt: Salt::default(),
+            vitamins: Option::None
+        }
+    }
+
     pub fn energy(&self) -> &Energy {
         &self.energy
     }

@@ -8,6 +8,7 @@ mod nutrients;
 mod product;
 mod report;
 mod routes;
+mod recipie;
 
 use crate::config::setup;
 use sqlx::SqlitePool;
