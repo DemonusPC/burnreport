@@ -12,9 +12,7 @@ pub use self::product::FlatProduct;
 pub use self::product::Product;
 pub use self::product::Unit;
 
-pub use self::portion::insert_portion;
-pub use self::portion::list_portions;
-pub use self::portion::remove_portion;
+pub use self::portion::PortionStore;
 pub use self::portion::Portion;
 pub use self::search::search_product_suggestions;
 
