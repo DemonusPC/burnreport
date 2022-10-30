@@ -1,8 +1,4 @@
-use crate::product::{
-    PortionStore,
-    ProductStore,
-    search_product_suggestions, FlatProduct,
-};
+use crate::product::{search_product_suggestions, FlatProduct, PortionStore, ProductStore};
 use crate::product::{ApiResult, Portion, Product, ResultList};
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};

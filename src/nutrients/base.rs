@@ -206,7 +206,7 @@ impl Nutrients {
             fat: Fat::default(),
             protein: Protein::default(),
             salt: Salt::default(),
-            vitamins: Option::None
+            vitamins: Option::None,
         }
     }
 

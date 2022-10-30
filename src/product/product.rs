@@ -30,6 +30,10 @@ impl Product {
         }
     }
 
+    pub fn id(&self) -> i32 {
+        self.id
+    }
+
     pub fn name(&self) -> String {
         self.name.clone()
     }
@@ -106,11 +110,13 @@ pub struct FlatProduct {
     pub c: Option<f64>,
 }
 
-
 pub struct ProductStore {}
 
 impl ProductStore {
-    pub async fn import_file(pool: &SqlitePool, products: &[FlatProduct]) -> Result<(), sqlx::Error> {
+    pub async fn import_file(
+        pool: &SqlitePool,
+        products: &[FlatProduct],
+    ) -> Result<(), sqlx::Error> {
         let mut tx = pool.begin().await?;
         for p in products {
             let unit = match p.unit.as_str() {
@@ -118,7 +124,7 @@ impl ProductStore {
                 "Mililiters" => "Mililiters",
                 _ => "Grams",
             };
-    
+
             let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt")  
             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) "#)
             .bind(p.name.as_str())
@@ -143,9 +149,9 @@ impl ProductStore {
             .bind(p.salt)
             .execute(&mut tx)
             .await?;
-    
+
             let product_id = result.last_insert_rowid();
-    
+
             sqlx::query(
                 r#"
             INSERT INTO "Vitamins"
@@ -170,12 +176,12 @@ impl ProductStore {
             .execute(&mut tx)
             .await?;
         }
-    
+
         tx.commit().await?;
-    
+
         Ok(())
     }
-    
+
     pub async fn export_file(pool: &SqlitePool) -> Result<Vec<FlatProduct>, sqlx::Error> {
         let result = sqlx::query("SELECT * FROM full_product")
             .map(|row: SqliteRow| {
@@ -222,10 +228,10 @@ impl ProductStore {
             })
             .fetch_all(pool)
             .await?;
-    
+
         Ok(result)
     }
-    
+
     pub async fn single_product(pool: &SqlitePool, id: i32) -> Result<Product, sqlx::Error> {
         let result = sqlx::query("SELECT * FROM full_product WHERE id = ?")
             .bind(id)
@@ -237,7 +243,7 @@ impl ProductStore {
                     .with_added_sugar(row.try_get(8).unwrap_or_default())
                     .with_starch(row.try_get(9).unwrap_or_default())
                     .build();
-    
+
                 let monounsaturated = match row.try_get(12) {
                     Ok(v) => Some(MonoUnsaturatedFat::new(
                         v,
@@ -254,7 +260,7 @@ impl ProductStore {
                     )),
                     Err(_error) => Option::None,
                 };
-    
+
                 let unsaturated = match monounsaturated.is_some() || polysaturated.is_some() {
                     true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
                     false => Option::None,
@@ -263,10 +269,10 @@ impl ProductStore {
                     .with_unsaturated(unsaturated)
                     .with_trans(row.try_get(18).unwrap_or_default())
                     .build();
-    
+
                 let protein: Protein = Protein::new(row.get(19));
                 let salt: Salt = Salt::new(row.get(20));
-    
+
                 let fat_sol = FatSoluble::new(
                     row.try_get(21).unwrap_or_default(),
                     row.try_get(22).unwrap_or_default(),
@@ -284,17 +290,17 @@ impl ProductStore {
                     row.try_get(32).unwrap_or_default(),
                     row.try_get(33).unwrap_or_default(),
                 );
-    
+
                 let vitamin_content = Vitamins::new(fat_sol, water_sol);
-    
+
                 let vitamin_option = match vitamin_content.is_zero() {
                     true => Option::None,
                     false => Some(vitamin_content),
                 };
-    
+
                 let nutrition: Nutrients =
                     Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
-    
+
                 let unit = match row.get(2) {
                     "ml" => Unit::Mililiters,
                     _ => Unit::Grams,
@@ -305,7 +311,7 @@ impl ProductStore {
             .await?;
         Ok(result)
     }
-    
+
     pub async fn amount_adjusted_product(
         pool: &SqlitePool,
         id: i32,
@@ -353,14 +359,14 @@ impl ProductStore {
         .bind(id)
         .map(|row: SqliteRow| {
             // let name : String = row.get(0);
-    
+
             let energy: Energy = Energy::new(row.get(3), row.get(4));
             let carbs: Carbohydrates = Carbohydrates::new(row.get(5), row.get(6))
                 .with_fiber(row.try_get(7).unwrap_or_default())
                 .with_added_sugar(row.try_get(8).unwrap_or_default())
                 .with_starch(row.try_get(9).unwrap_or_default())
                 .build();
-    
+
             let monounsaturated = match row.try_get(12) {
                 Ok(v) => Some(MonoUnsaturatedFat::new(
                     v,
@@ -377,20 +383,20 @@ impl ProductStore {
                 )),
                 Err(_error) => Option::None,
             };
-    
+
             let unsaturated = match monounsaturated.is_some() || polysaturated.is_some() {
                 true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
                 false => Option::None,
             };
-    
+
             let fat: Fat = Fat::new(row.get(10), row.get(11))
                 .with_unsaturated(unsaturated)
                 .with_trans(row.try_get(18).unwrap_or_default())
                 .build();
-    
+
             let protein: Protein = Protein::new(row.get(19));
             let salt: Salt = Salt::new(row.get(20));
-    
+
             let fat_sol = FatSoluble::new(
                 row.try_get(21).unwrap_or_default(),
                 row.try_get(22).unwrap_or_default(),
@@ -408,17 +414,17 @@ impl ProductStore {
                 row.try_get(32).unwrap_or_default(),
                 row.try_get(33).unwrap_or_default(),
             );
-    
+
             let vitamin_content = Vitamins::new(fat_sol, water_sol);
-    
+
             let vitamin_option = match vitamin_content.is_zero() {
                 true => Option::None,
                 false => Some(vitamin_content),
             };
-    
+
             let nutrition: Nutrients =
                 Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
-    
+
             let unit = match row.get(2) {
                 "ml" => Unit::Mililiters,
                 _ => Unit::Grams,
@@ -427,37 +433,37 @@ impl ProductStore {
         })
         .fetch_one(pool)
         .await?;
-    
+
         Ok(result)
     }
-    
+
     pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
         let mut tx = pool.begin().await?;
         let raw_unit = match product.unit() {
             Unit::Grams => "Grams".to_owned(),
             Unit::Mililiters => "Mililiters".to_owned(),
         };
-    
+
         let monounsaturated = match product.fat().unsaturated() {
             Some(v) => v.mono(),
             None => Option::None,
         };
-    
+
         let (mono_total, omega_7, omega_9) = match monounsaturated {
             Some(v) => (v.total(), v.omega_7(), v.omega_9()),
             None => (0.0, Option::None, Option::None),
         };
-    
+
         let polyunsaturated = match product.fat().unsaturated() {
             Some(v) => v.poly(),
             None => Option::None,
         };
-    
+
         let (poly_total, omega_3, omega_6) = match polyunsaturated {
             Some(v) => (v.total(), v.omega_3(), v.omega_6()),
             None => (0.0, Option::None, Option::None),
         };
-    
+
         let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt")  
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) "#)
         .bind(product.name())
@@ -482,9 +488,9 @@ impl ProductStore {
         .bind(product.salt().total())
         .execute(&mut tx)
         .await?;
-    
+
         let product_id = result.last_insert_rowid();
-    
+
         if let Some(v) = product.vitamins() {
             sqlx::query(
                 r#"
@@ -510,24 +516,22 @@ impl ProductStore {
             .execute(&mut tx)
             .await?;
         }
-    
+
         tx.commit().await?;
-    
+
         Ok(product_id)
     }
-    
+
     pub async fn delete_product(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Error> {
         let mut tx = pool.begin().await?;
-    
+
         sqlx::query("DELETE FROM Products WHERE id = ?")
             .bind(id)
             .execute(&mut tx)
             .await?;
-    
+
         tx.commit().await?;
-    
+
         Ok(())
     }
-    
-    
 }
