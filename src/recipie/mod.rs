@@ -168,7 +168,6 @@ mod tests {
             Unit::Grams,
         );
 
-
         let ingredient_id_one = ProductStore::insert_product(&pool, ingredient_one)
             .await
             .unwrap();
@@ -196,6 +195,16 @@ mod tests {
 
         assert_eq!(recipie_id, recipie_from_store.id());
         assert_eq!("Test Recipie", recipie_from_store.name());
+
+        let recipie_ingredients = recipie_from_store.ingredients();
+
+        let a = &recipie_ingredients[0];
+        assert_eq!(a.amount(), 20.0);
+        assert_eq!(a.product().name(), "Ingredient One");
+
+        let b = &recipie_ingredients[1];
+        assert_eq!(b.amount(), 158.5);
+        assert_eq!(b.product().name(), "Ingredient Two");
 
         // Updating a recipie
         // Deleting a recipie
