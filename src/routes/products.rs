@@ -1,7 +1,7 @@
 use crate::product::{
     PortionStore,
-    delete_product, export_file, import_file, insert_product ,
-    search_product_suggestions, single_product, FlatProduct,
+    ProductStore,
+    search_product_suggestions, FlatProduct,
 };
 use crate::product::{ApiResult, Portion, Product, ResultList};
 use actix_multipart::Multipart;
@@ -42,7 +42,7 @@ async fn get_search_products_suggestions(
 
 #[get("/api/products/{id}")]
 async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -> impl Responder {
-    let product = match single_product(&pool, path.to_owned()).await {
+    let product = match ProductStore::single_product(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => match err {
             sqlx::Error::RowNotFound => {
@@ -59,7 +59,7 @@ async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -
 
 #[post("/api/products")]
 async fn post_product(pool: web::Data<SqlitePool>, product: web::Json<Product>) -> impl Responder {
-    let new_id = match insert_product(&pool, product.0).await {
+    let new_id = match ProductStore::insert_product(&pool, product.0).await {
         Ok(res) => res,
         Err(err) => {
             error!("Error: {}", err);
@@ -92,7 +92,7 @@ async fn post_product_batch(pool: web::Data<SqlitePool>, mut payload: Multipart)
                 })
                 .collect();
 
-            match import_file(&pool, &products).await {
+            match ProductStore::import_file(&pool, &products).await {
                 Ok(()) => {
                     return HttpResponse::Created().json(ApiResult::new(
                         201,
@@ -129,7 +129,7 @@ fn to_csv(products: &[FlatProduct]) -> Result<String, Box<dyn Error>> {
 
 #[get("/api/data/products/csv")]
 async fn get_product_batch(pool: web::Data<SqlitePool>) -> HttpResponse {
-    let all_products = match export_file(&pool).await {
+    let all_products = match ProductStore::export_file(&pool).await {
         Ok(p) => p,
         Err(err) => {
             error!(
@@ -157,7 +157,7 @@ async fn delete_single_product(
     pool: web::Data<SqlitePool>,
     path: web::Path<i32>,
 ) -> impl Responder {
-    match delete_product(&pool, path.to_owned()).await {
+    match ProductStore::delete_product(&pool, path.to_owned()).await {
         Ok(res) => res,
         Err(err) => {
             error!("Failed to delete the product due error: {}", err);
