@@ -30,6 +30,79 @@ impl Product {
         }
     }
 
+    pub fn from_row(row: &SqliteRow) -> Self {
+        let energy: Energy = Energy::new(row.get("kcal"), row.get("kj"));
+        let carbs: Carbohydrates = Carbohydrates::new(row.get("carbohydrates"), row.get("sugar"))
+            .with_fiber(row.try_get("fiber").unwrap_or_default())
+            .with_added_sugar(row.try_get("added_sugar").unwrap_or_default())
+            .with_starch(row.try_get("starch").unwrap_or_default())
+            .build();
+
+        let monounsaturated = match row.try_get("monounsaturated") {
+            Ok(v) => Some(MonoUnsaturatedFat::new(
+                v,
+                row.try_get("omega_7").unwrap_or_default(),
+                row.try_get("omega_9").unwrap_or_default(),
+            )),
+            Err(_error) => Option::None,
+        };
+        let polysaturated = match row.try_get("polyunsaturated") {
+            Ok(v) => Some(PolyUnsaturatedFat::new(
+                v,
+                row.try_get("omega_3").unwrap_or_default(),
+                row.try_get("omega_6").unwrap_or_default(),
+            )),
+            Err(_error) => Option::None,
+        };
+
+        let unsaturated = match monounsaturated.is_some() || polysaturated.is_some() {
+            true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
+            false => Option::None,
+        };
+        let fat: Fat = Fat::new(row.get("fat"), row.get("saturated"))
+            .with_unsaturated(unsaturated)
+            .with_trans(row.try_get("trans").unwrap_or_default())
+            .build();
+
+        let protein: Protein = Protein::new(row.get("protein"));
+        let salt: Salt = Salt::new(row.get("salt"));
+
+        let fat_sol = FatSoluble::new(
+            row.try_get("a").unwrap_or_default(),
+            row.try_get("d").unwrap_or_default(),
+            row.try_get("e").unwrap_or_default(),
+            row.try_get("k").unwrap_or_default(),
+        );
+        let water_sol = WaterSoluble::new(
+            row.try_get("b1").unwrap_or_default(),
+            row.try_get("b2").unwrap_or_default(),
+            row.try_get("b3").unwrap_or_default(),
+            row.try_get("b5").unwrap_or_default(),
+            row.try_get("b6").unwrap_or_default(),
+            row.try_get("b7").unwrap_or_default(),
+            row.try_get("b9").unwrap_or_default(),
+            row.try_get("b12").unwrap_or_default(),
+            row.try_get("c").unwrap_or_default(),
+        );
+
+        let vitamin_content = Vitamins::new(fat_sol, water_sol);
+
+        let vitamin_option = match vitamin_content.is_zero() {
+            true => Option::None,
+            false => Some(vitamin_content),
+        };
+
+        let nutrition: Nutrients =
+            Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
+
+        let unit = match row.get(2) {
+            "ml" => Unit::Mililiters,
+            _ => Unit::Grams,
+        };
+
+        Product::new(row.get("id"), row.get("name"), nutrition, unit)
+    }
+
     pub fn id(&self) -> i32 {
         self.id
     }

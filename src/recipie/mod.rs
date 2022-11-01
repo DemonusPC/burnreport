@@ -60,6 +60,10 @@ impl Recipie {
     pub fn ingredients(&self) -> &[Ingredient] {
         &self.ingredients
     }
+
+    pub fn set_ingredients(&mut self, ingredients: Vec<Ingredient>) {
+        self.ingredients = ingredients;
+    }
 }
 
 pub struct Page {
@@ -84,12 +88,21 @@ pub struct RecipieStore {}
 impl RecipieStore {
     // get
     pub async fn get_by_id(pool: &SqlitePool, id: i64) -> Result<Recipie, sqlx::Error> {
-        let result = sqlx::query("SELECT id, name FROM Recipies WHERE id = ?")
+        let ingredients = sqlx::query("SELECT Ingredients.amount, full_product.* FROM Ingredients LEFT JOIN full_product ON Ingredients.product_id = full_product.id WHERE Ingredients.recipie_id = ?1;").bind(id).map(|row: SqliteRow| {
+            Ingredient::new(Product::from_row(&row), row.get("amount"))
+        }).fetch_all(pool).await?;
+
+        let mut result = sqlx::query("SELECT id, name FROM Recipies WHERE id = ?")
             .bind(id)
-            .map(|row: SqliteRow| Recipie::new(row.get(0), row.get(1), vec![]))
+            .map(|row: SqliteRow| {
+                
+                
+                Recipie::new(row.get("id"), row.get("name"), vec![])
+            })
             .fetch_one(pool)
             .await?;
 
+        result.set_ingredients(ingredients);
         Ok(result)
     }
     // create
@@ -114,6 +127,7 @@ impl RecipieStore {
             .bind(ingredient.product().id())
             .execute(&mut tx)
             .await?;
+
         }
 
         tx.commit().await?;
@@ -162,7 +176,7 @@ mod tests {
             Unit::Grams,
         );
         let ingredient_two = Product::new(
-            0,
+            1,
             "Ingredient Two".to_owned(),
             Nutrients::default(),
             Unit::Grams,
@@ -196,7 +210,7 @@ mod tests {
         assert_eq!(recipie_id, recipie_from_store.id());
         assert_eq!("Test Recipie", recipie_from_store.name());
 
-        let recipie_ingredients = recipie_from_store.ingredients();
+        let recipie_ingredients = recipie_from_store.ingredients(); 
 
         let a = &recipie_ingredients[0];
         assert_eq!(a.amount(), 20.0);
@@ -206,7 +220,22 @@ mod tests {
         assert_eq!(b.amount(), 158.5);
         assert_eq!(b.product().name(), "Ingredient Two");
 
+        let ingredient_three = Product::new(
+            1,
+            "Ingredient Two".to_owned(),
+            Nutrients::default(),
+            Unit::Grams,
+        );
+
         // Updating a recipie
+        let updated_ingredients: Vec<Ingredient> =
+            vec![Ingredient::new(ingredient_three, 20.0) ];
+
+        let updated_recipie = Recipie::new(recipie_id, "Test Recipie".to_owned(), updated_ingredients);
+
+        RecipieStore::update(&pool, updated_recipie).await;
+
+
         // Deleting a recipie
     }
 }
