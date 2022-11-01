@@ -94,11 +94,7 @@ impl RecipieStore {
 
         let mut result = sqlx::query("SELECT id, name FROM Recipies WHERE id = ?")
             .bind(id)
-            .map(|row: SqliteRow| {
-                
-                
-                Recipie::new(row.get("id"), row.get("name"), vec![])
-            })
+            .map(|row: SqliteRow| Recipie::new(row.get("id"), row.get("name"), vec![]))
             .fetch_one(pool)
             .await?;
 
@@ -127,7 +123,6 @@ impl RecipieStore {
             .bind(ingredient.product().id())
             .execute(&mut tx)
             .await?;
-
         }
 
         tx.commit().await?;
@@ -135,7 +130,33 @@ impl RecipieStore {
     }
     // modify
     pub async fn update(pool: &SqlitePool, recipie: Recipie) -> Result<(), sqlx::Error> {
-        todo!()
+        let mut tx = pool.begin().await?;
+
+        sqlx::query("DELETE FROM Ingredients WHERE recipie_id = ?1")
+            .bind(recipie.id())
+            .execute(&mut tx)
+            .await?;
+
+        for ingredient in recipie.ingredients() {
+            sqlx::query(
+                    r#"
+                INSERT INTO "Ingredients" ("amount", "recipie_id", "product_id") VALUES (?1, ?2, ?3); 
+            "#,
+                )
+                .bind(ingredient.amount())
+                .bind(recipie.id())
+                .bind(ingredient.product().id())
+                .execute(&mut tx)
+                .await?;
+        }
+
+        sqlx::query(r#"UPDATE Recipies SET name= ?1 WHERE id = ?2;"#)
+            .bind(recipie.name())
+            .bind(recipie.id())
+            .execute(&mut tx)
+            .await?;
+
+        tx.commit().await
     }
     // delete
     pub async fn delete(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Error> {
@@ -210,7 +231,7 @@ mod tests {
         assert_eq!(recipie_id, recipie_from_store.id());
         assert_eq!("Test Recipie", recipie_from_store.name());
 
-        let recipie_ingredients = recipie_from_store.ingredients(); 
+        let recipie_ingredients = recipie_from_store.ingredients();
 
         let a = &recipie_ingredients[0];
         assert_eq!(a.amount(), 20.0);
@@ -228,13 +249,12 @@ mod tests {
         );
 
         // Updating a recipie
-        let updated_ingredients: Vec<Ingredient> =
-            vec![Ingredient::new(ingredient_three, 20.0) ];
+        let updated_ingredients: Vec<Ingredient> = vec![Ingredient::new(ingredient_three, 20.0)];
 
-        let updated_recipie = Recipie::new(recipie_id, "Test Recipie".to_owned(), updated_ingredients);
+        let updated_recipie =
+            Recipie::new(recipie_id, "Test Recipie".to_owned(), updated_ingredients);
 
         RecipieStore::update(&pool, updated_recipie).await;
-
 
         // Deleting a recipie
     }
