@@ -166,7 +166,11 @@ impl RecipieStore {
     }
     // delete
     pub async fn delete(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> {
-        todo!()
+        let mut tx = pool.begin().await?;
+
+        sqlx::query("DELETE FROM Recipies WHERE id = ?1").bind(id).execute(&mut tx).await?;
+
+        tx.commit().await
     }
     // list
     pub async fn list(
@@ -174,7 +178,13 @@ impl RecipieStore {
         page_size: i32,
         cursor: Option<String>,
     ) -> Result<Page, sqlx::Error> {
-        todo!()
+
+        let mut result = sqlx::query("SELECT id, name FROM Recipies")
+        .map(|row: SqliteRow| Recipie::new(row.get("id"), row.get("name"), vec![]))
+        .fetch_all(pool)
+        .await?;
+
+        Ok(Page::new(result,None, None))
     }
 }
 #[cfg(test)]
@@ -262,16 +272,18 @@ mod tests {
 
         RecipieStore::update(&pool, updated_recipie).await.unwrap();
 
-        // Deleting a recipie
-        RecipieStore::delete(&pool, recipie_id).await.unwrap();
 
         let updated_result = RecipieStore::get_by_id(&pool, recipie_id).await.unwrap();
+        assert_eq!(updated_result.ingredients().len(), 1);
 
         let c = &updated_result.ingredients()[0];
 
         assert_eq!(updated_result.name(), "Updated Recipie");
         assert_eq!(c.amount(), 20.0);
-        assert_eq!(c.product().name(), "Ingredient Three");
+        assert_eq!(c.product().name(), "Ingredient One");
+
+        // Deleting a recipie
+        RecipieStore::delete(&pool, recipie_id).await.unwrap();
 
         let list_of_recipies = RecipieStore::list(&pool, 10, Option::None).await.unwrap();
 
