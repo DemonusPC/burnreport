@@ -67,17 +67,23 @@ impl Recipie {
 }
 
 pub struct Page {
+    recipies: Vec<Recipie>,
     prev: Option<String>,
     next: Option<String>,
 }
 
 impl Page {
-    pub fn new(prev: Option<String>, next: Option<String>) -> Self {
-        Self { prev, next }
+    pub fn new(recipies: Vec<Recipie>, prev: Option<String>, next: Option<String>) -> Self {
+        Self { recipies, prev, next }
     }
+    pub fn recipies(&self) -> &[Recipie] {
+        &self.recipies
+    }
+
     pub fn prev(&self) -> Option<String> {
         self.prev.clone()
     }
+
     pub fn next(&self) -> Option<String> {
         self.next.clone()
     }
@@ -159,14 +165,14 @@ impl RecipieStore {
         tx.commit().await
     }
     // delete
-    pub async fn delete(pool: &SqlitePool, id: i32) -> Result<(), sqlx::Error> {
+    pub async fn delete(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> {
         todo!()
     }
     // list
     pub async fn list(
         pool: &SqlitePool,
         page_size: i32,
-        offset: Option<String>,
+        cursor: Option<String>,
     ) -> Result<Page, sqlx::Error> {
         todo!()
     }
@@ -243,7 +249,7 @@ mod tests {
 
         let ingredient_three = Product::new(
             1,
-            "Ingredient Two".to_owned(),
+            "Ingredient Three".to_owned(),
             Nutrients::default(),
             Unit::Grams,
         );
@@ -252,10 +258,25 @@ mod tests {
         let updated_ingredients: Vec<Ingredient> = vec![Ingredient::new(ingredient_three, 20.0)];
 
         let updated_recipie =
-            Recipie::new(recipie_id, "Test Recipie".to_owned(), updated_ingredients);
+            Recipie::new(recipie_id, "Updated Recipie".to_owned(), updated_ingredients);
 
-        RecipieStore::update(&pool, updated_recipie).await;
+        RecipieStore::update(&pool, updated_recipie).await.unwrap();
 
         // Deleting a recipie
+        RecipieStore::delete(&pool, recipie_id).await.unwrap();
+
+        let updated_result = RecipieStore::get_by_id(&pool, recipie_id).await.unwrap();
+
+        let c = &updated_result.ingredients()[0];
+
+        assert_eq!(updated_result.name(), "Updated Recipie");
+        assert_eq!(c.amount(), 20.0);
+        assert_eq!(c.product().name(), "Ingredient Three");
+
+        let list_of_recipies = RecipieStore::list(&pool, 10, Option::None).await.unwrap();
+
+
+        assert_eq!(list_of_recipies.recipies().len(), 0);
+
     }
 }
