@@ -66,7 +66,7 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             PRIMARY KEY("id" AUTOINCREMENT)
         );
 
-        CREATE TABLE "Ingredients" (
+        CREATE TABLE IF NOT EXISTS "Ingredients" (
             "id"	INTEGER,
             "amount"	REAL NOT NULL,
             "recipie_id"	INTEGER NOT NULL,

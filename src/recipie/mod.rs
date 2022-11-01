@@ -1,10 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
-use sqlx::{sqlite::SqliteRow, Row, Sqlite, SqlitePool};
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
-use crate::{
-    nutrients::Nutrients,
-    product::{self, Product, Unit},
-};
+use crate::{nutrients::Nutrients, product::Product};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Ingredient {
     product: Product,
@@ -66,6 +63,18 @@ impl Recipie {
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct IngredientCreateCommand {
+    pub amount: f64,
+    pub product_id: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RecipieCreateCommand {
+    pub name: String,
+    pub ingredients: Vec<IngredientCreateCommand>,
+}
+
 pub struct Page {
     recipies: Vec<Recipie>,
     prev: Option<String>,
@@ -74,7 +83,11 @@ pub struct Page {
 
 impl Page {
     pub fn new(recipies: Vec<Recipie>, prev: Option<String>, next: Option<String>) -> Self {
-        Self { recipies, prev, next }
+        Self {
+            recipies,
+            prev,
+            next,
+        }
     }
     pub fn recipies(&self) -> &[Recipie] {
         &self.recipies
@@ -108,25 +121,28 @@ impl RecipieStore {
         Ok(result)
     }
     // create
-    pub async fn create(pool: &SqlitePool, recipie: Recipie) -> Result<i64, sqlx::Error> {
+    pub async fn create(
+        pool: &SqlitePool,
+        recipie: RecipieCreateCommand,
+    ) -> Result<i64, sqlx::Error> {
         let mut tx = pool.begin().await?;
 
         let result = sqlx::query(r#"INSERT INTO Recipies ("name") VALUES (?1); "#)
-            .bind(recipie.name().to_owned())
+            .bind(recipie.name.to_owned())
             .execute(&mut tx)
             .await?;
 
         let recipie_id = result.last_insert_rowid();
 
-        for ingredient in recipie.ingredients() {
+        for ingredient in recipie.ingredients {
             sqlx::query(
                 r#"
             INSERT INTO "Ingredients" ("amount", "recipie_id", "product_id") VALUES (?1, ?2, ?3); 
         "#,
             )
-            .bind(ingredient.amount())
+            .bind(ingredient.amount)
             .bind(recipie_id)
-            .bind(ingredient.product().id())
+            .bind(ingredient.product_id)
             .execute(&mut tx)
             .await?;
         }
@@ -135,30 +151,34 @@ impl RecipieStore {
         Ok(recipie_id)
     }
     // modify
-    pub async fn update(pool: &SqlitePool, recipie: Recipie) -> Result<(), sqlx::Error> {
+    pub async fn update(
+        pool: &SqlitePool,
+        recipie_id: i64,
+        recipie: RecipieCreateCommand,
+    ) -> Result<(), sqlx::Error> {
         let mut tx = pool.begin().await?;
 
         sqlx::query("DELETE FROM Ingredients WHERE recipie_id = ?1")
-            .bind(recipie.id())
+            .bind(recipie_id)
             .execute(&mut tx)
             .await?;
 
-        for ingredient in recipie.ingredients() {
+        for ingredient in recipie.ingredients {
             sqlx::query(
                     r#"
                 INSERT INTO "Ingredients" ("amount", "recipie_id", "product_id") VALUES (?1, ?2, ?3); 
             "#,
                 )
-                .bind(ingredient.amount())
-                .bind(recipie.id())
-                .bind(ingredient.product().id())
+                .bind(ingredient.amount)
+                .bind(recipie_id)
+                .bind(ingredient.product_id)
                 .execute(&mut tx)
                 .await?;
         }
 
         sqlx::query(r#"UPDATE Recipies SET name= ?1 WHERE id = ?2;"#)
-            .bind(recipie.name())
-            .bind(recipie.id())
+            .bind(recipie.name)
+            .bind(recipie_id)
             .execute(&mut tx)
             .await?;
 
@@ -168,7 +188,10 @@ impl RecipieStore {
     pub async fn delete(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> {
         let mut tx = pool.begin().await?;
 
-        sqlx::query("DELETE FROM Recipies WHERE id = ?1").bind(id).execute(&mut tx).await?;
+        sqlx::query("DELETE FROM Recipies WHERE id = ?1")
+            .bind(id)
+            .execute(&mut tx)
+            .await?;
 
         tx.commit().await
     }
@@ -178,13 +201,12 @@ impl RecipieStore {
         page_size: i32,
         cursor: Option<String>,
     ) -> Result<Page, sqlx::Error> {
-
         let mut result = sqlx::query("SELECT id, name FROM Recipies")
-        .map(|row: SqliteRow| Recipie::new(row.get("id"), row.get("name"), vec![]))
-        .fetch_all(pool)
-        .await?;
+            .map(|row: SqliteRow| Recipie::new(row.get("id"), row.get("name"), vec![]))
+            .fetch_all(pool)
+            .await?;
 
-        Ok(Page::new(result,None, None))
+        Ok(Page::new(result, None, None))
     }
 }
 #[cfg(test)]
@@ -196,6 +218,7 @@ mod tests {
         config::setup,
         nutrients::Nutrients,
         product::{Product, ProductStore, Unit},
+        recipie::{IngredientCreateCommand, RecipieCreateCommand},
     };
 
     use super::{Ingredient, Recipie, RecipieStore};
@@ -226,18 +249,21 @@ mod tests {
             .await
             .unwrap();
 
-        // This cast is dangerous. Should switch everything to using i64
-        let p_one = ProductStore::single_product(&pool, ingredient_id_one as i32)
-            .await
-            .unwrap();
-        let p_two = ProductStore::single_product(&pool, ingredient_id_two as i32)
-            .await
-            .unwrap();
+        let ingredients: Vec<IngredientCreateCommand> = vec![
+            IngredientCreateCommand {
+                amount: 20.0,
+                product_id: ingredient_id_one,
+            },
+            IngredientCreateCommand {
+                amount: 158.5,
+                product_id: ingredient_id_two,
+            },
+        ];
 
-        let ingredients: Vec<Ingredient> =
-            vec![Ingredient::new(p_one, 20.0), Ingredient::new(p_two, 158.5)];
-
-        let recipie = Recipie::new(0, "Test Recipie".to_owned(), ingredients);
+        let recipie = RecipieCreateCommand {
+            name: "Test Recipie".to_owned(),
+            ingredients,
+        };
 
         // Create a recipie
         let recipie_id = RecipieStore::create(&pool, recipie).await.unwrap();
@@ -257,21 +283,20 @@ mod tests {
         assert_eq!(b.amount(), 158.5);
         assert_eq!(b.product().name(), "Ingredient Two");
 
-        let ingredient_three = Product::new(
-            1,
-            "Ingredient Three".to_owned(),
-            Nutrients::default(),
-            Unit::Grams,
-        );
-
         // Updating a recipie
-        let updated_ingredients: Vec<Ingredient> = vec![Ingredient::new(ingredient_three, 20.0)];
+        let updated_ingredients: Vec<IngredientCreateCommand> = vec![IngredientCreateCommand {
+            amount: 30.2,
+            product_id: ingredient_id_one,
+        }];
 
-        let updated_recipie =
-            Recipie::new(recipie_id, "Updated Recipie".to_owned(), updated_ingredients);
+        let updated_recipie_command = RecipieCreateCommand {
+            name: "Updated Recipie".to_owned(),
+            ingredients: updated_ingredients,
+        };
 
-        RecipieStore::update(&pool, updated_recipie).await.unwrap();
-
+        RecipieStore::update(&pool, recipie_id, updated_recipie_command)
+            .await
+            .unwrap();
 
         let updated_result = RecipieStore::get_by_id(&pool, recipie_id).await.unwrap();
         assert_eq!(updated_result.ingredients().len(), 1);
@@ -279,7 +304,7 @@ mod tests {
         let c = &updated_result.ingredients()[0];
 
         assert_eq!(updated_result.name(), "Updated Recipie");
-        assert_eq!(c.amount(), 20.0);
+        assert_eq!(c.amount(), 30.2);
         assert_eq!(c.product().name(), "Ingredient One");
 
         // Deleting a recipie
@@ -287,8 +312,6 @@ mod tests {
 
         let list_of_recipies = RecipieStore::list(&pool, 10, Option::None).await.unwrap();
 
-
         assert_eq!(list_of_recipies.recipies().len(), 0);
-
     }
 }

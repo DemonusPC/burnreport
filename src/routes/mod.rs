@@ -1,6 +1,7 @@
 use actix_web::web;
 mod frontend;
 mod products;
+mod recipies;
 mod report;
 
 pub use self::frontend::frontend;
@@ -20,4 +21,8 @@ pub fn api_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(products::post_portions);
     cfg.service(products::delete_portion);
     cfg.service(report::post_report);
+    cfg.service(recipies::get_single_recipies);
+    cfg.service(recipies::post_recipie);
+    cfg.service(recipies::put_recipie);
+    cfg.service(recipies::delete_recipie);
 }
