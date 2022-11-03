@@ -13,6 +13,7 @@ import TestPage from "./pages/TestPage";
 import { burnReportTheme } from "./theme/base";
 import { cookieTheme } from "./theme/cookie";
 import ResponsiveGrid from "./containers/ResponsiveGrid";
+import RecipieSearch from "./pages/recipies/Search";
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<"light" | "dark">(
@@ -40,6 +41,9 @@ const App = () => {
               </Route>
               <Route path="/products">
                 <ProductsSearch />
+              </Route>
+              <Route path="/recipies">
+                <RecipieSearch />
               </Route>
               <Route path="/test">
                 <TestPage />

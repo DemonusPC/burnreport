@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Text, Header, Nav, Box, Button } from "grommet";
-import { Scorecard, Cube, Moon, Sun } from "grommet-icons";
+import { Scorecard, Cube, Moon, Sun, Restaurant} from "grommet-icons";
 import AnchorLink from "../../components/AnchorLink";
 
 interface NavigationProps {
@@ -37,6 +37,14 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
           href={"/products"}
           label={"Products"}
           key={"products"}
+        />
+        <AnchorLink
+          to="/recipies"
+          icon={<Restaurant/>}
+          color="text"
+          href={"/recipies"}
+          label={"Recipies"}
+          key={"recipies"}
         />
       </Nav>
       <Box direction="row">

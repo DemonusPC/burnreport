@@ -37,6 +37,26 @@ export const handlers = [
   }),
 
   // delete portion
+
+  rest.get("/api/search/recipie/suggestions", (req, res, ctx) => {
+    const { id } = req.params;
+
+    return res(
+      ctx.json({
+        "result": [
+          {
+            id: 1,
+            text: "Super Chicken",
+            subText: null,
+            entity: "Recipie"
+          }
+        ]
+      })
+    );
+  }),
+
+
+
 ];
 
 export const worker = setupServer(...handlers);
