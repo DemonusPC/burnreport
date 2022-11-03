@@ -10,6 +10,7 @@ pub use self::product::Unit;
 pub use self::portion::Portion;
 pub use self::portion::PortionStore;
 pub use self::search::search_product_suggestions;
+pub use self::search::search_recipie_suggestions;
 
 use serde_derive::{Deserialize, Serialize};
 
