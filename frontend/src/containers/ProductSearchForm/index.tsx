@@ -16,10 +16,11 @@ interface Sug {
 }
 
 interface SearchFormProps {
+  getSuggestions: (queryText: string) => Promise<SearchSuggestion[]>;
   initialText?: string;
 }
 
-const ProductSearchForm = ({ initialText }: SearchFormProps): JSX.Element => {
+const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSuggestions }: SearchFormProps): JSX.Element => {
   const history = useHistory();
   const [value, setValue] = React.useState<Sug>({ text: initialText || "" });
   const [suggestions, setSuggestions] = React.useState<Array<string>>([]);
@@ -33,7 +34,7 @@ const ProductSearchForm = ({ initialText }: SearchFormProps): JSX.Element => {
           /[-\\^$*+?.()|[\]{}]/g,
           "\\$&"
         );
-        getProductSearchSuggestions(escapedText).then(
+        getSuggestions(escapedText).then(
           (json: Array<SearchSuggestion>) => {
             const newSuggestions = json.map((s: SearchSuggestion) => {
               return s.text;
