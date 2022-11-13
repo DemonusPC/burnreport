@@ -18,11 +18,11 @@ const renderSearchPage = (): RenderResult => {
 describe("Given I view the Recipie List Page", () => {
     describe("when I am navigated to it with the selected search paramter", () => {
         it("should display me the results of that search", async () => {
-            const { queryAllByText } = renderSearchPage();
+            const { findByText } = renderSearchPage();
 
-            const linkElement = (await queryAllByText("Super Chicken"))[1];
+            const linkElement = await findByText("Super Chicken")
 
-            expect(linkElement.nodeName).toEqual('a');
+            expect(linkElement.nodeName).toEqual('A');
             expect(linkElement).toHaveAttribute("href", "/recipies/1")
         })
     })

@@ -14,6 +14,7 @@ import { burnReportTheme } from './theme/base'
 import { cookieTheme } from './theme/cookie'
 import ResponsiveGrid from './containers/ResponsiveGrid'
 import RecipieSearch from './pages/recipies/Search'
+import RecipieList from './pages/recipies/RecipieList'
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(
@@ -41,6 +42,9 @@ const App = () => {
               </Route>
               <Route path="/products">
                 <ProductsSearch />
+              </Route>
+              <Route path="/recipies/list">
+                <RecipieList />
               </Route>
               <Route path="/recipies">
                 <RecipieSearch />

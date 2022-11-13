@@ -3,7 +3,7 @@ import React from 'react'
 import ProductSearchForm, { SearchSuggestion } from '../../../containers/ProductSearchForm'
 import { ResultList } from '../../../util/data/requests'
 
-const getRecipieSearchSuggestions = async (
+export const getRecipieSearchSuggestions = async (
   suggestion: string
 ): Promise<SearchSuggestion[]> => {
   const request = await fetch(
@@ -15,7 +15,7 @@ const getRecipieSearchSuggestions = async (
   return result.result
 }
 
-const recipieListUrl = (value: string) => {
+export const recipieListUrl = (value: string) => {
   return `/recipies/list?p=${encodeURI(value)}`;
 }
 
