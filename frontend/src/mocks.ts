@@ -1,10 +1,10 @@
-import { rest } from "msw";
-import { setupServer } from "msw/node";
+import { rest } from 'msw'
+import { setupServer } from 'msw/node'
 
 export const handlers = [
   // get portions
-  rest.get("/api/products/:id/portions", (req, res, ctx) => {
-    const { id } = req.params;
+  rest.get('/api/products/:id/portions', (req, res, ctx) => {
+    const { id } = req.params
 
     return res(
       ctx.json({
@@ -12,51 +12,47 @@ export const handlers = [
           {
             id: 2,
             product: id,
-            name: "serving",
-            grams: 20.0,
+            name: 'serving',
+            grams: 20.0
           },
           {
             id: 11,
             product: id,
-            name: "portion",
-            grams: 50.0,
-          },
-        ],
+            name: 'portion',
+            grams: 50.0
+          }
+        ]
       })
-    );
+    )
   }),
 
   // post portions
 
-  rest.post("/api/products/portions", (req, res, ctx) => {
+  rest.post('/api/products/portions', (req, res, ctx) => {
     return res(
       ctx.json({
-        status: "Added",
+        status: 'Added'
       })
-    );
+    )
   }),
 
   // delete portion
 
-  rest.get("/api/search/recipie/suggestions", (req, res, ctx) => {
-    const { id } = req.params;
-
+  rest.get('/api/search/recipie/suggestions', (req, res, ctx) => {
     return res(
       ctx.json({
-        "result": [
+        result: [
           {
             id: 1,
-            text: "Super Chicken",
+            text: 'Super Chicken',
             subText: null,
-            entity: "Recipie"
+            entity: 'Recipie'
           }
         ]
       })
-    );
-  }),
+    )
+  })
 
+]
 
-
-];
-
-export const worker = setupServer(...handlers);
+export const worker = setupServer(...handlers)

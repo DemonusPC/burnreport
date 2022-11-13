@@ -1,50 +1,50 @@
-import React from "react";
+import React from 'react'
 
-import { Text, Header, Nav, Box, Button } from "grommet";
-import { Scorecard, Cube, Moon, Sun, Restaurant} from "grommet-icons";
-import AnchorLink from "../../components/AnchorLink";
+import { Text, Header, Nav, Box, Button } from 'grommet'
+import { Scorecard, Cube, Moon, Sun, Restaurant } from 'grommet-icons'
+import AnchorLink from '../../components/AnchorLink'
 
 interface NavigationProps {
-  theme: "light" | "dark";
-  themeSwitcher: (theme: "light" | "dark") => void;
+  theme: 'light' | 'dark'
+  themeSwitcher: (theme: 'light' | 'dark') => void
 }
 
-const iconRender = (theme: "light" | "dark") => {
-  if (theme === "dark") {
-    return <Sun />;
+const iconRender = (theme: 'light' | 'dark') => {
+  if (theme === 'dark') {
+    return <Sun />
   }
-  return <Moon />;
-};
+  return <Moon />
+}
 
 const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
   return (
     <Header background="background-back" pad="medium">
-      <Nav direction="row" margin={{ top: "4px" }}>
+      <Nav direction="row" margin={{ top: '4px' }}>
         <Text weight="bold" color="text">
           Burnreport
         </Text>
         <AnchorLink
           icon={<Scorecard />}
           color="text"
-          label={"Report"}
-          key={"report"}
+          label={'Report'}
+          key={'report'}
           to="/"
         />
         <AnchorLink
           to="/products"
           icon={<Cube />}
           color="text"
-          href={"/products"}
-          label={"Products"}
-          key={"products"}
+          href={'/products'}
+          label={'Products'}
+          key={'products'}
         />
         <AnchorLink
           to="/recipies"
           icon={<Restaurant/>}
           color="text"
-          href={"/recipies"}
-          label={"Recipies"}
-          key={"recipies"}
+          href={'/recipies'}
+          label={'Recipies'}
+          key={'recipies'}
         />
       </Nav>
       <Box direction="row">
@@ -53,14 +53,14 @@ const Navigation = ({ theme, themeSwitcher }: NavigationProps) => {
           plain
           icon={iconRender(theme)}
           onClick={() => {
-            const nextTheme = theme === "light" ? "dark" : "light";
-            document.cookie = `theme=${nextTheme}; SameSite=Strict; path=/`;
-            themeSwitcher(nextTheme);
+            const nextTheme = theme === 'light' ? 'dark' : 'light'
+            document.cookie = `theme=${nextTheme}; SameSite=Strict; path=/`
+            themeSwitcher(nextTheme)
           }}
         />
       </Box>
     </Header>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation

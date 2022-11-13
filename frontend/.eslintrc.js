@@ -4,6 +4,7 @@ module.exports = {
     es2021: true
   },
   extends: [
+    "plugin:prettier/recommended",
     'plugin:react/recommended',
     'standard-with-typescript'
   ],
@@ -11,10 +12,14 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'module'
+    ecmaFeatures: {
+      jsx: true,
+    },
+    sourceType: 'module',
+    project: ['./frontend/tsconfig.json']
   },
   plugins: [
-    'react'
+    'react','prettier'
   ],
   rules: {
   }

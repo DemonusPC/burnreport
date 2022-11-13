@@ -1,9 +1,9 @@
-import React from "react";
-import { Heading, Box } from "grommet";
-import ProductSearchForm from "../../containers/ProductSearchForm";
-import AnchorLink from "../../components/AnchorLink";
+import React from 'react'
+import { Heading, Box } from 'grommet'
+import ProductSearchForm from '../../containers/ProductSearchForm'
+import AnchorLink from '../../components/AnchorLink'
 
-const ProductsSearch = () => {
+const ProductsSearch = (): JSX.Element => {
   return (
     <Box pad="large" gridArea="main">
       <AnchorLink to="/products/add" label="Add Product" />
@@ -12,14 +12,14 @@ const ProductsSearch = () => {
       </Box>
       <Box
         pad={{
-          vertical: "medium",
+          vertical: 'medium'
         }}
         width="large"
       >
         <ProductSearchForm />
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default ProductsSearch;
+export default ProductsSearch
