@@ -15,6 +15,7 @@ import { cookieTheme } from './theme/cookie'
 import ResponsiveGrid from './containers/ResponsiveGrid'
 import RecipieSearch from './pages/recipies/Search'
 import RecipieList from './pages/recipies/RecipieList'
+import RecipieView from './pages/recipies/RecipieView'
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(
@@ -45,6 +46,9 @@ const App = () => {
               </Route>
               <Route path="/recipies/list">
                 <RecipieList />
+              </Route>
+              <Route path="/recipies/:id">
+                <RecipieView />
               </Route>
               <Route path="/recipies">
                 <RecipieSearch />
