@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
-use super::add_options;
+use super::{add_options, multiply_option_by_constant};
 
 pub trait FatSolubleApi {
     fn a(&self) -> Option<f64>;
@@ -69,6 +69,25 @@ impl Add for FatSoluble {
             e: add_options(&self.e, &other.e),
             k: add_options(&self.k, &other.k),
         }
+    }
+}
+
+impl Mul<f64> for FatSoluble {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            a: multiply_option_by_constant(&self.a, rhs),
+            d: multiply_option_by_constant(&self.d, rhs),
+            e: multiply_option_by_constant(&self.e, rhs),
+            k: multiply_option_by_constant(&self.k, rhs),
+        }
+    }
+}
+
+impl PartialEq for FatSoluble {
+    fn eq(&self, other: &Self) -> bool {
+        self.a == other.a && self.d == other.d && self.e == other.e && self.k == other.k
     }
 }
 
@@ -180,6 +199,38 @@ impl Add for WaterSoluble {
     }
 }
 
+impl Mul<f64> for WaterSoluble {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            b1: multiply_option_by_constant(&self.b1, rhs),
+            b2: multiply_option_by_constant(&self.b2, rhs),
+            b3: multiply_option_by_constant(&self.b3, rhs),
+            b5: multiply_option_by_constant(&self.b5, rhs),
+            b6: multiply_option_by_constant(&self.b6, rhs),
+            b7: multiply_option_by_constant(&self.b7, rhs),
+            b9: multiply_option_by_constant(&self.b9, rhs),
+            b12: multiply_option_by_constant(&self.b12, rhs),
+            c: multiply_option_by_constant(&self.c, rhs),
+        }
+    }
+}
+
+impl PartialEq for WaterSoluble {
+    fn eq(&self, other: &Self) -> bool {
+        self.b1 == other.b1
+            && self.b2 == other.b2
+            && self.b3 == other.b3
+            && self.b5 == other.b5
+            && self.b6 == other.b6
+            && self.b7 == other.b7
+            && self.b9 == other.b9
+            && self.b12 == other.b12
+            && self.c == other.c
+    }
+}
+
 // Its important to remember that unlike food the values in the Vitamins table is in mg
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Vitamins {
@@ -250,6 +301,23 @@ impl Add for Vitamins {
             fat: self.fat + other.fat,
             water: self.water + other.water,
         }
+    }
+}
+
+impl Mul<f64> for Vitamins {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            fat: self.fat * rhs,
+            water: self.water * rhs,
+        }
+    }
+}
+
+impl PartialEq for Vitamins {
+    fn eq(&self, other: &Self) -> bool {
+        self.fat == other.fat && self.water == other.water
     }
 }
 

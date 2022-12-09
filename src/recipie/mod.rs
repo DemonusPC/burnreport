@@ -59,7 +59,18 @@ impl Recipie {
     }
 
     pub fn set_ingredients(&mut self, ingredients: Vec<Ingredient>) {
+        let mut total = Nutrients::empty();
+
+        for ingredient in &ingredients {
+            total = total + (ingredient.product().nutrients() * (ingredient.amount() / 100.0));
+        }
+
+        self.total = total;
         self.ingredients = ingredients;
+    }
+
+    pub fn total(&self) -> Nutrients {
+        self.total.clone()
     }
 }
 
@@ -216,12 +227,12 @@ mod tests {
 
     use crate::{
         config::setup,
-        nutrients::Nutrients,
+        nutrients::{Carbohydrates, Energy, Fat, Nutrients, Protein, Salt},
         product::{Product, ProductStore, Unit},
         recipie::{IngredientCreateCommand, RecipieCreateCommand},
     };
 
-    use super::{Ingredient, Recipie, RecipieStore};
+    use super::RecipieStore;
 
     // When we have the ledger database setup
     #[actix_web::test]
@@ -229,16 +240,25 @@ mod tests {
         let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
         setup(&pool).await.unwrap();
 
+        let nutrition_example = Nutrients::new(
+            Energy::new(100.0, 100.0),
+            Carbohydrates::new(100.0, 100.0),
+            Fat::new(100.0, 100.0),
+            Protein::new(100.0),
+            Salt::new(100.0),
+            None,
+        );
+
         let ingredient_one = Product::new(
             0,
             "Ingredient One".to_owned(),
-            Nutrients::default(),
+            nutrition_example.clone(),
             Unit::Grams,
         );
         let ingredient_two = Product::new(
             1,
             "Ingredient Two".to_owned(),
-            Nutrients::default(),
+            nutrition_example.clone(),
             Unit::Grams,
         );
 
@@ -265,6 +285,15 @@ mod tests {
             ingredients,
         };
 
+        let exp_nutrients = Nutrients::new(
+            Energy::new(178.5, 178.5),
+            Carbohydrates::new(178.5, 178.5),
+            Fat::new(178.5, 178.5),
+            Protein::new(178.5),
+            Salt::new(178.5),
+            None,
+        );
+
         // Create a recipie
         let recipie_id = RecipieStore::create(&pool, recipie).await.unwrap();
         // Get the recipie by id
@@ -272,6 +301,10 @@ mod tests {
 
         assert_eq!(recipie_id, recipie_from_store.id());
         assert_eq!("Test Recipie", recipie_from_store.name());
+
+        println!("{:?}", recipie_from_store.total());
+
+        assert_eq!(recipie_from_store.total(), exp_nutrients);
 
         let recipie_ingredients = recipie_from_store.ingredients();
 

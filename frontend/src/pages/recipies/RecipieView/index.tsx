@@ -30,7 +30,6 @@ const RecipieView = () => {
     if (error) return <div>Error</div>;
     if (!data) return <div>loading...</div>;
 
-
     return (
         <Box pad="large" gridArea='main'>
             {/* <Heading level={2}>{data.name}</Heading> */}

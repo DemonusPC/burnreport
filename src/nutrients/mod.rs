@@ -2,6 +2,7 @@ mod base;
 mod vitamins;
 
 use std::ops::Add;
+use std::ops::Mul;
 
 pub use self::base::Carbohydrates;
 pub use self::base::Energy;
@@ -30,6 +31,16 @@ fn add_options<T: Add<Output = T> + Clone>(a: &Option<T>, b: &Option<T>) -> Opti
 
     if a.is_some() && b.is_some() {
         return Some(a.clone().unwrap() + b.clone().unwrap());
+    }
+
+    Option::None
+}
+fn multiply_option_by_constant<T: Mul<f64, Output = T> + Clone>(
+    a: &Option<T>,
+    b: f64,
+) -> Option<T> {
+    if a.is_some() {
+        return Some(a.clone().unwrap() * b);
     }
 
     Option::None

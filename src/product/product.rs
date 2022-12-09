@@ -39,19 +39,25 @@ impl Product {
             .build();
 
         let monounsaturated = match row.try_get("monounsaturated") {
-            Ok(v) => Some(MonoUnsaturatedFat::new(
-                v,
-                row.try_get("omega_7").unwrap_or_default(),
-                row.try_get("omega_9").unwrap_or_default(),
-            )),
+            Ok(v) => match v > 0.0 {
+                false => Option::None,
+                true => Some(MonoUnsaturatedFat::new(
+                    v,
+                    row.try_get("omega_7").unwrap_or_default(),
+                    row.try_get("omega_9").unwrap_or_default(),
+                )),
+            },
             Err(_error) => Option::None,
         };
         let polysaturated = match row.try_get("polyunsaturated") {
-            Ok(v) => Some(PolyUnsaturatedFat::new(
-                v,
-                row.try_get("omega_3").unwrap_or_default(),
-                row.try_get("omega_6").unwrap_or_default(),
-            )),
+            Ok(v) => match v > 0.0 {
+                false => Option::None,
+                true => Some(PolyUnsaturatedFat::new(
+                    v,
+                    row.try_get("omega_3").unwrap_or_default(),
+                    row.try_get("omega_6").unwrap_or_default(),
+                )),
+            },
             Err(_error) => Option::None,
         };
 
