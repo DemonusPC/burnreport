@@ -1,6 +1,7 @@
 import { Product, ProductAPIStatus, Portion } from '../../product/product'
 import { Report, ReportResult } from '../../report/report'
 import { SearchSuggestion } from '../../containers/ProductSearchForm'
+import { RecipieCreateCommand } from '../../pages/recipies/AddRecipie'
 
 export interface RestResult<T> {
   status: boolean
@@ -62,6 +63,9 @@ export const postReport = generatePostRequest<Report, ReportResult>(
   '/api/report'
 )
 
+export const postRecipie = generatePostRequest<RecipieCreateCommand, never>('/api/recipies');
+
+
 export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
   '/api/products'
 )
@@ -89,8 +93,8 @@ export const getProductSizesById = async (id: number) => {
 }
 
 export const postPortions = generatePostRequest<
-Portion[],
-RestResult<ProductAPIStatus>
+  Portion[],
+  RestResult<ProductAPIStatus>
 >('/api/products/portions')
 
 export const deletePortion = async (

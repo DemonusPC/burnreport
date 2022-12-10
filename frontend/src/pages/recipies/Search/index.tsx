@@ -1,5 +1,6 @@
 import { Box, Heading } from 'grommet'
 import React from 'react'
+import AnchorLink from '../../../components/AnchorLink'
 import ProductSearchForm, { SearchSuggestion } from '../../../containers/ProductSearchForm'
 import { ResultList } from '../../../util/data/requests'
 
@@ -22,9 +23,9 @@ export const recipieListUrl = (value: string) => {
 const RecipieSearch = (): JSX.Element => {
   return (
     <Box pad="large" gridArea='main'>
+      <AnchorLink to="/recipies/add" label="Add Recipies" />
       <Box>
         <Heading size='small'>Recipie Search</Heading>
-
       </Box>
       <Box
         pad={{

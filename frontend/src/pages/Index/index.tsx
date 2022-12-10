@@ -37,7 +37,7 @@ const Index = () => {
             <Heading size="small">Import from file</Heading>
             <FileInput
               onChange={(e) => {
-                if (e.target.files) {
+                if (e && e.target.files) {
                   fileChosen(e.target.files[0], setReport);
                 }
               }}

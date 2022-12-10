@@ -16,6 +16,7 @@ import ResponsiveGrid from './containers/ResponsiveGrid'
 import RecipieSearch from './pages/recipies/Search'
 import RecipieList from './pages/recipies/RecipieList'
 import RecipieView from './pages/recipies/RecipieView'
+import AddRecipie from './pages/recipies/AddRecipie'
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(
@@ -43,6 +44,9 @@ const App = () => {
               </Route>
               <Route path="/products">
                 <ProductsSearch />
+              </Route>
+              <Route path="/recipies/add">
+                <AddRecipie />
               </Route>
               <Route path="/recipies/list">
                 <RecipieList />

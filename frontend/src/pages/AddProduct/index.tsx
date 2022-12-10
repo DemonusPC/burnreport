@@ -73,19 +73,19 @@ const toProduct = (flat: any): Product => {
   const mono: MonoUnsaturatedFat | undefined =
     flat.monounsaturaed || flat.omega7 || flat.omega9
       ? {
-          total: propertyToNumber(flat.monounsaturated) || 0,
-          omega7: propertyToNumber(flat.omega7),
-          omega9: propertyToNumber(flat.omega9),
-        }
+        total: propertyToNumber(flat.monounsaturated) || 0,
+        omega7: propertyToNumber(flat.omega7),
+        omega9: propertyToNumber(flat.omega9),
+      }
       : undefined;
 
   const poly: PolyunsaturatedFat | undefined =
     flat.polyunsaturated || flat.omega7 || flat.omega9
       ? {
-          total: propertyToNumber(flat.polyunsaturated) || 0,
-          omega3: propertyToNumber(flat.omega3),
-          omega6: propertyToNumber(flat.omega6),
-        }
+        total: propertyToNumber(flat.polyunsaturated) || 0,
+        omega3: propertyToNumber(flat.omega3),
+        omega6: propertyToNumber(flat.omega6),
+      }
       : undefined;
 
   if (poly || mono) {

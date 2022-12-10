@@ -35,7 +35,9 @@ const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
 };
 
 interface ReportFormProps {
+  // Need to think about proper types for this
   setReportFunction: any;
+  onSend?: any;
 }
 
 // Data Operations
@@ -151,7 +153,7 @@ const mapProductItems = (state: any, setState: any) => {
   ));
 };
 
-const ReportForm = ({ setReportFunction }: ReportFormProps) => {
+const ReportForm = ({ setReportFunction, onSend = sendReport }: ReportFormProps) => {
   const [state, setState] = React.useState(emptyState());
 
   return (
@@ -180,7 +182,7 @@ const ReportForm = ({ setReportFunction }: ReportFormProps) => {
                 state.values()
               );
               const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
-              sendReport(boxed, setReportFunction);
+              onSend(boxed, setReportFunction);
             }}
           />
           <Button
