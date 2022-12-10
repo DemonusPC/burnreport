@@ -65,6 +65,10 @@ export const postReport = generatePostRequest<Report, ReportResult>(
 
 export const postRecipie = generatePostRequest<RecipieCreateCommand, never>('/api/recipies');
 
+export const deleteRecipie = async (id: number): Promise<ProductAPIStatus> => {
+  return await deleteRequest(`/api/recipies/${id}`)
+}
+
 
 export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
   '/api/products'

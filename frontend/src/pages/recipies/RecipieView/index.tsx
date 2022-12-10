@@ -1,4 +1,4 @@
-import { Accordion, AccordionPanel, Anchor, Box, Heading, PageHeader } from 'grommet';
+import { Accordion, AccordionPanel, Anchor, Box, Button, Heading, PageHeader } from 'grommet';
 import { FormPrevious } from 'grommet-icons'
 import React from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import NutrientTable from '../../../containers/NutrientTable';
 import { nutrientsToBarTotal, nutrientsToBarValues } from '../../../nutrients/nutrients';
 import { vitaminsToRow } from '../../../nutrients/vitamins';
 import { Recipie } from '../../../recipie/recipie';
-import { fetcher } from '../../../util/data/requests';
+import { deleteRecipie, fetcher } from '../../../util/data/requests';
 
 interface IdParams {
     id: string;
@@ -52,6 +52,24 @@ const RecipieView = () => {
                     />
                 </AccordionPanel>
             </Accordion>
+            <Box
+                justify="between"
+                alignContent="center"
+                direction="row"
+                margin={{ top: "xlarge" }}
+                gap="large"
+            >
+                <Button
+                    fill={false}
+                    color="status-critical"
+                    type="button"
+                    label="Delete Recipie"
+                    onClick={async () => {
+                        await deleteRecipie(data.id);
+                        history.push("/products");
+                    }}
+                />
+            </Box>
         </Box>
     )
 }
