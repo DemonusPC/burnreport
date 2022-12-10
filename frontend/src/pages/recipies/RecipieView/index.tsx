@@ -1,9 +1,7 @@
 import { Accordion, AccordionPanel, Anchor, Box, Button, Heading, PageHeader } from 'grommet';
-import { FormPrevious } from 'grommet-icons'
 import React from 'react'
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import useSWR from 'swr';
-import AnchorLink from '../../../components/AnchorLink';
 import AdditionalTable from '../../../containers/AdditionalTable';
 import Bar from '../../../containers/Bar';
 import NutrientTable from '../../../containers/NutrientTable';

@@ -11,7 +11,11 @@ import { ConsumedProduct, Report, ConsumedRaw } from "../../report/report";
 import ProductItem from "../ProductItem";
 import { SearchSuggestion } from "../ProductSearchForm";
 
-const emptyState = (): Map<number, ConsumedRaw> => {
+
+export type ProductSelectState = Map<number, ConsumedRaw>;
+
+
+export const emptyState = (): ProductSelectState => {
   return new Map();
 };
 
@@ -24,21 +28,15 @@ const boxConsumedProduct = (raw: ConsumedRaw): ConsumedProduct => {
   };
 };
 
-const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
-  const report: Report = {
-    consumed,
-  };
+export const selectStateToConsumed = (state: ProductSelectState): ConsumedProduct[] => {
 
-  postReport(report).then((json: any) => {
-    setReport({ completed: true, report: json });
-  });
-};
-
-interface ReportFormProps {
-  // Need to think about proper types for this
-  setReportFunction: any;
-  onSend?: any;
+  const rawProducts: Array<ConsumedRaw> = Array.from(
+    state.values()
+  );
+  const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
+  return boxed;
 }
+
 
 // Data Operations
 
@@ -153,12 +151,14 @@ const mapProductItems = (state: any, setState: any) => {
   ));
 };
 
-const ReportForm = ({ setReportFunction, onSend = sendReport }: ReportFormProps) => {
-  const [state, setState] = React.useState(emptyState());
+interface ReportFormProps {
+  state: ProductSelectState
+  setState: (state: ProductSelectState) => void
+}
 
+const ProductSelect = ({ state, setState }: ReportFormProps) => {
   return (
     <Box>
-      <Heading size="small">Create Report</Heading>
       <Box pad={{ bottom: "large" }}>{mapProductItems(state, setState)}</Box>
 
       <Box pad={{ bottom: "large" }}>
@@ -170,32 +170,8 @@ const ReportForm = ({ setReportFunction, onSend = sendReport }: ReportFormProps)
           suggestFunction={getProductSearchSuggestions}
         />
       </Box>
-
-      <Box>
-        <Box direction="row" gap="medium">
-          <Button
-            type="submit"
-            primary
-            label="Submit"
-            onClick={() => {
-              const rawProducts: Array<ConsumedRaw> = Array.from(
-                state.values()
-              );
-              const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
-              onSend(boxed, setReportFunction);
-            }}
-          />
-          <Button
-            type="reset"
-            label="Reset"
-            onClick={() => {
-              setState(emptyState());
-            }}
-          />
-        </Box>
-      </Box>
     </Box>
   );
 };
 
-export default ReportForm;
+export default ProductSelect;

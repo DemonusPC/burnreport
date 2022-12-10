@@ -2,7 +2,7 @@ import { Box, Button, Form, FormField, Heading, TextInput } from 'grommet';
 import React from 'react'
 import { Redirect } from 'react-router-dom';
 import { SearchSuggestion } from '../../../containers/ProductSearchForm';
-import ReportForm from '../../../containers/ReportForm';
+import ProductSelect, { emptyState, ProductSelectState, selectStateToConsumed } from '../../../containers/ProductSelect';
 import SearchForm from '../../../containers/SearchForm';
 import { Portion } from '../../../product/product';
 import { ConsumedProduct, ConsumedRaw } from '../../../report/report';
@@ -22,16 +22,15 @@ export type RecipieCreateCommand = {
 
 const AddRecipie = () => {
     const [sent, setSent] = React.useState(false);
-    const [ingredients, setIngredients] = React.useState<ConsumedProduct[]>([])
 
-    const onIngredientsSet = (consumed: ConsumedProduct[]) => {
-        setIngredients(consumed);
-    }
+    const [ingredients, setIngredients] = React.useState<ProductSelectState>(emptyState());
 
     const send = (event: any) => {
+        const boxed = selectStateToConsumed(ingredients);
+
         const payload: RecipieCreateCommand = {
             name: event.value.name,
-            ingredients: ingredients.map((i) => ({ amount: i.amount, product_id: i.id }))
+            ingredients: boxed.map((i) => ({ amount: i.amount, product_id: i.id }))
         }
 
         postRecipie(payload).then(() => setSent(true));
@@ -51,7 +50,21 @@ const AddRecipie = () => {
                             <TextInput name={"name"} />
                         </FormField>
 
-                        <ReportForm setReportFunction={() => console.log("")} onSend={onIngredientsSet} />
+                        <ProductSelect state={ingredients} setState={setIngredients} />
+                        <Box direction="row" gap="medium">
+                            <Button
+                                type="submit"
+                                primary
+                                label="Submit"
+                            />
+                            <Button
+                                type="reset"
+                                label="Reset"
+                                onClick={() => {
+                                    setIngredients(emptyState());
+                                }}
+                            />
+                        </Box>
                     </Form>
                 </Box>
                 {sent && <Redirect to="/recipies" />}
