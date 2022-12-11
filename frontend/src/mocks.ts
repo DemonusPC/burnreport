@@ -38,7 +38,7 @@ export const handlers = [
 
 
   // Recipies
-  rest.get('/api/search/recipie/suggestions', (req, res, ctx) => {
+  rest.get('/api/search', (req, res, ctx) => {
     return res(
       ctx.json({
         result: [

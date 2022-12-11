@@ -10,7 +10,7 @@ import ProductCell from "../../components/ProductCell";
 const ProductsList = () => {
   const toSearch = useQuery().get("p") || "";
   const { data, error } = useSWR<ResultList<SearchSuggestion>>(
-    encodeURI(`/api/search/suggestions?p=${toSearch}`),
+    encodeURI(`/api/search?p=${toSearch}&e=product`),
     fetcher
   );
 

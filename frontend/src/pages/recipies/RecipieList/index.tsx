@@ -13,7 +13,7 @@ import { getRecipieSearchSuggestions, recipieListUrl } from '../Search';
 const RecipieList = () => {
     const toSearch = useQuery().get("p") || "";
     const { data, error } = useSWR<ResultList<SearchSuggestion>>(
-        encodeURI(`/api/search/recipie/suggestions?p=${toSearch}`),
+        encodeURI(`/api/search?p=${toSearch}&e=recipie`),
         fetcher
     );
 
