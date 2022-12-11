@@ -70,11 +70,6 @@ impl SearchStore {
         let result = sqlx::query("SELECT * FROM search WHERE name LIKE $1 LIMIT 16")
             .bind(format!("%{}%", term))
             .try_map(|row: SqliteRow| {
-                // id
-                // iunit
-                // name
-                // entity
-
                 let id: i64 = row.get("id");
                 let text: String = row.get("name");
                 let entity_string: String = row.get("entity");
