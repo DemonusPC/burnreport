@@ -23,9 +23,6 @@ const fileChosen = (file: any | undefined, setReport: any) => {
   reader.readAsText(file);
 };
 
-
-
-
 const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
   const report: Report = {
     consumed,

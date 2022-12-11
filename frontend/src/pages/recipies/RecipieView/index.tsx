@@ -30,7 +30,6 @@ const RecipieView = () => {
 
     return (
         <Box pad="large" gridArea='main'>
-            {/* <Heading level={2}>{data.name}</Heading> */}
             <PageHeader
                 title={data.name}
                 subtitle="Recipie"
