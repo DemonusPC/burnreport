@@ -55,3 +55,10 @@ CREATE TABLE IF NOT EXISTS "Portions" (
 CREATE VIEW IF NOT EXISTS full_product
 AS 
    SELECT f.id, f.name, f.unit, f.kj,  f.kcal, f.carbohydrates, f.sugar, f.fiber, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.omega_7, f.omega_9, f.polyunsaturated, f.omega_3, f.omega_6, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c FROM Products as f LEFT JOIN Vitamins as v ON f.id = v.product;
+
+
+CREATE VIEW IF NOT EXISTS search
+AS
+	SELECT id, name, 'Grams' as unit, 'Recipie' as entity FROM Recipies
+	UNION
+	SELECT id, name, unit, 'Product' as entity FROM Products;

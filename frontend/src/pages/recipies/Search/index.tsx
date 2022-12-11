@@ -8,7 +8,7 @@ export const getRecipieSearchSuggestions = async (
   suggestion: string
 ): Promise<SearchSuggestion[]> => {
   const request = await fetch(
-    encodeURI(`/api/search/recipie/suggestions?p=${encodeURI(suggestion)}`)
+    encodeURI(`/api/search?p=${encodeURI(suggestion)}&e=recipie`)
   )
 
   const result: ResultList<SearchSuggestion> = await request.json()

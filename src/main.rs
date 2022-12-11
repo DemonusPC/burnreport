@@ -9,6 +9,7 @@ mod product;
 mod recipie;
 mod report;
 mod routes;
+mod search;
 
 use crate::config::setup;
 use sqlx::SqlitePool;

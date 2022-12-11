@@ -2,31 +2,8 @@ use actix_web::{delete, get, post, put, web, HttpResponse, Responder};
 use log::error;
 use sqlx::SqlitePool;
 
-use crate::product::{ApiResult, ResultList, search_recipie_suggestions};
+use crate::product::ApiResult;
 use crate::recipie::{RecipieCreateCommand, RecipieStore};
-use crate::routes::products::SearchQuery;
-
-
-#[get("/api/search/recipie/suggestions")]
-async fn get_search_recipie_suggestions(
-    pool: web::Data<SqlitePool>,
-    web::Query(search): web::Query<SearchQuery>,
-) -> impl Responder {
-    let search_result = match search_recipie_suggestions(&pool, &search.p).await {
-        Ok(res) => res,
-        Err(err) => {
-            error!("Search recipie suggestions failed due to error: {}", err);
-
-            return HttpResponse::InternalServerError().finish();
-        }
-    };
-
-    let result = ResultList {
-        result: search_result,
-    };
-
-    HttpResponse::Ok().json(result)
-}
 
 #[get("/api/recipies/{id}")]
 async fn get_single_recipies(pool: web::Data<SqlitePool>, path: web::Path<i64>) -> impl Responder {
