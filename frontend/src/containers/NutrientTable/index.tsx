@@ -20,6 +20,7 @@ const NutrientTable = ({ nutrients, amount, baseUnit }: NutrientTableProps) => {
   return <>{rowElements}</>;
 };
 
+// TODO: that needs removal
 NutrientTable.defaultProps = {
   product: emptyProduct(),
   amount: 100,

@@ -1,4 +1,4 @@
-use crate::{nutrients::Nutrients, product::amount_adjusted_product, report::Report};
+use crate::{nutrients::Nutrients, product::ProductStore, report::Report};
 use actix_web::{post, web, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use log::error;
@@ -14,7 +14,7 @@ async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> 
     let mut total = Nutrients::default();
 
     for v in &report.consumed {
-        match amount_adjusted_product(&pool, v.id(), v.amount()).await {
+        match ProductStore::amount_adjusted_product(&pool, v.id(), v.amount()).await {
             Ok(product) => {
                 total = total + product.nutrients();
                 result.push(product);

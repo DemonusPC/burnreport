@@ -1,23 +1,27 @@
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React from 'react'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
-import { Grommet } from "grommet";
-import Index from "./pages/Index";
-import Navigation from "./containers/Navigation";
-import AddProduct from "./pages/AddProduct";
-import Portions from "./pages/Portions";
-import ProductsSearch from "./pages/ProductsSearch";
-import ProductsList from "./pages/ProductsList";
-import ProductPage from "./pages/ProductPage";
-import TestPage from "./pages/TestPage";
-import { burnReportTheme } from "./theme/base";
-import { cookieTheme } from "./theme/cookie";
-import ResponsiveGrid from "./containers/ResponsiveGrid";
+import { Grommet } from 'grommet'
+import Index from './pages/Index'
+import Navigation from './containers/Navigation'
+import AddProduct from './pages/AddProduct'
+import Portions from './pages/Portions'
+import ProductsSearch from './pages/ProductsSearch'
+import ProductsList from './pages/ProductsList'
+import ProductPage from './pages/ProductPage'
+import TestPage from './pages/TestPage'
+import { burnReportTheme } from './theme/base'
+import { cookieTheme } from './theme/cookie'
+import ResponsiveGrid from './containers/ResponsiveGrid'
+import RecipieSearch from './pages/recipies/Search'
+import RecipieList from './pages/recipies/RecipieList'
+import RecipieView from './pages/recipies/RecipieView'
+import AddRecipie from './pages/recipies/AddRecipie'
 
 const App = () => {
-  const [themeMode, setThemeMode] = React.useState<"light" | "dark">(
+  const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(
     cookieTheme()
-  );
+  )
 
   return (
     <>
@@ -41,6 +45,18 @@ const App = () => {
               <Route path="/products">
                 <ProductsSearch />
               </Route>
+              <Route path="/recipies/add">
+                <AddRecipie />
+              </Route>
+              <Route path="/recipies/list">
+                <RecipieList />
+              </Route>
+              <Route path="/recipies/:id">
+                <RecipieView />
+              </Route>
+              <Route path="/recipies">
+                <RecipieSearch />
+              </Route>
               <Route path="/test">
                 <TestPage />
               </Route>
@@ -52,7 +68,7 @@ const App = () => {
         </Grommet>
       </Router>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App

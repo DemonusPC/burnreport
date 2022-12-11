@@ -2,21 +2,15 @@ mod portion;
 mod product;
 mod search;
 
-pub use self::product::amount_adjusted_product;
-pub use self::product::delete_product;
-pub use self::product::export_file;
-pub use self::product::import_file;
-pub use self::product::insert_product;
-pub use self::product::single_product;
 pub use self::product::FlatProduct;
 pub use self::product::Product;
+pub use self::product::ProductStore;
 pub use self::product::Unit;
 
-pub use self::portion::insert_portion;
-pub use self::portion::list_portions;
-pub use self::portion::remove_portion;
 pub use self::portion::Portion;
+pub use self::portion::PortionStore;
 pub use self::search::search_product_suggestions;
+pub use self::search::search_recipie_suggestions;
 
 use serde_derive::{Deserialize, Serialize};
 

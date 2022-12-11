@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
-use super::{add_options, Vitamins};
+use super::{add_options, multiply_option_by_constant, Vitamins};
 
 pub trait TotalAble {
     fn total(&self) -> f64;
@@ -41,6 +41,20 @@ impl Add for Energy {
             kj: self.kj + other.kj,
             kcal: self.kcal + other.kcal,
         }
+    }
+}
+
+impl Mul<f64> for Energy {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self::new(self.kcal() * rhs, self.k_j() * rhs)
+    }
+}
+
+impl PartialEq for Energy {
+    fn eq(&self, other: &Self) -> bool {
+        self.kcal == other.kcal && self.kj == other.kj
     }
 }
 
@@ -115,6 +129,30 @@ impl Add for Carbohydrates {
     }
 }
 
+impl Mul<f64> for Carbohydrates {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+            sugar: self.sugar * rhs,
+            fiber: multiply_option_by_constant(&self.fiber, rhs),
+            added_sugar: multiply_option_by_constant(&self.added_sugar, rhs),
+            starch: multiply_option_by_constant(&self.starch, rhs),
+        }
+    }
+}
+
+impl PartialEq for Carbohydrates {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total
+            && self.sugar == other.sugar
+            && self.fiber == other.fiber
+            && self.added_sugar == other.added_sugar
+            && self.starch == other.starch
+    }
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Protein {
     total: f64,
@@ -139,6 +177,22 @@ impl Add for Protein {
         Self {
             total: self.total + other.total,
         }
+    }
+}
+
+impl Mul<f64> for Protein {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+        }
+    }
+}
+
+impl PartialEq for Protein {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total
     }
 }
 
@@ -169,6 +223,22 @@ impl Add for Salt {
     }
 }
 
+impl Mul<f64> for Salt {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+        }
+    }
+}
+
+impl PartialEq for Salt {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Nutrients {
     energy: Energy,
@@ -196,6 +266,17 @@ impl Nutrients {
             protein,
             salt,
             vitamins,
+        }
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            energy: Energy::default(),
+            carbohydrates: Carbohydrates::default(),
+            fat: Fat::default(),
+            protein: Protein::default(),
+            salt: Salt::default(),
+            vitamins: Option::None,
         }
     }
 
@@ -236,6 +317,31 @@ impl Add for Nutrients {
             salt: self.salt + other.salt,
             vitamins: add_options(&self.vitamins, &other.vitamins),
         }
+    }
+}
+impl Mul<f64> for Nutrients {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            energy: self.energy * rhs,
+            carbohydrates: self.carbohydrates * rhs,
+            fat: self.fat * rhs,
+            protein: self.protein * rhs,
+            salt: self.salt * rhs,
+            vitamins: multiply_option_by_constant(&self.vitamins, rhs),
+        }
+    }
+}
+
+impl PartialEq for Nutrients {
+    fn eq(&self, other: &Self) -> bool {
+        self.energy == other.energy
+            && self.carbohydrates == other.carbohydrates
+            && self.fat == other.fat
+            && self.protein == other.protein
+            && self.salt == other.salt
+            && self.vitamins == other.vitamins
     }
 }
 
@@ -304,6 +410,28 @@ impl Add for Fat {
     }
 }
 
+impl Mul<f64> for Fat {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+            saturated: self.saturated * rhs,
+            unsaturated: multiply_option_by_constant(&self.unsaturated, rhs),
+            trans: multiply_option_by_constant(&self.trans, rhs),
+        }
+    }
+}
+
+impl PartialEq for Fat {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total
+            && self.saturated == other.saturated
+            && self.unsaturated == other.unsaturated
+            && self.trans == other.trans
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct UnsaturatedFat {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -333,6 +461,23 @@ impl Add for UnsaturatedFat {
             mono: add_options(&self.mono, &other.mono),
             poly: add_options(&self.poly, &other.poly),
         }
+    }
+}
+
+impl Mul<f64> for UnsaturatedFat {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            mono: multiply_option_by_constant(&self.mono, rhs),
+            poly: multiply_option_by_constant(&self.poly, rhs),
+        }
+    }
+}
+
+impl PartialEq for UnsaturatedFat {
+    fn eq(&self, other: &Self) -> bool {
+        self.mono == other.mono && self.poly == other.poly
     }
 }
 
@@ -380,6 +525,24 @@ impl Add for MonoUnsaturatedFat {
     }
 }
 
+impl Mul<f64> for MonoUnsaturatedFat {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+            omega_7: multiply_option_by_constant(&self.omega_7, rhs),
+            omega_9: multiply_option_by_constant(&self.omega_9, rhs),
+        }
+    }
+}
+
+impl PartialEq for MonoUnsaturatedFat {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total && self.omega_7 == other.omega_7 && self.omega_9 == other.omega_9
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct PolyUnsaturatedFat {
@@ -419,6 +582,24 @@ impl Add for PolyUnsaturatedFat {
     }
 }
 
+impl Mul<f64> for PolyUnsaturatedFat {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+            omega_3: multiply_option_by_constant(&self.omega_3, rhs),
+            omega_6: multiply_option_by_constant(&self.omega_6, rhs),
+        }
+    }
+}
+
+impl PartialEq for PolyUnsaturatedFat {
+    fn eq(&self, other: &Self) -> bool {
+        self.total == other.total && self.omega_3 == other.omega_3 && self.omega_6 == other.omega_6
+    }
+}
+
 impl TotalAble for PolyUnsaturatedFat {
     fn total(&self) -> f64 {
         self.total
@@ -427,6 +608,8 @@ impl TotalAble for PolyUnsaturatedFat {
 
 #[cfg(test)]
 mod tests {
+    use crate::nutrients::{FatSoluble, WaterSoluble};
+
     use super::*;
 
     #[test]
@@ -522,5 +705,40 @@ mod tests {
         assert_eq!(res_poly.total(), 30.0);
         assert_eq!(res_poly.omega_3().unwrap(), 20.0);
         assert_eq!(res_poly.omega_6().unwrap(), 10.0);
+    }
+
+    #[test]
+    fn can_equal_nutrients() {
+        let one = Nutrients::new(
+            Energy::new(55.2, 19.0),
+            Carbohydrates::new(20.2, 19.2),
+            Fat::new(5.0, 0.0),
+            Protein::new(44.9),
+            Salt::new(0.02),
+            Option::None,
+        );
+        let two = Nutrients::new(
+            Energy::new(55.2, 19.0),
+            Carbohydrates::new(20.2, 19.2),
+            Fat::new(5.0, 0.0),
+            Protein::new(44.9),
+            Salt::new(0.02),
+            Option::None,
+        );
+
+        let three = Nutrients::new(
+            Energy::new(125.0, 20.0),
+            Carbohydrates::new(5.1, 0.2),
+            Fat::new(33.0, 10.0),
+            Protein::new(0.0),
+            Salt::new(0.003),
+            Some(Vitamins::new(
+                FatSoluble::new(None, Some(32.0), None, None),
+                WaterSoluble::new(None, None, None, Some(55.3), None, None, None, None, None),
+            )),
+        );
+
+        assert_eq!(one == two, true);
+        assert_eq!(one == three, false);
     }
 }

@@ -6,6 +6,7 @@ use std::env;
 mod config;
 mod nutrients;
 mod product;
+mod recipie;
 mod report;
 mod routes;
 

@@ -1,59 +1,71 @@
-import React from "react";
-import { Box, Button, Form, TextInput } from "grommet";
-import { Search } from "grommet-icons";
-import { getProductSearchSuggestions } from "../../util/data/requests";
-import { useHistory } from "react-router";
+import React from 'react'
+import { Box, Button, Form, TextInput } from 'grommet'
+import { Search } from 'grommet-icons'
+import { getProductSearchSuggestions } from '../../util/data/requests'
+import { useHistory } from 'react-router'
 
 export interface SearchSuggestion {
-  id: number;
-  text: string;
-  subText?: string;
-  entity?: string;
+  id: number
+  text: string
+  subText?: string
+  entity?: string
 }
 
 interface Sug {
-  text: string;
+  text: string
 }
 
 interface SearchFormProps {
-  initialText?: string;
+  getSuggestions?: (queryText: string) => Promise<SearchSuggestion[]>;
+  getSubmitUrl?: (value: string) => string;
+  initialText?: string
 }
 
-const ProductSearchForm = ({ initialText }: SearchFormProps): JSX.Element => {
-  const history = useHistory();
-  const [value, setValue] = React.useState<Sug>({ text: initialText || "" });
-  const [suggestions, setSuggestions] = React.useState<Array<string>>([]);
+const productDefault = (value: string) => {
+  return `/products/list?p=${encodeURI(value)}`;
+}
+
+const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSuggestions, getSubmitUrl=productDefault}: SearchFormProps): JSX.Element => {
+  const history = useHistory()
+  const [value, setValue] = React.useState<Sug>({ text: initialText ?? '' })
+  const [suggestions, setSuggestions] = React.useState<string[]>([])
+
+  React.useEffect(() => {
+    // The line below escapes regular expression special characters:
+    // [ \ ^ $ . | ? * + ( )
+    const escapedText = value.text.replace(
+      /[-\\^$*+?.()|[\]{}]/g,
+      '\\$&'
+    )
+    getSuggestions(escapedText).then(
+      (json: SearchSuggestion[]) => {
+        const newSuggestions = json.map((s: SearchSuggestion) => {
+          return s.text
+        })
+        setSuggestions(newSuggestions)
+      }
+    ).catch(() => {
+      setSuggestions([])
+    })
+  }, [])
+
   return (
     <Form
       value={value}
       onChange={(nextValue) => {
-        // The line below escapes regular expression special characters:
-        // [ \ ^ $ . | ? * + ( )
-        const escapedText = nextValue.text.replace(
-          /[-\\^$*+?.()|[\]{}]/g,
-          "\\$&"
-        );
-        getProductSearchSuggestions(escapedText).then(
-          (json: Array<SearchSuggestion>) => {
-            const newSuggestions = json.map((s: SearchSuggestion) => {
-              return s.text;
-            });
-            setSuggestions(newSuggestions);
-          }
-        );
-        setValue(nextValue);
+        setValue(nextValue)
       }}
-      onReset={() => setValue({ text: "" })}
+      onReset={() => setValue({ text: '' })}
       onSubmit={({ value }) => {
-        history.push(`/products/list?p=${encodeURI(value.text)}`);
+        history.push(getSubmitUrl(value.text))
       }}
     >
-      <TextInput name="text" icon={<Search />} suggestions={suggestions} />
-      <Box direction="row" gap="medium" margin={{ top: "1em" }}>
+      <TextInput aria-label={'search-input'} name="text" icon={<Search />} suggestions={suggestions} />
+      <Box direction="row" gap="medium" margin={{ top: '1em' }}>
         <Button type="submit" primary label="Search" />
       </Box>
     </Form>
-  );
-};
+  )
+}
 
-export default ProductSearchForm;
+export default ProductSearchForm
