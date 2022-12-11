@@ -33,6 +33,7 @@ const sendReport = (consumed: ConsumedProduct[], setReport: any) => {
   });
 };
 
+// TODO: Change name
 
 const Index = () => {
   const [report, setReport] = React.useState({
