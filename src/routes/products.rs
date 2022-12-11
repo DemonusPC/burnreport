@@ -1,41 +1,13 @@
-use crate::product::{search_product_suggestions, FlatProduct, PortionStore, ProductStore};
 use crate::product::{ApiResult, Portion, Product, ResultList};
+use crate::product::{FlatProduct, PortionStore, ProductStore};
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};
 use log::error;
-use serde_derive::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::error::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SearchQuery {
-    pub p: String,
-}
-
-#[get("/api/search/suggestions")]
-async fn get_search_products_suggestions(
-    pool: web::Data<SqlitePool>,
-    web::Query(search): web::Query<SearchQuery>,
-) -> impl Responder {
-    let search_result = match search_product_suggestions(&pool, &search.p).await {
-        Ok(res) => res,
-        Err(err) => {
-            error!("Search product suggestions failed due to error: {}", err);
-
-            return HttpResponse::InternalServerError().finish();
-        }
-    };
-
-    let result = ResultList {
-        result: search_result,
-    };
-
-    HttpResponse::Ok().json(result)
-}
-
 // TODO: List Products with pagination
-
 #[get("/api/products/{id}")]
 async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -> impl Responder {
     let product = match ProductStore::single_product(&pool, path.to_owned()).await {

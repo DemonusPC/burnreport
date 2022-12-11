@@ -12,7 +12,7 @@ pub struct SearchQuery {
     pub e: Option<SearchEntity>,
 }
 
-#[get("/api/v2/search")]
+#[get("/api/search")]
 async fn get_search(
     pool: web::Data<SqlitePool>,
     web::Query(search): web::Query<SearchQuery>,

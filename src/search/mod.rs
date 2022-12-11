@@ -4,6 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub enum SearchEntity {
     Product,
     Recipie,
