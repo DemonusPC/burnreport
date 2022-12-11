@@ -1,10 +1,24 @@
+use std::str::FromStr;
+
 use serde_derive::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum SearchEntity {
     Product,
     Recipie,
+}
+
+impl FromStr for SearchEntity {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Product" => Ok(SearchEntity::Product),
+            "Recipie" => Ok(SearchEntity::Recipie),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -42,42 +56,32 @@ impl SearchStore {
     pub async fn search(
         pool: &SqlitePool,
         term: &str,
-        entity: Option<SearchEntity>,
     ) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
-        todo!("Not implemented")
+        let result = sqlx::query("SELECT * FROM search WHERE name LIKE $1 LIMIT 15")
+            .bind(format!("%{}%", term))
+            .try_map(|row: SqliteRow| {
+                // id
+                // iunit
+                // name
+                // entity
+
+                let id: i64 = row.get("id");
+                let text: String = row.get("name");
+                let entity_string: String = row.get("entity");
+                let entity: SearchEntity = match SearchEntity::from_str(&entity_string) {
+                    Ok(v) => v,
+                    // This error is not exactly correct since its a failure of decoding
+                    // However we should never find any rows that cant be parsed here
+                    Err(_e) => return Err(sqlx::Error::RowNotFound),
+                };
+                Ok(SearchSuggestion::new(id, text, None, entity))
+            })
+            .fetch_all(pool)
+            .await?;
+        Ok(result)
     }
 }
 
-// pub async fn search_product_suggestions(
-//     pool: &SqlitePool,
-//     term: &str,
-// ) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
-//     // SELECT *  FROM Food WHERE name LIKE "%Spag%";
-//     let result = sqlx::query("SELECT id, name, unit FROM Products WHERE name LIKE $1 LIMIT 15")
-//         .bind(format!("%{}%", term))
-//         .map(|row: SqliteRow| {
-//             let id: i32 = row.get(0);
-//             let text: String = row.get(1);
-//             let sub_text: String = row.get(2);
-//             SearchSuggestion::new(id, text, Some(sub_text), Some("Product".to_owned()))
-//         })
-//         .fetch_all(pool)
-//         .await?;
-//     Ok(result)
-// }
-
-// pub async fn search_recipie_suggestions(pool: &SqlitePool, term: &str) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
-//     let result = sqlx::query("SELECT id, name FROM Recipies WHERE name LIKE $1 LIMIT 15")
-//         .bind(format!("%{}%", term))
-//         .map(|row: SqliteRow| {
-//             let id: i32 = row.get(0);
-//             let text: String = row.get(1);
-//             SearchSuggestion::new(id, text, None, Some("Recipie".to_owned()))
-//         })
-//         .fetch_all(pool)
-//         .await?;
-//     Ok(result)
-// }
 #[cfg(test)]
 mod tests {
     use sqlx::SqlitePool;
@@ -119,7 +123,7 @@ mod tests {
 
         let recipie_id = RecipieStore::create(&pool, recipie).await.unwrap();
 
-        let result = SearchStore::search(&pool, "Test", None).await.unwrap();
+        let result = SearchStore::search(&pool, "Test").await.unwrap();
 
         assert_eq!(result.len(), 2);
 

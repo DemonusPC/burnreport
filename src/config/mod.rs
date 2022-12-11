@@ -75,6 +75,12 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             PRIMARY KEY("id" AUTOINCREMENT),
             FOREIGN KEY("recipie_id") REFERENCES "Recipies"("id") ON DELETE CASCADE
         );
+
+        CREATE VIEW IF NOT EXISTS search
+        AS
+            SELECT id, name, 'Grams' as unit, 'Recipie' as entity FROM Recipies
+            UNION
+            SELECT id, name, unit, 'Product' as entity FROM Products;
         
         "#
     )
