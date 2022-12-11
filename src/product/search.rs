@@ -39,7 +39,10 @@ pub async fn search_product_suggestions(
     Ok(result)
 }
 
-pub async fn search_recipie_suggestions(pool: &SqlitePool, term: &str) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
+pub async fn search_recipie_suggestions(
+    pool: &SqlitePool,
+    term: &str,
+) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
     let result = sqlx::query("SELECT id, name FROM Recipies WHERE name LIKE $1 LIMIT 15")
         .bind(format!("%{}%", term))
         .map(|row: SqliteRow| {

@@ -3,6 +3,7 @@ mod frontend;
 mod products;
 mod recipies;
 mod report;
+mod search;
 
 pub use self::frontend::frontend;
 
@@ -12,6 +13,7 @@ pub fn frontend_helper_routes(cfg: &mut web::ServiceConfig) {
 
 pub fn api_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(products::get_search_products_suggestions);
+    cfg.service(search::get_search);
     cfg.service(recipies::get_search_recipie_suggestions);
     cfg.service(products::get_single_product);
     cfg.service(products::post_product);
