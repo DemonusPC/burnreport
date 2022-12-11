@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
@@ -17,6 +17,15 @@ impl FromStr for SearchEntity {
             "Product" => Ok(SearchEntity::Product),
             "Recipie" => Ok(SearchEntity::Recipie),
             _ => Err(()),
+        }
+    }
+}
+
+impl Display for SearchEntity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SearchEntity::Product => write!(f, "Product"),
+            SearchEntity::Recipie => write!(f, "Recipie"),
         }
     }
 }
@@ -57,7 +66,7 @@ impl SearchStore {
         pool: &SqlitePool,
         term: &str,
     ) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
-        let result = sqlx::query("SELECT * FROM search WHERE name LIKE $1 LIMIT 15")
+        let result = sqlx::query("SELECT * FROM search WHERE name LIKE $1 LIMIT 16")
             .bind(format!("%{}%", term))
             .try_map(|row: SqliteRow| {
                 // id
@@ -78,6 +87,37 @@ impl SearchStore {
             })
             .fetch_all(pool)
             .await?;
+        Ok(result)
+    }
+
+    pub async fn search_by_entity(
+        pool: &SqlitePool,
+        term: &str,
+        entity: SearchEntity,
+    ) -> Result<Vec<SearchSuggestion>, sqlx::Error> {
+        let result =
+            sqlx::query("SELECT * FROM search WHERE name LIKE $1 AND entity = $2 LIMIT 16")
+                .bind(format!("%{}%", term))
+                .bind(entity.to_string())
+                .try_map(|row: SqliteRow| {
+                    // id
+                    // iunit
+                    // name
+                    // entity
+
+                    let id: i64 = row.get("id");
+                    let text: String = row.get("name");
+                    let entity_string: String = row.get("entity");
+                    let entity: SearchEntity = match SearchEntity::from_str(&entity_string) {
+                        Ok(v) => v,
+                        // This error is not exactly correct since its a failure of decoding
+                        // However we should never find any rows that cant be parsed here
+                        Err(_e) => return Err(sqlx::Error::RowNotFound),
+                    };
+                    Ok(SearchSuggestion::new(id, text, None, entity))
+                })
+                .fetch_all(pool)
+                .await?;
         Ok(result)
     }
 }
@@ -141,5 +181,12 @@ mod tests {
         );
         assert_eq!(result.contains(&product_search_suggestion), true);
         assert_eq!(result.contains(&recipie_search_suggestion), true);
+
+        let specific_result = SearchStore::search_by_entity(&pool, "Test", SearchEntity::Product)
+            .await
+            .unwrap();
+
+        assert_eq!(specific_result.len(), 1);
+        assert_eq!(specific_result.contains(&product_search_suggestion), true);
     }
 }
