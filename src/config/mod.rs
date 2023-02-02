@@ -66,6 +66,13 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             PRIMARY KEY("id" AUTOINCREMENT)
         );
 
+        CREATE TABLE IF NOT EXISTS "SPI" (
+            "numeric_code"	INTEGER NOT NULL UNIQUE,
+            "alphabetic_code"	TEXT NOT NULL UNIQUE,
+            "name"	TEXT NOT NULL,
+            PRIMARY KEY("numeric_code")
+        );
+
         CREATE TABLE IF NOT EXISTS "Ingredients" (
             "id"	INTEGER,
             "amount"	REAL NOT NULL,
