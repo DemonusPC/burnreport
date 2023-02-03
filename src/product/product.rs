@@ -3,6 +3,7 @@ use crate::nutrients::{
     PolyUnsaturatedFat, Protein, Salt, TotalAble, UnsaturatedFat, Vitamins, WaterSoluble,
     WaterSolubleApi,
 };
+use crate::spi::StandardProductIdentifier;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
@@ -18,6 +19,7 @@ pub struct Product {
     name: String,
     nutrients: Nutrients,
     unit: Unit,
+    spi: Option<StandardProductIdentifier>,
 }
 
 impl Product {
@@ -27,6 +29,23 @@ impl Product {
             name,
             nutrients: nutrition,
             unit,
+            spi: None,
+        }
+    }
+
+    pub fn new_with_spi(
+        id: i32,
+        name: String,
+        nutrition: Nutrients,
+        unit: Unit,
+        spi: Option<StandardProductIdentifier>,
+    ) -> Self {
+        Self {
+            id,
+            name,
+            nutrients: nutrition,
+            unit,
+            spi,
         }
     }
 
