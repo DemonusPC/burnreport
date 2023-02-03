@@ -27,6 +27,8 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             "trans"	REAL,
             "protein"	REAL NOT NULL,
             "salt"	REAL NOT NULL,
+            "spi"	INTEGER,
+            FOREIGN KEY("spi") REFERENCES "SPI"("numeric_code") ON UPDATE SET NULL,
             PRIMARY KEY("id" AUTOINCREMENT)
         );        
 
