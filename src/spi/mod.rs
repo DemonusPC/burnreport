@@ -92,8 +92,28 @@ impl StandardProductIdentifierStore {
         tx.commit().await
     }
 
-    pub async fn average_nutrition_by_numeric_code(code: i64) -> Nutrients {
-        todo!()
+    pub async fn list(pool: &SqlitePool) -> Result<Vec<StandardProductIdentifier>, sqlx::Error> {
+        let result = sqlx::query("SELECT numeric_code, alphabetic_code, full_name FROM SPI;")
+            .map(|row: SqliteRow| {
+                return StandardProductIdentifier {
+                    numeric_code: row.get("numeric_code"),
+                    alphabetic_code: row.get("alphabetic_code"),
+                    name: row.get("full_name"),
+                };
+            })
+            .fetch_all(pool)
+            .await?;
+        Ok(result)
+    }
+    pub async fn delete_by_numeric_code(pool: &SqlitePool, code: i64) -> Result<(), sqlx::Error> {
+        let mut tx = pool.begin().await?;
+
+        sqlx::query("DELETE FROM SPI WHERE numeric_code = ?1")
+            .bind(code)
+            .execute(&mut tx)
+            .await?;
+
+        tx.commit().await
     }
 }
 
@@ -106,7 +126,7 @@ mod tests {
     use super::{StandardProductIdentifier, StandardProductIdentifierStore};
 
     #[actix_web::test]
-    async fn can_save_and_get_spi() {
+    async fn can_perform_all_operations_for_spi() {
         let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
         setup(&pool).await.unwrap();
 
@@ -126,5 +146,21 @@ mod tests {
 
         assert_eq!(spi, returned_spi_by_code);
         assert_eq!(spi, returned_spi_by_alpha_code);
+
+        let list = StandardProductIdentifierStore::list(&pool).await.unwrap();
+        assert_eq!(list.len(), 1);
+        assert_eq!(&spi, &list[0]);
+
+        StandardProductIdentifierStore::delete_by_numeric_code(&pool, 562)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            StandardProductIdentifierStore::list(&pool)
+                .await
+                .unwrap()
+                .len(),
+            0
+        );
     }
 }

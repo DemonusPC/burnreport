@@ -501,7 +501,7 @@ impl ProductStore {
         Ok(())
     }
 
-    pub async fn get_by_spi(
+    pub async fn list_by_spi(
         pool: &SqlitePool,
         numeric_code: i64,
     ) -> Result<Vec<Product>, sqlx::Error> {
@@ -554,7 +554,7 @@ mod tests {
 
         ProductStore::insert_product(&pool, product).await.unwrap();
 
-        let result = ProductStore::get_by_spi(&pool, 420).await.unwrap();
+        let result = ProductStore::list_by_spi(&pool, 420).await.unwrap();
 
         assert_eq!(result.len(), 1);
 
