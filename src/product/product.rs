@@ -167,6 +167,10 @@ impl Product {
     pub fn vitamins(&self) -> Option<Vitamins> {
         self.nutrients.vitamins()
     }
+
+    pub fn spi(&self) -> Option<StandardProductIdentifier> {
+        self.spi.clone()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -420,8 +424,13 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt")  
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) "#)
+        let spi = match product.spi() {
+            Some(v) => Some(v.numeric_code()),
+            None => None,
+        };
+
+        let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt", "spi")  
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21) "#)
         .bind(product.name())
         .bind(raw_unit)
         .bind(product.energy().k_j())
@@ -442,6 +451,7 @@ impl ProductStore {
         .bind(product.fat().trans())
         .bind(product.protein().total())
         .bind(product.salt().total())
+        .bind(spi)
         .execute(&mut tx)
         .await?;
 
@@ -495,7 +505,16 @@ impl ProductStore {
         pool: &SqlitePool,
         numeric_code: i64,
     ) -> Result<Vec<Product>, sqlx::Error> {
-        todo!()
+        let result = sqlx::query(
+            "SELECT * FROM full_product LEFT JOIN SPI as s ON s.numeric_code = spi WHERE spi = ?1;",
+        )
+        .bind(numeric_code)
+        .map(|row: SqliteRow| {
+            return Product::from_row(&row);
+        })
+        .fetch_all(pool)
+        .await?;
+        Ok(result)
     }
 }
 
@@ -517,7 +536,7 @@ mod tests {
         let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
         setup(&pool).await.unwrap();
 
-        let spi = StandardProductIdentifier::new(562, "UNBTTR", "Unsalted Butter");
+        let spi = StandardProductIdentifier::new(420, "UNBTTR", "Unsalted Butter");
 
         StandardProductIdentifierStore::save(&pool, &spi)
             .await
@@ -535,7 +554,7 @@ mod tests {
 
         ProductStore::insert_product(&pool, product).await.unwrap();
 
-        let result = ProductStore::get_by_spi(&pool, 562).await.unwrap();
+        let result = ProductStore::get_by_spi(&pool, 420).await.unwrap();
 
         assert_eq!(result.len(), 1);
 

@@ -38,14 +38,14 @@ impl StandardProductIdentifierStore {
         code: i64,
     ) -> Result<StandardProductIdentifier, sqlx::Error> {
         let result = sqlx::query(
-            "SELECT numeric_code, alphabetic_code, name FROM SPI WHERE numeric_code = ?",
+            "SELECT numeric_code, alphabetic_code, full_name FROM SPI WHERE numeric_code = ?",
         )
         .bind(code)
         .map(|row: SqliteRow| {
             StandardProductIdentifier::new(
                 row.get("numeric_code"),
                 row.get("alphabetic_code"),
-                row.get("name"),
+                row.get("full_name"),
             )
         })
         .fetch_one(pool)
@@ -59,14 +59,14 @@ impl StandardProductIdentifierStore {
         alpha_code: &str,
     ) -> Result<StandardProductIdentifier, sqlx::Error> {
         let result = sqlx::query(
-            "SELECT numeric_code, alphabetic_code, name FROM SPI WHERE alphabetic_code = ?",
+            "SELECT numeric_code, alphabetic_code, full_name FROM SPI WHERE alphabetic_code = ?",
         )
         .bind(alpha_code)
         .map(|row: SqliteRow| {
             StandardProductIdentifier::new(
                 row.get("numeric_code"),
                 row.get("alphabetic_code"),
-                row.get("name"),
+                row.get("full_name"),
             )
         })
         .fetch_one(pool)
@@ -81,7 +81,7 @@ impl StandardProductIdentifierStore {
         let mut tx = pool.begin().await?;
 
         sqlx::query(
-            r#"INSERT INTO SPI ("numeric_code", "alphabetic_code", "name") VALUES (?1, ?2, ?3);"#,
+            r#"INSERT INTO SPI ("numeric_code", "alphabetic_code", "full_name") VALUES (?1, ?2, ?3);"#,
         )
         .bind(spi.numeric_code())
         .bind(spi.alphabetic_code())
