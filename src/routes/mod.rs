@@ -21,6 +21,9 @@ pub fn api_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(products::get_product_portions);
     cfg.service(products::post_portions);
     cfg.service(products::delete_portion);
+    cfg.service(products::get_single_spi);
+    cfg.service(products::post_spi);
+    cfg.service(products::delete_single_spi);
     cfg.service(report::post_report);
     cfg.service(recipies::get_single_recipies);
     cfg.service(recipies::post_recipie);
