@@ -8,7 +8,7 @@ use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 pub enum SearchEntity {
     Product,
     Recipie,
-    SPI,
+    Spi,
 }
 
 impl FromStr for SearchEntity {
@@ -18,7 +18,7 @@ impl FromStr for SearchEntity {
         match s {
             "Product" => Ok(SearchEntity::Product),
             "Recipie" => Ok(SearchEntity::Recipie),
-            "SPI" => Ok(SearchEntity::SPI),
+            "Spi" => Ok(SearchEntity::Spi),
             _ => Err(()),
         }
     }
@@ -29,7 +29,7 @@ impl Display for SearchEntity {
         match self {
             SearchEntity::Product => write!(f, "Product"),
             SearchEntity::Recipie => write!(f, "Recipie"),
-            SearchEntity::SPI => write!(f, "SPI"),
+            SearchEntity::Spi => write!(f, "Spi"),
         }
     }
 }
@@ -99,11 +99,6 @@ impl SearchStore {
                 .bind(format!("%{}%", term))
                 .bind(entity.to_string())
                 .try_map(|row: SqliteRow| {
-                    // id
-                    // iunit
-                    // name
-                    // entity
-
                     let id: i64 = row.get("id");
                     let text: String = row.get("name");
                     let entity_string: String = row.get("entity");

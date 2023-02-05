@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
-use crate::nutrients::Nutrients;
-
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 pub struct StandardProductIdentifier {
     numeric_code: i64,

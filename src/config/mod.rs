@@ -89,7 +89,9 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         AS
             SELECT id, name, 'Grams' as unit, 'Recipie' as entity FROM Recipies
             UNION
-            SELECT id, name, unit, 'Product' as entity FROM Products;
+            SELECT id, name, unit, 'Product' as entity FROM Products
+            UNION
+            SELECT numeric_code as id, full_name as name, alphabetic_code as unit, 'Spi' as entity FROM SPI;
         
         "#
     )
