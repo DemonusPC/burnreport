@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct StandardProductIdentifier {
     numeric_code: i64,
     alphabetic_code: String,

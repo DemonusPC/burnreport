@@ -2,6 +2,7 @@ import { Product, ProductAPIStatus, Portion } from '../../product/product'
 import { Report, ReportResult } from '../../report/report'
 import { SearchSuggestion } from '../../containers/ProductSearchForm'
 import { RecipieCreateCommand } from '../../pages/recipies/AddRecipie'
+import { Spi } from '../../pages/AddSpi'
 
 export interface RestResult<T> {
   status: boolean
@@ -74,6 +75,7 @@ export const postProduct = generatePostRequest<Product, ProductAPIStatus>(
   '/api/products'
 )
 
+
 export const deleteProduct = async (id: number): Promise<ProductAPIStatus> => {
   return await deleteRequest(`/api/products/${id}`)
 }
@@ -109,3 +111,7 @@ export const deletePortion = async (
     `/api/products/${id}/portions/${name}`
   )
 }
+
+export const postSpi = generatePostRequest<Spi, ProductAPIStatus>(
+  '/api/spi'
+)

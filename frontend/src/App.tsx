@@ -17,6 +17,8 @@ import RecipieSearch from './pages/recipies/Search'
 import RecipieList from './pages/recipies/RecipieList'
 import RecipieView from './pages/recipies/RecipieView'
 import AddRecipie from './pages/recipies/AddRecipie'
+import AddSpi from './pages/AddSpi'
+import SpiPage from './pages/SpiPage'
 
 const App = () => {
   const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(
@@ -30,8 +32,11 @@ const App = () => {
           <Navigation theme={themeMode} themeSwitcher={setThemeMode} />
           <ResponsiveGrid>
             <Switch>
-              <Route path="/products/add">
-                <AddProduct />
+              <Route path="/spi/add">
+                <AddSpi />
+              </Route>
+              <Route path="/spi/:id">
+                <SpiPage />
               </Route>
               <Route path="/products/list">
                 <ProductsList />

@@ -4,11 +4,16 @@ import { Search } from 'grommet-icons'
 import { getProductSearchSuggestions } from '../../util/data/requests'
 import { useHistory } from 'react-router'
 
+export enum SearchEntity {
+  Product = "product",
+  Recipie = "recipie",
+  Spi = "spi"
+}
 export interface SearchSuggestion {
   id: number
   text: string
   subText?: string
-  entity?: string
+  entity: SearchEntity
 }
 
 interface Sug {
@@ -25,7 +30,7 @@ const productDefault = (value: string) => {
   return `/products/list?p=${encodeURI(value)}`;
 }
 
-const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSuggestions, getSubmitUrl=productDefault}: SearchFormProps): JSX.Element => {
+const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSuggestions, getSubmitUrl = productDefault }: SearchFormProps): JSX.Element => {
   const history = useHistory()
   const [value, setValue] = React.useState<Sug>({ text: initialText ?? '' })
   const [suggestions, setSuggestions] = React.useState<string[]>([])

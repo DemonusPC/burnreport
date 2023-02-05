@@ -138,7 +138,7 @@ const AddProduct = () => {
         <Heading>Upload Products as CSV</Heading>
         <FileInput
           onChange={(e) => {
-            if (e.target.files) {
+            if (e && e.target.files) {
               fileChosen(e.target.files[0], setSent);
             }
           }}

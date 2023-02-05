@@ -1,5 +1,6 @@
 import { Heading, Box } from "grommet";
 import ProductSearchForm, {
+  SearchEntity,
   SearchSuggestion,
 } from "../../containers/ProductSearchForm";
 import useQuery from "../../util/useQuery";
@@ -10,14 +11,14 @@ import ProductCell from "../../components/ProductCell";
 const ProductsList = () => {
   const toSearch = useQuery().get("p") || "";
   const { data, error } = useSWR<ResultList<SearchSuggestion>>(
-    encodeURI(`/api/search?p=${toSearch}&e=product`),
+    encodeURI(`/api/search?p=${toSearch}`),
     fetcher
   );
 
   if (error) return <div>An error occured</div>;
   if (!data) return <div>loading...</div>;
 
-  const productResult = data.result.map((p: SearchSuggestion) => {
+  const productResult = data.result.filter((sug) => sug.entity !== SearchEntity.Recipie).map((p: SearchSuggestion) => {
     return <ProductCell {...p} key={`${p.text}${p.subText}`} />;
   });
 
