@@ -1,6 +1,7 @@
 mod portion;
 mod product;
 
+pub use self::product::CreateProductRequest;
 pub use self::product::FlatProduct;
 pub use self::product::Product;
 pub use self::product::ProductStore;

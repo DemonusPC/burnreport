@@ -14,6 +14,14 @@ pub enum Unit {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct CreateProductRequest {
+    pub name: String,
+    pub nutrients: Nutrients,
+    pub unit: Unit,
+    pub spi: Option<StandardProductIdentifier>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     id: i32,
     name: String,
@@ -397,14 +405,17 @@ impl ProductStore {
         Ok(result)
     }
 
-    pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
+    pub async fn insert_product(
+        pool: &SqlitePool,
+        product: CreateProductRequest,
+    ) -> Result<i64, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let raw_unit = match product.unit() {
+        let raw_unit = match product.unit {
             Unit::Grams => "Grams".to_owned(),
             Unit::Mililiters => "Mililiters".to_owned(),
         };
 
-        let monounsaturated = match product.fat().unsaturated() {
+        let monounsaturated = match product.nutrients.fat().unsaturated() {
             Some(v) => v.mono(),
             None => Option::None,
         };
@@ -414,7 +425,7 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let polyunsaturated = match product.fat().unsaturated() {
+        let polyunsaturated = match product.nutrients.fat().unsaturated() {
             Some(v) => v.poly(),
             None => Option::None,
         };
@@ -424,40 +435,40 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let spi = match product.spi() {
+        let spi = match product.spi {
             Some(v) => Some(v.numeric_code()),
             None => None,
         };
 
         let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt", "spi")  
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21) "#)
-        .bind(product.name())
+        .bind(product.name)
         .bind(raw_unit)
-        .bind(product.energy().k_j())
-        .bind(product.energy().kcal())
-        .bind(product.carbohydrates().total())
-        .bind(product.carbohydrates().sugar())
-        .bind(product.carbohydrates().fiber())
-        .bind(product.carbohydrates().added_sugar())
-        .bind(product.carbohydrates().starch())
-        .bind(product.fat().total())
-        .bind(product.fat().saturated())
+        .bind(product.nutrients.energy().k_j())
+        .bind(product.nutrients.energy().kcal())
+        .bind(product.nutrients.carbohydrates().total())
+        .bind(product.nutrients.carbohydrates().sugar())
+        .bind(product.nutrients.carbohydrates().fiber())
+        .bind(product.nutrients.carbohydrates().added_sugar())
+        .bind(product.nutrients.carbohydrates().starch())
+        .bind(product.nutrients.fat().total())
+        .bind(product.nutrients.fat().saturated())
         .bind(mono_total)
         .bind(omega_7)
         .bind(omega_9)
         .bind(poly_total)
         .bind(omega_3)
         .bind(omega_6)
-        .bind(product.fat().trans())
-        .bind(product.protein().total())
-        .bind(product.salt().total())
+        .bind(product.nutrients.fat().trans())
+        .bind(product.nutrients.protein().total())
+        .bind(product.nutrients.salt().total())
         .bind(spi)
         .execute(&mut tx)
         .await?;
 
         let product_id = result.last_insert_rowid();
 
-        if let Some(v) = product.vitamins() {
+        if let Some(v) = product.nutrients.vitamins() {
             sqlx::query(
                 r#"
                 INSERT INTO "Vitamins"
@@ -525,11 +536,11 @@ mod tests {
     use crate::{
         config::setup,
         nutrients::Nutrients,
-        product::Unit,
+        product::{product::CreateProductRequest, Unit},
         spi::{StandardProductIdentifier, StandardProductIdentifierStore},
     };
 
-    use super::{Product, ProductStore};
+    use super::ProductStore;
 
     #[actix_web::test]
     async fn get_products_by_spi_numeric_code() {
@@ -544,13 +555,12 @@ mod tests {
 
         let expected_name = "Walmart Unsalted Butter";
 
-        let product = Product::new_with_spi(
-            12,
-            expected_name.to_string(),
-            Nutrients::default(),
-            Unit::Grams,
-            Some(spi),
-        );
+        let product = CreateProductRequest {
+            name: expected_name.to_string(),
+            nutrients: Nutrients::default(),
+            unit: Unit::Grams,
+            spi: Some(spi),
+        };
 
         ProductStore::insert_product(&pool, product).await.unwrap();
 

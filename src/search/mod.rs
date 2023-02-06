@@ -123,7 +123,7 @@ mod tests {
     use crate::{
         config::setup,
         nutrients::Nutrients,
-        product::{Product, ProductStore, Unit},
+        product::{CreateProductRequest,  ProductStore, Unit},
         recipie::{IngredientCreateCommand, RecipieCreateCommand, RecipieStore},
     };
 
@@ -135,12 +135,12 @@ mod tests {
         setup(&pool).await.unwrap();
 
         // Basic setup
-        let ingredient_one = Product::new(
-            0,
-            "Test Product".to_owned(),
-            Nutrients::default(),
-            Unit::Grams,
-        );
+        let ingredient_one = CreateProductRequest {
+            name: "Test Product".to_owned(),
+            nutrients: Nutrients::default(),
+            unit: Unit::Grams,
+            spi: None,
+        };
         let ingredient_id_one = ProductStore::insert_product(&pool, ingredient_one)
             .await
             .unwrap();
