@@ -29,7 +29,6 @@ interface SearchFormProps {
 const productDefault = (value: string) => {
   return `/products/list?p=${encodeURI(value)}`;
 }
-
 const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSuggestions, getSubmitUrl = productDefault }: SearchFormProps): JSX.Element => {
   const history = useHistory()
   const [value, setValue] = React.useState<Sug>({ text: initialText ?? '' })
@@ -44,7 +43,7 @@ const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSugge
     )
     getSuggestions(escapedText).then(
       (json: SearchSuggestion[]) => {
-        const newSuggestions = json.map((s: SearchSuggestion) => {
+        const newSuggestions = json.filter((se) => se.entity !== SearchEntity.Recipie).map((s: SearchSuggestion) => {
           return s.text
         })
         setSuggestions(newSuggestions)
@@ -53,6 +52,7 @@ const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSugge
       setSuggestions([])
     })
   }, [])
+
 
   return (
     <Form

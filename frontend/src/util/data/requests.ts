@@ -25,7 +25,7 @@ export const getProductSearchSuggestions = async (
   suggestion: string
 ): Promise<SearchSuggestion[]> => {
   const request = await fetch(
-    encodeURI(`/api/search?p=${suggestion}&e=product`)
+    encodeURI(`/api/search?p=${suggestion}`)
   )
 
   const result: ResultList<SearchSuggestion> = await request.json()
