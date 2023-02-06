@@ -43,7 +43,7 @@ const ProductSearchForm = ({ initialText, getSuggestions = getProductSearchSugge
     )
     getSuggestions(escapedText).then(
       (json: SearchSuggestion[]) => {
-        const newSuggestions = json.filter((se) => se.entity !== SearchEntity.Recipie).map((s: SearchSuggestion) => {
+        const newSuggestions = json.map((s: SearchSuggestion) => {
           return s.text
         })
         setSuggestions(newSuggestions)

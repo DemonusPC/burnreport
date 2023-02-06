@@ -38,6 +38,9 @@ const App = () => {
               <Route path="/spi/:id">
                 <SpiPage />
               </Route>
+              <Route path="/products/add">
+                <AddProduct />
+              </Route>
               <Route path="/products/list">
                 <ProductsList />
               </Route>

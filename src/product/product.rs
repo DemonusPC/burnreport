@@ -405,6 +405,58 @@ impl ProductStore {
         Ok(result)
     }
 
+    pub async fn amount_adjusted_product_v2(
+        pool: &SqlitePool,
+        id: i64,
+        amount: f64,
+    ) -> Result<Product, sqlx::Error> {
+        let result = sqlx::query(
+            r#"SELECT 
+                    id, 
+                    name, 
+                    unit,
+                    (kj/100) * $1 as kj,
+                    (kcal/100) * $1 as kcal,
+                    (carbohydrates/100) * $1 as carbohydrates,  
+                    (sugar/100) * $1 as sugar, 
+                    (fiber/100) * $1 as fiber, 
+                    (added_sugar/100) * $1 as added_sugar,  
+                    (starch/100) * $1 as starch, 
+                    (fat/100) * $1 as fat, 
+                    (saturated/100) * $1 as saturated, 
+                    (monounsaturated/100) * $1 as monounsaturated, 
+                    (omega_7/100) * $1 as omega_7, 
+                    (omega_9/100) * $1 as omega_9, 
+                    (polyunsaturated/100) * $1 as polyunsaturated, 
+                    (omega_3/100) * $1 as omega_3, 
+                    (omega_6/100) * $1 as omega_6, 
+                    (trans/100) * $1 as trans, 
+                    (protein/100) * $1 as protein, 
+                    (salt/100) * $1 as salt, 
+                    (a/100) * $1 as a, 
+                    (d/100) * $1 as d, 
+                    (e/100) * $1 as e, 
+                    (k/100) * $1 as k,
+                    (b1/100) * $1 as b1,
+                    (b2/100) * $1 as b2,
+                    (b3/100) * $1 as b3,
+                    (b5/100) * $1 as b5,
+                    (b6/100) * $1 as b6,
+                    (b7/100) * $1 as b7,
+                    (b9/100) * $1 as b9,
+                    (b12/100) * $1 as b12,
+                    (c/100) * $1 as c
+                    FROM full_product WHERE id = $2"#,
+        )
+        .bind(amount)
+        .bind(id)
+        .map(|row: SqliteRow| Product::from_row(&row))
+        .fetch_one(pool)
+        .await?;
+
+        Ok(result)
+    }
+
     pub async fn insert_product(
         pool: &SqlitePool,
         product: CreateProductRequest,

@@ -1,6 +1,6 @@
 import { Product, ProductAPIStatus, Portion } from '../../product/product'
 import { Report, ReportResult } from '../../report/report'
-import { SearchSuggestion } from '../../containers/ProductSearchForm'
+import { SearchEntity, SearchSuggestion } from '../../containers/ProductSearchForm'
 import { RecipieCreateCommand } from '../../pages/recipies/AddRecipie'
 import { Spi } from '../../pages/AddSpi'
 
@@ -30,7 +30,7 @@ export const getProductSearchSuggestions = async (
 
   const result: ResultList<SearchSuggestion> = await request.json()
 
-  return result.result
+  return result.result.filter((se) => se.entity !== SearchEntity.Recipie)
 }
 
 const generatePostRequest = <T, O>(uri: string): ((data: T) => Promise<O>) => {
