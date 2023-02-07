@@ -6,6 +6,7 @@ import { SearchSuggestion } from "../ProductSearchForm";
 interface SearchProps {
   selectedFunction: (product: SearchSuggestion) => void;
   suggestFunction: (suggestion: string) => Promise<any>;
+  fieldName?: string;
 }
 
 const buildSuggestionStringArray = (): string[] => {
@@ -25,7 +26,11 @@ type SearchFormState = {
   value: string;
   selectedProduct: SearchSuggestion | undefined;
 };
-const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
+const SearchForm = ({
+  selectedFunction,
+  suggestFunction,
+  fieldName = "search",
+}: SearchProps) => {
   const [state, setState] = useState<SearchFormState>({
     value: "",
     selectedProduct: undefined,
@@ -68,6 +73,7 @@ const SearchForm = ({ selectedFunction, suggestFunction }: SearchProps) => {
   return (
     <Box width="large">
       <TextInput
+        name={fieldName}
         icon={<Search />}
         value={state.value}
         onChange={onChange}

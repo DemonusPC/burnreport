@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
-use std::ops::{Add, Mul};
+use std::ops::{Add, Div, Mul};
 
-use super::{add_options, multiply_option_by_constant, Vitamins};
+use super::{add_options, divide_option_by_constant, multiply_option_by_constant, Vitamins};
 
 pub trait TotalAble {
     fn total(&self) -> f64;
@@ -49,6 +49,14 @@ impl Mul<f64> for Energy {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self::new(self.kcal() * rhs, self.k_j() * rhs)
+    }
+}
+
+impl Div<f64> for Energy {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self::new(self.kcal() / rhs, self.k_j() / rhs)
     }
 }
 
@@ -143,6 +151,20 @@ impl Mul<f64> for Carbohydrates {
     }
 }
 
+impl Div<f64> for Carbohydrates {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total / rhs,
+            sugar: self.sugar / rhs,
+            fiber: divide_option_by_constant(&self.fiber, rhs),
+            added_sugar: divide_option_by_constant(&self.added_sugar, rhs),
+            starch: divide_option_by_constant(&self.starch, rhs),
+        }
+    }
+}
+
 impl PartialEq for Carbohydrates {
     fn eq(&self, other: &Self) -> bool {
         self.total == other.total
@@ -190,6 +212,16 @@ impl Mul<f64> for Protein {
     }
 }
 
+impl Div<f64> for Protein {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total / rhs,
+        }
+    }
+}
+
 impl PartialEq for Protein {
     fn eq(&self, other: &Self) -> bool {
         self.total == other.total
@@ -229,6 +261,16 @@ impl Mul<f64> for Salt {
     fn mul(self, rhs: f64) -> Self::Output {
         Self {
             total: self.total * rhs,
+        }
+    }
+}
+
+impl Div<f64> for Salt {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total / rhs,
         }
     }
 }
@@ -334,6 +376,21 @@ impl Mul<f64> for Nutrients {
     }
 }
 
+impl Div<f64> for Nutrients {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            energy: self.energy / rhs,
+            carbohydrates: self.carbohydrates / rhs,
+            fat: self.fat / rhs,
+            protein: self.protein / rhs,
+            salt: self.salt / rhs,
+            vitamins: divide_option_by_constant(&self.vitamins, rhs),
+        }
+    }
+}
+
 impl PartialEq for Nutrients {
     fn eq(&self, other: &Self) -> bool {
         self.energy == other.energy
@@ -423,6 +480,19 @@ impl Mul<f64> for Fat {
     }
 }
 
+impl Div<f64> for Fat {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total / rhs,
+            saturated: self.saturated / rhs,
+            unsaturated: divide_option_by_constant(&self.unsaturated, rhs),
+            trans: divide_option_by_constant(&self.trans, rhs),
+        }
+    }
+}
+
 impl PartialEq for Fat {
     fn eq(&self, other: &Self) -> bool {
         self.total == other.total
@@ -471,6 +541,17 @@ impl Mul<f64> for UnsaturatedFat {
         Self {
             mono: multiply_option_by_constant(&self.mono, rhs),
             poly: multiply_option_by_constant(&self.poly, rhs),
+        }
+    }
+}
+
+impl Div<f64> for UnsaturatedFat {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            mono: divide_option_by_constant(&self.mono, rhs),
+            poly: divide_option_by_constant(&self.poly, rhs),
         }
     }
 }
@@ -537,6 +618,18 @@ impl Mul<f64> for MonoUnsaturatedFat {
     }
 }
 
+impl Div<f64> for MonoUnsaturatedFat {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total * rhs,
+            omega_7: divide_option_by_constant(&self.omega_7, rhs),
+            omega_9: divide_option_by_constant(&self.omega_9, rhs),
+        }
+    }
+}
+
 impl PartialEq for MonoUnsaturatedFat {
     fn eq(&self, other: &Self) -> bool {
         self.total == other.total && self.omega_7 == other.omega_7 && self.omega_9 == other.omega_9
@@ -590,6 +683,18 @@ impl Mul<f64> for PolyUnsaturatedFat {
             total: self.total * rhs,
             omega_3: multiply_option_by_constant(&self.omega_3, rhs),
             omega_6: multiply_option_by_constant(&self.omega_6, rhs),
+        }
+    }
+}
+
+impl Div<f64> for PolyUnsaturatedFat {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            total: self.total / rhs,
+            omega_3: divide_option_by_constant(&self.omega_3, rhs),
+            omega_6: divide_option_by_constant(&self.omega_6, rhs),
         }
     }
 }

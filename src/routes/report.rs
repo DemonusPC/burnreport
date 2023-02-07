@@ -1,48 +1,28 @@
-use crate::{
-    nutrients::Nutrients,
-    product::ProductStore,
-    report::{run_report, Report},
-};
+use crate::report::{run_report, ReportRequest};
 use actix_web::{post, web, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use log::error;
 use serde_json::json;
 use sqlx::SqlitePool;
 
-use crate::product::Product;
-
 #[post("/api/report")]
-async fn post_report(pool: web::Data<SqlitePool>, report: web::Json<Report>) -> impl Responder {
-    let mut result: Vec<Product> = vec![];
-
-    let mut total = Nutrients::default();
-
-    // let result = run_report(&pool, report)
-
-    for v in &report.consumed {
-        match ProductStore::amount_adjusted_product(&pool, v.id(), v.amount()).await {
-            Ok(product) => {
-                total = total + product.nutrients();
-                result.push(product);
-            }
-            Err(err) => {
-                error!(
-                    "Failed to return amount adjusted product due to error: {}",
-                    err
-                );
-                return HttpResponse::InternalServerError().finish();
-            }
+async fn post_report(
+    pool: web::Data<SqlitePool>,
+    report: web::Json<ReportRequest>,
+) -> impl Responder {
+    let result = match run_report(&pool, report.0).await {
+        Ok(report_result) => report_result,
+        Err(e) => {
+            error!("Report processing failed with error: {}", e);
+            return HttpResponse::InternalServerError().finish();
         }
-    }
+    };
 
     let utc: DateTime<Utc> = Utc::now();
 
     let reply = json!({
         "timeDone": utc,
-        "result": {
-        "total" : total,
-        "consumed": result,
-        }
+        "result": result
     });
 
     HttpResponse::Ok().json(reply)

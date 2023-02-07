@@ -9,22 +9,27 @@ export type ReportResult = {
   };
 };
 
+export enum ProductEntity {
+  Product = "Product",
+  Spi = "Spi",
+}
 export interface ConsumedRaw {
   id: number;
+  entity: ProductEntity;
   name: string;
   amount: number;
   unit: Portion;
   unitOptions: Array<Portion>;
 }
 
-export interface ConsumedProduct {
-  id: number;
-  name: string;
+export interface ReportItem {
+  entity: ProductEntity;
+  numericIdentifier: number;
   amount: number;
 }
 
 export interface Report {
-  consumed: ConsumedProduct[];
+  consumed: ReportItem[];
 }
 
 export const emptyReport = (): ReportResult => {

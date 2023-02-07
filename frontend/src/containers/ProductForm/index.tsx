@@ -9,6 +9,8 @@ import {
   MaskedInput,
 } from "grommet";
 import { highPrecisionMask, standardMask } from "../../util/schema/masks";
+import SearchForm from "../SearchForm";
+import { getSpiSearchSuggestions } from "../../util/data/requests";
 
 interface Category {
   name: string;
@@ -306,12 +308,17 @@ interface ProductFormProps {
   onSubmit: (event: any) => void;
 }
 
+// TODO: Search for SPIs
 const ProductForm = ({ onSubmit }: ProductFormProps): JSX.Element => {
   // For now only vitamins are optional so we can store just a single state
   const [optional, setOptional] = React.useState(false);
   return (
     <Form onSubmit={onSubmit}>
       {mapCategories(requiredFields)}
+
+      <FormField name="spi" label="Spi" required={false}>
+        <TextInput name="spi" />
+      </FormField>
 
       {optional ? (
         <>{mapCategories(vitaminForm)}</>

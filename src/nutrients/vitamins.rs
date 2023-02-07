@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
-use std::ops::{Add, Mul};
+use std::ops::{Add, Div, Mul};
 
-use super::{add_options, multiply_option_by_constant};
+use super::{add_options, divide_option_by_constant, multiply_option_by_constant, Fat};
 
 pub trait FatSolubleApi {
     fn a(&self) -> Option<f64>;
@@ -81,6 +81,19 @@ impl Mul<f64> for FatSoluble {
             d: multiply_option_by_constant(&self.d, rhs),
             e: multiply_option_by_constant(&self.e, rhs),
             k: multiply_option_by_constant(&self.k, rhs),
+        }
+    }
+}
+
+impl Div<f64> for FatSoluble {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            a: divide_option_by_constant(&self.a, rhs),
+            d: divide_option_by_constant(&self.d, rhs),
+            e: divide_option_by_constant(&self.e, rhs),
+            k: divide_option_by_constant(&self.k, rhs),
         }
     }
 }
@@ -217,6 +230,24 @@ impl Mul<f64> for WaterSoluble {
     }
 }
 
+impl Div<f64> for WaterSoluble {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            b1: divide_option_by_constant(&self.b1, rhs),
+            b2: divide_option_by_constant(&self.b2, rhs),
+            b3: divide_option_by_constant(&self.b3, rhs),
+            b5: divide_option_by_constant(&self.b5, rhs),
+            b6: divide_option_by_constant(&self.b6, rhs),
+            b7: divide_option_by_constant(&self.b7, rhs),
+            b9: divide_option_by_constant(&self.b9, rhs),
+            b12: divide_option_by_constant(&self.b12, rhs),
+            c: divide_option_by_constant(&self.c, rhs),
+        }
+    }
+}
+
 impl PartialEq for WaterSoluble {
     fn eq(&self, other: &Self) -> bool {
         self.b1 == other.b1
@@ -311,6 +342,17 @@ impl Mul<f64> for Vitamins {
         Self {
             fat: self.fat * rhs,
             water: self.water * rhs,
+        }
+    }
+}
+
+impl Div<f64> for Vitamins {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            fat: self.fat / rhs,
+            water: self.water / rhs,
         }
     }
 }
