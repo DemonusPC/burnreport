@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Box, TextInput } from "grommet";
-import { Search } from "grommet-icons";
 import { SearchSuggestion } from "../ProductSearchForm";
 
 interface SearchProps {
-  selectedFunction: (product: SearchSuggestion) => void;
   suggestFunction: (suggestion: string) => Promise<any>;
   fieldName?: string;
 }
@@ -26,8 +24,7 @@ type SearchFormState = {
   value: string;
   selectedProduct: SearchSuggestion | undefined;
 };
-const SearchForm = ({
-  selectedFunction,
+const SpiSelect = ({
   suggestFunction,
   fieldName = "search",
 }: SearchProps) => {
@@ -60,22 +57,20 @@ const SearchForm = ({
 
   const onSelect = (event: { suggestion: any }) => {
     const selected = confirmProduct(event.suggestion, sug.original);
-    console.log(event.suggestion)
-    setState({
-      ...state,
-      value: event.suggestion,
-      selectedProduct: selected,
-    });
     if (selected) {
-      selectedFunction(selected);
+      setState({
+        ...state,
+        value: `${selected.id}::${selected.text}`,
+        selectedProduct: selected,
+      });
     }
   };
 
   return (
     <Box width="large">
       <TextInput
+        plain
         name={fieldName}
-        icon={<Search />}
         value={state.value}
         onChange={onChange}
         onSuggestionSelect={onSelect}
@@ -85,4 +80,4 @@ const SearchForm = ({
   );
 };
 
-export default SearchForm;
+export default SpiSelect;

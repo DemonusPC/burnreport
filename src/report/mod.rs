@@ -75,8 +75,7 @@ pub async fn run_report(
 
     for v in &report.consumed {
         if v.entity == ProductEntity::Product {
-            match ProductStore::amount_adjusted_product_v2(&pool, v.numeric_identifier, v.amount)
-                .await
+            match ProductStore::amount_adjusted_product(&pool, v.numeric_identifier, v.amount).await
             {
                 Ok(product) => {
                     total = total + product.nutrients();
@@ -93,14 +92,13 @@ pub async fn run_report(
         }
         if v.entity == ProductEntity::Spi {
             println!("Entity");
-            match ProductStore::amount_adjusted_spi_products_v2(
-                &pool,
-                v.numeric_identifier,
-                v.amount,
-            )
-            .await
+            match ProductStore::amount_adjusted_spi_products(&pool, v.numeric_identifier, v.amount)
+                .await
             {
                 Ok(products) => {
+                    if products.len() == 0 {
+                        continue;
+                    }
                     let mut total_for_spi = Nutrients::default();
                     let mut products_for_spi = 0.0;
                     for p in products {
@@ -177,7 +175,7 @@ mod tests {
             name: "Ingredient Two".to_owned(),
             nutrients: nutrition_example.clone(),
             unit: Unit::Grams,
-            spi: Some(spi),
+            spi: Some(spi.numeric_code()),
         };
 
         let ingredient_id_one = ProductStore::insert_product(&pool, ingredient_one)

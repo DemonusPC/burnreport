@@ -11,6 +11,7 @@ import {
 import { highPrecisionMask, standardMask } from "../../util/schema/masks";
 import SearchForm from "../SearchForm";
 import { getSpiSearchSuggestions } from "../../util/data/requests";
+import SpiSelect from "../SpiSelect";
 
 interface Category {
   name: string;
@@ -24,7 +25,7 @@ interface Category {
 // Vitamins are stored as miligrams unlike basic macronutrients
 interface NutritionField {
   name: string;
-  fieldType: "text" | "masked" | "maskHighPrecision";
+  fieldType: "text" | "masked" | "maskHighPrecision" | "spi";
   defaultValue?: number;
   required?: boolean;
   unit?: "g" | "mg";
@@ -39,6 +40,11 @@ const requiredFields: Array<Category> = [
         fieldType: "text",
         required: true,
       },
+      {
+        name: "spi",
+        fieldType: "spi",
+        required: false
+      }
     ],
   },
   {
@@ -255,9 +261,8 @@ const capitalise = (value: string) => {
 
 const mapFields = (fields: Array<NutritionField>) => {
   return fields.map((field: NutritionField) => {
-    const label = `${capitalise(field.name)} ${
-      field.unit ? `(${field.unit})` : ""
-    } ${field.required ? " *" : ""}`;
+    const label = `${capitalise(field.name)} ${field.unit ? `(${field.unit})` : ""
+      } ${field.required ? " *" : ""}`;
 
     if (field.fieldType === "maskHighPrecision") {
       return (
@@ -279,6 +284,17 @@ const mapFields = (fields: Array<NutritionField>) => {
           <MaskedInput name={field.name} mask={standardMask} />
         </FormField>
       );
+    }
+
+    if (field.fieldType === "spi") {
+      return (<FormField
+        name={field.name}
+        label={label}
+        required={field.required || false}
+        validate={{ regexp: /^$|^[0-9]{1,35}::.{1,35}$/, message: "Must be of correct format <code>::<name>", status: "error" }}
+      >
+        <SpiSelect fieldName={field.name} suggestFunction={getSpiSearchSuggestions} />
+      </FormField>)
     }
 
     return (
@@ -316,9 +332,6 @@ const ProductForm = ({ onSubmit }: ProductFormProps): JSX.Element => {
     <Form onSubmit={onSubmit}>
       {mapCategories(requiredFields)}
 
-      <FormField name="spi" label="Spi" required={false}>
-        <TextInput name="spi" />
-      </FormField>
 
       {optional ? (
         <>{mapCategories(vitaminForm)}</>

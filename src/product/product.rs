@@ -18,7 +18,7 @@ pub struct CreateProductRequest {
     pub name: String,
     pub nutrients: Nutrients,
     pub unit: Unit,
-    pub spi: Option<StandardProductIdentifier>,
+    pub spi: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,17 +31,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub fn new(id: i32, name: String, nutrition: Nutrients, unit: Unit) -> Self {
-        Self {
-            id,
-            name,
-            nutrients: nutrition,
-            unit,
-            spi: None,
-        }
-    }
-
-    pub fn new_with_spi(
+    pub fn new(
         id: i32,
         name: String,
         nutrition: Nutrients,
@@ -142,7 +132,7 @@ impl Product {
             Err(_e) => None,
         };
 
-        Product::new_with_spi(row.get("id"), row.get("name"), nutrition, unit, product_spi)
+        Product::new(row.get("id"), row.get("name"), nutrition, unit, product_spi)
     }
 
     pub fn id(&self) -> i32 {
@@ -364,58 +354,6 @@ impl ProductStore {
 
     pub async fn amount_adjusted_product(
         pool: &SqlitePool,
-        id: i32,
-        amount: f64,
-    ) -> Result<Product, sqlx::Error> {
-        let result = sqlx::query(
-            r#"SELECT 
-                    id, 
-                    name, 
-                    unit,
-                    (kj/100) * $1 as kj,
-                    (kcal/100) * $1 as kcal,
-                    (carbohydrates/100) * $1 as carbohydrates,  
-                    (sugar/100) * $1 as sugar, 
-                    (fiber/100) * $1 as fiber, 
-                    (added_sugar/100) * $1 as added_sugar,  
-                    (starch/100) * $1 as starch, 
-                    (fat/100) * $1 as fat, 
-                    (saturated/100) * $1 as saturated, 
-                    (monounsaturated/100) * $1 as monounsaturated, 
-                    (omega_7/100) * $1 as omega_7, 
-                    (omega_9/100) * $1 as omega_9, 
-                    (polyunsaturated/100) * $1 as polyunsaturated, 
-                    (omega_3/100) * $1 as omega_3, 
-                    (omega_6/100) * $1 as omega_6, 
-                    (trans/100) * $1 as trans, 
-                    (protein/100) * $1 as protein, 
-                    (salt/100) * $1 as salt, 
-                    (a/100) * $1 as a, 
-                    (d/100) * $1 as d, 
-                    (e/100) * $1 as e, 
-                    (k/100) * $1 as k,
-                    (b1/100) * $1 as b1,
-                    (b2/100) * $1 as b2,
-                    (b3/100) * $1 as b3,
-                    (b5/100) * $1 as b5,
-                    (b6/100) * $1 as b6,
-                    (b7/100) * $1 as b7,
-                    (b9/100) * $1 as b9,
-                    (b12/100) * $1 as b12,
-                    (c/100) * $1 as c
-                    FROM full_product WHERE id = $2"#,
-        )
-        .bind(amount)
-        .bind(id)
-        .map(|row: SqliteRow| Product::from_row(&row))
-        .fetch_one(pool)
-        .await?;
-
-        Ok(result)
-    }
-
-    pub async fn amount_adjusted_product_v2(
-        pool: &SqlitePool,
         id: i64,
         amount: f64,
     ) -> Result<Product, sqlx::Error> {
@@ -466,7 +404,7 @@ impl ProductStore {
         Ok(result)
     }
 
-    pub async fn amount_adjusted_spi_products_v2(
+    pub async fn amount_adjusted_spi_products(
         pool: &SqlitePool,
         id: i64,
         amount: f64,
@@ -507,7 +445,9 @@ impl ProductStore {
                     (b9/100) * $1 as b9,
                     (b12/100) * $1 as b12,
                     (c/100) * $1 as c,
-                    s.numeric
+                    s.numeric_code,
+                    s.alphabetic_code,
+                    s.full_name
                     FROM full_product LEFT JOIN SPI as s ON s.numeric_code = spi WHERE spi = $2"#,
         )
         .bind(amount)
@@ -549,10 +489,10 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let spi = match product.spi {
-            Some(v) => Some(v.numeric_code()),
-            None => None,
-        };
+        // let spi = match product.spi {
+        //     Some(v) => Some(v.numeric_code()),
+        //     None => None,
+        // };
 
         let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt", "spi")  
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21) "#)
@@ -576,7 +516,7 @@ impl ProductStore {
         .bind(product.nutrients.fat().trans())
         .bind(product.nutrients.protein().total())
         .bind(product.nutrients.salt().total())
-        .bind(spi)
+        .bind(product.spi)
         .execute(&mut tx)
         .await?;
 
@@ -673,7 +613,7 @@ mod tests {
             name: expected_name.to_string(),
             nutrients: Nutrients::default(),
             unit: Unit::Grams,
-            spi: Some(spi),
+            spi: Some(spi.numeric_code()),
         };
 
         ProductStore::insert_product(&pool, product).await.unwrap();
