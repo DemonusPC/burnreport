@@ -1,46 +1,40 @@
 import React from "react";
-import { Box, Heading, Button } from "grommet";
+import { Box } from "grommet";
 import SearchForm from "../SearchForm";
 import { Portion } from "../../product/product";
 import {
-  postReport,
   getProductSizesById,
   getProductSearchSuggestions,
 } from "../../util/data/requests";
-import { ConsumedProduct, Report, ConsumedRaw } from "../../report/report";
+import { ReportItem, ConsumedRaw } from "../../report/report";
 import ProductItem from "../ProductItem";
-import { SearchSuggestion } from "../ProductSearchForm";
-
+import {
+  SearchSuggestion,
+  searchSuggestionToProductEntity,
+} from "../ProductSearchForm";
 
 export type ProductSelectState = Map<number, ConsumedRaw>;
-
 
 export const emptyState = (): ProductSelectState => {
   return new Map();
 };
 
-const boxConsumedProduct = (raw: ConsumedRaw): ConsumedProduct => {
+const boxConsumedProduct = (raw: ConsumedRaw): ReportItem => {
   const amount = raw.amount * raw.unit.grams;
   return {
-    id: raw.id,
-    name: raw.name,
+    numericIdentifier: raw.id,
+    entity: raw.entity,
     amount: amount,
   };
 };
 
-export const selectStateToConsumed = (state: ProductSelectState): ConsumedProduct[] => {
-
-  const rawProducts: Array<ConsumedRaw> = Array.from(
-    state.values()
-  );
+export const selectStateToConsumed = (
+  state: ProductSelectState
+): ReportItem[] => {
+  const rawProducts: Array<ConsumedRaw> = Array.from(state.values());
   const boxed = rawProducts.map((raw) => boxConsumedProduct(raw));
   return boxed;
-}
-
-
-// Data Operations
-
-// Report Opertaions
+};
 
 const baseUnit: Portion = {
   id: 0,
@@ -54,6 +48,7 @@ const addConsumedProduct = (suggestion: SearchSuggestion, setState: any) => {
   const boxedProduct: ConsumedRaw = {
     id: suggestion.id,
     name: suggestion.text,
+    entity: searchSuggestionToProductEntity(suggestion.entity),
     amount: 100,
     unit: baseUnit,
     unitOptions: [baseUnit],
@@ -152,8 +147,8 @@ const mapProductItems = (state: any, setState: any) => {
 };
 
 interface ReportFormProps {
-  state: ProductSelectState
-  setState: (state: ProductSelectState) => void
+  state: ProductSelectState;
+  setState: (state: ProductSelectState) => void;
 }
 
 const ProductSelect = ({ state, setState }: ReportFormProps) => {

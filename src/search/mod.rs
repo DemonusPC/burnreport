@@ -8,6 +8,7 @@ use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 pub enum SearchEntity {
     Product,
     Recipie,
+    Spi,
 }
 
 impl FromStr for SearchEntity {
@@ -17,6 +18,7 @@ impl FromStr for SearchEntity {
         match s {
             "Product" => Ok(SearchEntity::Product),
             "Recipie" => Ok(SearchEntity::Recipie),
+            "Spi" => Ok(SearchEntity::Spi),
             _ => Err(()),
         }
     }
@@ -27,6 +29,7 @@ impl Display for SearchEntity {
         match self {
             SearchEntity::Product => write!(f, "Product"),
             SearchEntity::Recipie => write!(f, "Recipie"),
+            SearchEntity::Spi => write!(f, "Spi"),
         }
     }
 }
@@ -96,11 +99,6 @@ impl SearchStore {
                 .bind(format!("%{}%", term))
                 .bind(entity.to_string())
                 .try_map(|row: SqliteRow| {
-                    // id
-                    // iunit
-                    // name
-                    // entity
-
                     let id: i64 = row.get("id");
                     let text: String = row.get("name");
                     let entity_string: String = row.get("entity");
@@ -125,7 +123,7 @@ mod tests {
     use crate::{
         config::setup,
         nutrients::Nutrients,
-        product::{Product, ProductStore, Unit},
+        product::{CreateProductRequest,  ProductStore, Unit},
         recipie::{IngredientCreateCommand, RecipieCreateCommand, RecipieStore},
     };
 
@@ -137,12 +135,12 @@ mod tests {
         setup(&pool).await.unwrap();
 
         // Basic setup
-        let ingredient_one = Product::new(
-            0,
-            "Test Product".to_owned(),
-            Nutrients::default(),
-            Unit::Grams,
-        );
+        let ingredient_one = CreateProductRequest {
+            name: "Test Product".to_owned(),
+            nutrients: Nutrients::default(),
+            unit: Unit::Grams,
+            spi: None,
+        };
         let ingredient_id_one = ProductStore::insert_product(&pool, ingredient_one)
             .await
             .unwrap();

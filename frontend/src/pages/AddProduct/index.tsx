@@ -18,11 +18,22 @@ const propertyToNumber = (property: number): number => {
   return 0;
 };
 
+const getSpi = (flatSpi: string): number | undefined => {
+  if (flatSpi) {
+    const [code] = flatSpi.split("::");
+    return Number.parseInt(code) || undefined;
+  }
+  return undefined;
+}
+
 const toProduct = (flat: any): Product => {
+
+  const spiCode = getSpi(flat.spi);
   const result: Product = {
     id: 0,
     name: flat.name,
     unit: Unit.Grams,
+    spi: spiCode,
     nutrients: {
       energy: {
         kcal: propertyToNumber(flat.kcal),
@@ -138,7 +149,7 @@ const AddProduct = () => {
         <Heading>Upload Products as CSV</Heading>
         <FileInput
           onChange={(e) => {
-            if (e.target.files) {
+            if (e && e.target.files) {
               fileChosen(e.target.files[0], setSent);
             }
           }}

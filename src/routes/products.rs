@@ -1,5 +1,6 @@
-use crate::product::{ApiResult, Portion, Product, ResultList};
+use crate::product::{ApiResult, CreateProductRequest, Portion, Product, ResultList};
 use crate::product::{FlatProduct, PortionStore, ProductStore};
+use crate::spi::{StandardProductIdentifier, StandardProductIdentifierStore};
 use actix_multipart::Multipart;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use futures::{StreamExt, TryStreamExt};
@@ -26,7 +27,10 @@ async fn get_single_product(pool: web::Data<SqlitePool>, path: web::Path<i32>) -
 }
 
 #[post("/api/products")]
-async fn post_product(pool: web::Data<SqlitePool>, product: web::Json<Product>) -> impl Responder {
+async fn post_product(
+    pool: web::Data<SqlitePool>,
+    product: web::Json<CreateProductRequest>,
+) -> impl Responder {
     let new_id = match ProductStore::insert_product(&pool, product.0).await {
         Ok(res) => res,
         Err(err) => {
@@ -183,6 +187,62 @@ async fn delete_portion(
         Ok(res) => res,
         Err(err) => {
             error!("Could not delete a portion due to error: {}", err);
+            return HttpResponse::InternalServerError().finish();
+        }
+    };
+
+    HttpResponse::Ok().json(ApiResult::new(200, Some("DELETED".to_owned()), None))
+}
+
+// SPI
+
+// Get single
+#[get("/api/spi/{id}")]
+async fn get_single_spi(pool: web::Data<SqlitePool>, path: web::Path<i64>) -> impl Responder {
+    let spi =
+        match StandardProductIdentifierStore::get_by_numeric_code(&pool, path.to_owned()).await {
+            Ok(res) => res,
+            Err(err) => match err {
+                sqlx::Error::RowNotFound => {
+                    return HttpResponse::NotFound().finish();
+                }
+                _ => {
+                    return HttpResponse::InternalServerError().finish();
+                }
+            },
+        };
+
+    HttpResponse::Ok().json(spi)
+}
+
+// Create
+#[post("/api/spi")]
+async fn post_spi(
+    pool: web::Data<SqlitePool>,
+    spi: web::Json<StandardProductIdentifier>,
+) -> impl Responder {
+    match StandardProductIdentifierStore::save(&pool, &spi.0).await {
+        Ok(res) => res,
+        Err(err) => {
+            error!("Error: {}", err);
+            return HttpResponse::InternalServerError().finish();
+        }
+    };
+
+    HttpResponse::Created().json(ApiResult::new(
+        201,
+        Some("CREATED".to_owned()),
+        Some(spi.0.numeric_code()),
+    ))
+}
+
+// Delete
+#[delete("/api/spi/{id}")]
+async fn delete_single_spi(pool: web::Data<SqlitePool>, path: web::Path<i64>) -> impl Responder {
+    match StandardProductIdentifierStore::delete_by_numeric_code(&pool, path.to_owned()).await {
+        Ok(res) => res,
+        Err(err) => {
+            error!("Failed to delete the product due error: {}", err);
             return HttpResponse::InternalServerError().finish();
         }
     };

@@ -10,6 +10,7 @@ mod recipie;
 mod report;
 mod routes;
 mod search;
+mod spi;
 
 use crate::config::setup;
 use sqlx::SqlitePool;

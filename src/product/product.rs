@@ -3,6 +3,7 @@ use crate::nutrients::{
     PolyUnsaturatedFat, Protein, Salt, TotalAble, UnsaturatedFat, Vitamins, WaterSoluble,
     WaterSolubleApi,
 };
+use crate::spi::StandardProductIdentifier;
 use serde_derive::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
@@ -13,20 +14,36 @@ pub enum Unit {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct CreateProductRequest {
+    pub name: String,
+    pub nutrients: Nutrients,
+    pub unit: Unit,
+    pub spi: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
     id: i32,
     name: String,
     nutrients: Nutrients,
     unit: Unit,
+    spi: Option<StandardProductIdentifier>,
 }
 
 impl Product {
-    pub fn new(id: i32, name: String, nutrition: Nutrients, unit: Unit) -> Self {
+    pub fn new(
+        id: i32,
+        name: String,
+        nutrition: Nutrients,
+        unit: Unit,
+        spi: Option<StandardProductIdentifier>,
+    ) -> Self {
         Self {
             id,
             name,
             nutrients: nutrition,
             unit,
+            spi,
         }
     }
 
@@ -106,7 +123,16 @@ impl Product {
             _ => Unit::Grams,
         };
 
-        Product::new(row.get("id"), row.get("name"), nutrition, unit)
+        let product_spi = match row.try_get("numeric_code") {
+            Ok(numeric_code) => Some(StandardProductIdentifier::new(
+                numeric_code,
+                row.get("alphabetic_code"),
+                row.get("full_name"),
+            )),
+            Err(_e) => None,
+        };
+
+        Product::new(row.get("id"), row.get("name"), nutrition, unit, product_spi)
     }
 
     pub fn id(&self) -> i32 {
@@ -147,6 +173,10 @@ impl Product {
 
     pub fn vitamins(&self) -> Option<Vitamins> {
         self.nutrients.vitamins()
+    }
+
+    pub fn spi(&self) -> Option<StandardProductIdentifier> {
+        self.spi.clone()
     }
 }
 
@@ -315,76 +345,7 @@ impl ProductStore {
         let result = sqlx::query("SELECT * FROM full_product WHERE id = ?")
             .bind(id)
             .map(|row: SqliteRow| {
-                // let name : String = row.get(0);
-                let energy: Energy = Energy::new(row.get(3), row.get(4));
-                let carbs: Carbohydrates = Carbohydrates::new(row.get(5), row.get(6))
-                    .with_fiber(row.try_get(7).unwrap_or_default())
-                    .with_added_sugar(row.try_get(8).unwrap_or_default())
-                    .with_starch(row.try_get(9).unwrap_or_default())
-                    .build();
-
-                let monounsaturated = match row.try_get(12) {
-                    Ok(v) => Some(MonoUnsaturatedFat::new(
-                        v,
-                        row.try_get(13).unwrap_or_default(),
-                        row.try_get(14).unwrap_or_default(),
-                    )),
-                    Err(_error) => Option::None,
-                };
-                let polysaturated = match row.try_get(15) {
-                    Ok(v) => Some(PolyUnsaturatedFat::new(
-                        v,
-                        row.try_get(16).unwrap_or_default(),
-                        row.try_get(17).unwrap_or_default(),
-                    )),
-                    Err(_error) => Option::None,
-                };
-
-                let unsaturated = match monounsaturated.is_some() || polysaturated.is_some() {
-                    true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
-                    false => Option::None,
-                };
-                let fat: Fat = Fat::new(row.get(10), row.get(11))
-                    .with_unsaturated(unsaturated)
-                    .with_trans(row.try_get(18).unwrap_or_default())
-                    .build();
-
-                let protein: Protein = Protein::new(row.get(19));
-                let salt: Salt = Salt::new(row.get(20));
-
-                let fat_sol = FatSoluble::new(
-                    row.try_get(21).unwrap_or_default(),
-                    row.try_get(22).unwrap_or_default(),
-                    row.try_get(23).unwrap_or_default(),
-                    row.try_get(24).unwrap_or_default(),
-                );
-                let water_sol = WaterSoluble::new(
-                    row.try_get(25).unwrap_or_default(),
-                    row.try_get(26).unwrap_or_default(),
-                    row.try_get(27).unwrap_or_default(),
-                    row.try_get(28).unwrap_or_default(),
-                    row.try_get(29).unwrap_or_default(),
-                    row.try_get(30).unwrap_or_default(),
-                    row.try_get(31).unwrap_or_default(),
-                    row.try_get(32).unwrap_or_default(),
-                    row.try_get(33).unwrap_or_default(),
-                );
-
-                let vitamin_content = Vitamins::new(fat_sol, water_sol);
-
-                let vitamin_option = match vitamin_content.is_zero() {
-                    true => Option::None,
-                    false => Some(vitamin_content),
-                };
-
-                let nutrition: Nutrients =
-                    Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
-
-                let unit = match row.get(2) {
-                    "ml" => Unit::Mililiters,
-                    _ => Unit::Grams,
-                };
-                Product::new(row.get(0), row.get(1), nutrition, unit)
+                return Product::from_row(&row);
             })
             .fetch_one(pool)
             .await?;
@@ -393,7 +354,7 @@ impl ProductStore {
 
     pub async fn amount_adjusted_product(
         pool: &SqlitePool,
-        id: i32,
+        id: i64,
         amount: f64,
     ) -> Result<Product, sqlx::Error> {
         let result = sqlx::query(
@@ -436,94 +397,79 @@ impl ProductStore {
         )
         .bind(amount)
         .bind(id)
-        .map(|row: SqliteRow| {
-            // let name : String = row.get(0);
-
-            let energy: Energy = Energy::new(row.get(3), row.get(4));
-            let carbs: Carbohydrates = Carbohydrates::new(row.get(5), row.get(6))
-                .with_fiber(row.try_get(7).unwrap_or_default())
-                .with_added_sugar(row.try_get(8).unwrap_or_default())
-                .with_starch(row.try_get(9).unwrap_or_default())
-                .build();
-
-            let monounsaturated = match row.try_get(12) {
-                Ok(v) => Some(MonoUnsaturatedFat::new(
-                    v,
-                    row.try_get(13).unwrap_or_default(),
-                    row.try_get(14).unwrap_or_default(),
-                )),
-                Err(_error) => Option::None,
-            };
-            let polysaturated = match row.try_get(15) {
-                Ok(v) => Some(PolyUnsaturatedFat::new(
-                    v,
-                    row.try_get(16).unwrap_or_default(),
-                    row.try_get(17).unwrap_or_default(),
-                )),
-                Err(_error) => Option::None,
-            };
-
-            let unsaturated = match monounsaturated.is_some() || polysaturated.is_some() {
-                true => Some(UnsaturatedFat::new(monounsaturated, polysaturated)),
-                false => Option::None,
-            };
-
-            let fat: Fat = Fat::new(row.get(10), row.get(11))
-                .with_unsaturated(unsaturated)
-                .with_trans(row.try_get(18).unwrap_or_default())
-                .build();
-
-            let protein: Protein = Protein::new(row.get(19));
-            let salt: Salt = Salt::new(row.get(20));
-
-            let fat_sol = FatSoluble::new(
-                row.try_get(21).unwrap_or_default(),
-                row.try_get(22).unwrap_or_default(),
-                row.try_get(23).unwrap_or_default(),
-                row.try_get(24).unwrap_or_default(),
-            );
-            let water_sol = WaterSoluble::new(
-                row.try_get(25).unwrap_or_default(),
-                row.try_get(26).unwrap_or_default(),
-                row.try_get(27).unwrap_or_default(),
-                row.try_get(28).unwrap_or_default(),
-                row.try_get(29).unwrap_or_default(),
-                row.try_get(30).unwrap_or_default(),
-                row.try_get(31).unwrap_or_default(),
-                row.try_get(32).unwrap_or_default(),
-                row.try_get(33).unwrap_or_default(),
-            );
-
-            let vitamin_content = Vitamins::new(fat_sol, water_sol);
-
-            let vitamin_option = match vitamin_content.is_zero() {
-                true => Option::None,
-                false => Some(vitamin_content),
-            };
-
-            let nutrition: Nutrients =
-                Nutrients::new(energy, carbs, fat, protein, salt, vitamin_option);
-
-            let unit = match row.get(2) {
-                "ml" => Unit::Mililiters,
-                _ => Unit::Grams,
-            };
-            Product::new(row.get(0), row.get(1), nutrition, unit)
-        })
+        .map(|row: SqliteRow| Product::from_row(&row))
         .fetch_one(pool)
         .await?;
 
         Ok(result)
     }
 
-    pub async fn insert_product(pool: &SqlitePool, product: Product) -> Result<i64, sqlx::Error> {
+    pub async fn amount_adjusted_spi_products(
+        pool: &SqlitePool,
+        id: i64,
+        amount: f64,
+    ) -> Result<Vec<Product>, sqlx::Error> {
+        let result = sqlx::query(
+            r#"SELECT 
+                    id, 
+                    name, 
+                    unit,
+                    (kj/100) * $1 as kj,
+                    (kcal/100) * $1 as kcal,
+                    (carbohydrates/100) * $1 as carbohydrates,  
+                    (sugar/100) * $1 as sugar, 
+                    (fiber/100) * $1 as fiber, 
+                    (added_sugar/100) * $1 as added_sugar,  
+                    (starch/100) * $1 as starch, 
+                    (fat/100) * $1 as fat, 
+                    (saturated/100) * $1 as saturated, 
+                    (monounsaturated/100) * $1 as monounsaturated, 
+                    (omega_7/100) * $1 as omega_7, 
+                    (omega_9/100) * $1 as omega_9, 
+                    (polyunsaturated/100) * $1 as polyunsaturated, 
+                    (omega_3/100) * $1 as omega_3, 
+                    (omega_6/100) * $1 as omega_6, 
+                    (trans/100) * $1 as trans, 
+                    (protein/100) * $1 as protein, 
+                    (salt/100) * $1 as salt, 
+                    (a/100) * $1 as a, 
+                    (d/100) * $1 as d, 
+                    (e/100) * $1 as e, 
+                    (k/100) * $1 as k,
+                    (b1/100) * $1 as b1,
+                    (b2/100) * $1 as b2,
+                    (b3/100) * $1 as b3,
+                    (b5/100) * $1 as b5,
+                    (b6/100) * $1 as b6,
+                    (b7/100) * $1 as b7,
+                    (b9/100) * $1 as b9,
+                    (b12/100) * $1 as b12,
+                    (c/100) * $1 as c,
+                    s.numeric_code,
+                    s.alphabetic_code,
+                    s.full_name
+                    FROM full_product LEFT JOIN SPI as s ON s.numeric_code = spi WHERE spi = $2"#,
+        )
+        .bind(amount)
+        .bind(id)
+        .map(|row: SqliteRow| Product::from_row(&row))
+        .fetch_all(pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    pub async fn insert_product(
+        pool: &SqlitePool,
+        product: CreateProductRequest,
+    ) -> Result<i64, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let raw_unit = match product.unit() {
+        let raw_unit = match product.unit {
             Unit::Grams => "Grams".to_owned(),
             Unit::Mililiters => "Mililiters".to_owned(),
         };
 
-        let monounsaturated = match product.fat().unsaturated() {
+        let monounsaturated = match product.nutrients.fat().unsaturated() {
             Some(v) => v.mono(),
             None => Option::None,
         };
@@ -533,7 +479,7 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let polyunsaturated = match product.fat().unsaturated() {
+        let polyunsaturated = match product.nutrients.fat().unsaturated() {
             Some(v) => v.poly(),
             None => Option::None,
         };
@@ -543,34 +489,40 @@ impl ProductStore {
             None => (0.0, Option::None, Option::None),
         };
 
-        let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt")  
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20) "#)
-        .bind(product.name())
+        // let spi = match product.spi {
+        //     Some(v) => Some(v.numeric_code()),
+        //     None => None,
+        // };
+
+        let result = sqlx::query(r#"INSERT INTO Products ("name", "unit", "kj", "kcal", "carbohydrates", "sugar", "fiber", "added_sugar", "starch", "fat", "saturated", "monounsaturated", "omega_7", "omega_9", "polyunsaturated", "omega_3", "omega_6", "trans", "protein", "salt", "spi")  
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21) "#)
+        .bind(product.name)
         .bind(raw_unit)
-        .bind(product.energy().k_j())
-        .bind(product.energy().kcal())
-        .bind(product.carbohydrates().total())
-        .bind(product.carbohydrates().sugar())
-        .bind(product.carbohydrates().fiber())
-        .bind(product.carbohydrates().added_sugar())
-        .bind(product.carbohydrates().starch())
-        .bind(product.fat().total())
-        .bind(product.fat().saturated())
+        .bind(product.nutrients.energy().k_j())
+        .bind(product.nutrients.energy().kcal())
+        .bind(product.nutrients.carbohydrates().total())
+        .bind(product.nutrients.carbohydrates().sugar())
+        .bind(product.nutrients.carbohydrates().fiber())
+        .bind(product.nutrients.carbohydrates().added_sugar())
+        .bind(product.nutrients.carbohydrates().starch())
+        .bind(product.nutrients.fat().total())
+        .bind(product.nutrients.fat().saturated())
         .bind(mono_total)
         .bind(omega_7)
         .bind(omega_9)
         .bind(poly_total)
         .bind(omega_3)
         .bind(omega_6)
-        .bind(product.fat().trans())
-        .bind(product.protein().total())
-        .bind(product.salt().total())
+        .bind(product.nutrients.fat().trans())
+        .bind(product.nutrients.protein().total())
+        .bind(product.nutrients.salt().total())
+        .bind(product.spi)
         .execute(&mut tx)
         .await?;
 
         let product_id = result.last_insert_rowid();
 
-        if let Some(v) = product.vitamins() {
+        if let Some(v) = product.nutrients.vitamins() {
             sqlx::query(
                 r#"
                 INSERT INTO "Vitamins"
@@ -612,5 +564,65 @@ impl ProductStore {
         tx.commit().await?;
 
         Ok(())
+    }
+
+    pub async fn list_by_spi(
+        pool: &SqlitePool,
+        numeric_code: i64,
+    ) -> Result<Vec<Product>, sqlx::Error> {
+        let result = sqlx::query(
+            "SELECT * FROM full_product LEFT JOIN SPI as s ON s.numeric_code = spi WHERE spi = ?1;",
+        )
+        .bind(numeric_code)
+        .map(|row: SqliteRow| {
+            return Product::from_row(&row);
+        })
+        .fetch_all(pool)
+        .await?;
+        Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sqlx::SqlitePool;
+
+    use crate::{
+        config::setup,
+        nutrients::Nutrients,
+        product::{product::CreateProductRequest, Unit},
+        spi::{StandardProductIdentifier, StandardProductIdentifierStore},
+    };
+
+    use super::ProductStore;
+
+    #[actix_web::test]
+    async fn get_products_by_spi_numeric_code() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        setup(&pool).await.unwrap();
+
+        let spi = StandardProductIdentifier::new(420, "UNBTTR", "Unsalted Butter");
+
+        StandardProductIdentifierStore::save(&pool, &spi)
+            .await
+            .unwrap();
+
+        let expected_name = "Walmart Unsalted Butter";
+
+        let product = CreateProductRequest {
+            name: expected_name.to_string(),
+            nutrients: Nutrients::default(),
+            unit: Unit::Grams,
+            spi: Some(spi.numeric_code()),
+        };
+
+        ProductStore::insert_product(&pool, product).await.unwrap();
+
+        let result = ProductStore::list_by_spi(&pool, 420).await.unwrap();
+
+        assert_eq!(result.len(), 1);
+
+        let result_product = &result[0];
+        assert_eq!(result_product.name(), expected_name)
     }
 }

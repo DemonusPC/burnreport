@@ -228,7 +228,7 @@ mod tests {
     use crate::{
         config::setup,
         nutrients::{Carbohydrates, Energy, Fat, Nutrients, Protein, Salt},
-        product::{Product, ProductStore, Unit},
+        product::{CreateProductRequest, Product, ProductStore, Unit},
         recipie::{IngredientCreateCommand, RecipieCreateCommand},
     };
 
@@ -249,18 +249,18 @@ mod tests {
             None,
         );
 
-        let ingredient_one = Product::new(
-            0,
-            "Ingredient One".to_owned(),
-            nutrition_example.clone(),
-            Unit::Grams,
-        );
-        let ingredient_two = Product::new(
-            1,
-            "Ingredient Two".to_owned(),
-            nutrition_example.clone(),
-            Unit::Grams,
-        );
+        let ingredient_one = CreateProductRequest {
+            name: "Ingredient One".to_owned(),
+            nutrients: nutrition_example.clone(),
+            unit: Unit::Grams,
+            spi: None,
+        };
+        let ingredient_two = CreateProductRequest {
+            name: "Ingredient Two".to_owned(),
+            nutrients: nutrition_example.clone(),
+            unit: Unit::Grams,
+            spi: None,
+        };
 
         let ingredient_id_one = ProductStore::insert_product(&pool, ingredient_one)
             .await

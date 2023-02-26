@@ -2,6 +2,7 @@ mod base;
 mod vitamins;
 
 use std::ops::Add;
+use std::ops::Div;
 use std::ops::Mul;
 
 pub use self::base::Carbohydrates;
@@ -41,6 +42,13 @@ fn multiply_option_by_constant<T: Mul<f64, Output = T> + Clone>(
 ) -> Option<T> {
     if a.is_some() {
         return Some(a.clone().unwrap() * b);
+    }
+
+    Option::None
+}
+fn divide_option_by_constant<T: Div<f64, Output = T> + Clone>(a: &Option<T>, b: f64) -> Option<T> {
+    if a.is_some() {
+        return Some(a.clone().unwrap() / b);
     }
 
     Option::None

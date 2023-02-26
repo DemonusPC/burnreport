@@ -27,6 +27,8 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
             "trans"	REAL,
             "protein"	REAL NOT NULL,
             "salt"	REAL NOT NULL,
+            "spi"	INTEGER,
+            FOREIGN KEY("spi") REFERENCES "SPI"("numeric_code") ON UPDATE SET NULL,
             PRIMARY KEY("id" AUTOINCREMENT)
         );        
 
@@ -58,12 +60,19 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         );
         CREATE VIEW IF NOT EXISTS full_product
             AS 
-            SELECT f.id, f.name, f.unit, f.kj,  f.kcal, f.carbohydrates, f.sugar, f.fiber, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.omega_7, f.omega_9, f.polyunsaturated, f.omega_3, f.omega_6, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c FROM Products as f LEFT JOIN Vitamins as v ON f.id = v.product;
+            SELECT f.id, f.name, f.unit, f.kj,  f.kcal, f.carbohydrates, f.sugar, f.fiber, f.added_sugar, f.starch, f.fat, f.saturated, f.monounsaturated, f.omega_7, f.omega_9, f.polyunsaturated, f.omega_3, f.omega_6, f.trans, f.protein, f.salt, v.a, v.d, v.e, v.k, v.b1, v.b2, v.b3, v.b5, v.b6, v.b7, v.b9, v.b12, v.c, f.spi FROM Products as f LEFT JOIN Vitamins as v ON f.id = v.product;
 
         CREATE TABLE IF NOT EXISTS "Recipies" (
             "id"	INTEGER,
             "name"	TEXT NOT NULL,
             PRIMARY KEY("id" AUTOINCREMENT)
+        );
+
+        CREATE TABLE IF NOT EXISTS "SPI" (
+            "numeric_code"	INTEGER NOT NULL UNIQUE,
+            "alphabetic_code"	TEXT NOT NULL UNIQUE,
+            "full_name"	TEXT NOT NULL,
+            PRIMARY KEY("numeric_code")
         );
 
         CREATE TABLE IF NOT EXISTS "Ingredients" (
@@ -80,7 +89,9 @@ pub async fn setup(pool: &SqlitePool) -> Result<bool, sqlx::Error> {
         AS
             SELECT id, name, 'Grams' as unit, 'Recipie' as entity FROM Recipies
             UNION
-            SELECT id, name, unit, 'Product' as entity FROM Products;
+            SELECT id, name, unit, 'Product' as entity FROM Products
+            UNION
+            SELECT numeric_code as id, full_name as name, alphabetic_code as unit, 'Spi' as entity FROM SPI;
         
         "#
     )

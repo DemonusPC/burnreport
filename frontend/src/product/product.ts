@@ -9,6 +9,7 @@ export type Product = {
   name: string;
   nutrients: Nutrients;
   unit: Unit;
+  spi: number | undefined;
 };
 
 export const emptyNutrients = (): Nutrients => {
@@ -40,6 +41,7 @@ export const emptyProduct = (): Product => {
     id: 0,
     name: "",
     nutrients: emptyNutrients(),
+    spi: undefined,
     unit: Unit.Grams,
   };
 

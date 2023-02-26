@@ -1,11 +1,13 @@
 import React from "react";
-import { SearchSuggestion } from "../../containers/ProductSearchForm";
+import { SearchEntity, SearchSuggestion } from "../../containers/ProductSearchForm";
 import AnchorLink from "../AnchorLink";
 
-const ProductCell = ({ id, text }: SearchSuggestion) => {
+const ProductCell = ({ id, text, entity }: SearchSuggestion) => {
+
+  const urlEntity = entity === SearchEntity.Spi ? "spi" : "products";
   return (
     <AnchorLink
-      to={encodeURI(`/products/${id}`)}
+      to={encodeURI(`/${urlEntity}/${id}`)}
       margin={{ top: "samll", bottom: "small" }}
       size="large"
       label={text}
