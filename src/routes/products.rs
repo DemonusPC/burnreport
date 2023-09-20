@@ -1,4 +1,4 @@
-use crate::product::{ApiResult, CreateProductRequest, Portion, Product, ResultList};
+use crate::product::{ApiResult, CreateProductRequest, Portion, ResultList};
 use crate::product::{FlatProduct, PortionStore, ProductStore};
 use crate::spi::{StandardProductIdentifier, StandardProductIdentifierStore};
 use actix_multipart::Multipart;

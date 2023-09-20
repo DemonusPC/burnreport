@@ -95,21 +95,6 @@ const ProductPage = () => {
           mapToBarValues={nutrientsToBarValues}
           calculateTotal={nutrientsToBarTotal}
         />
-        <Heading level={4}>
-          {calculateToDisplay(
-            data.nutrients.energy.kcal,
-            state.per,
-            state.unit.grams
-          )}
-          kcal /
-          {calculateToDisplay(
-            data.nutrients.energy.kj,
-            state.per,
-            state.unit.grams
-          )}
-          kJ
-        </Heading>
-
         <PerWrapper
           fill={false}
           direction="row"
