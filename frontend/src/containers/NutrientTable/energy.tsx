@@ -6,12 +6,13 @@ import { Box, Text } from 'grommet';
 type EneryRowProps = {
     energy: Energy,
     amount: number,
+    baseUnit: number
 }
 
-const EnergyRow = ({ energy, amount = 100 }: EneryRowProps) => {
+const EnergyRow = ({ energy, amount = 100, baseUnit }: EneryRowProps) => {
 
-    const kj = calculateToDisplay(energy.kj, amount, 1)
-    const kcal = calculateToDisplay(energy.kcal, amount, 1)
+    const kj = calculateToDisplay(energy.kj, amount, baseUnit);
+    const kcal = calculateToDisplay(energy.kcal, amount, baseUnit);
 
     return <>
         <Box

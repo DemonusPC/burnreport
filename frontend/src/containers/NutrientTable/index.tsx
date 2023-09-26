@@ -2,7 +2,6 @@ import React from "react";
 import { extractTabularNutrients } from "../../util/data/calculations";
 import NutrientTableRow from "../../components/NutrientTableRow";
 import { Nutrients } from "../../nutrients/nutrients";
-import { Box, Text } from "grommet";
 import EnergyRow from "./energy";
 
 interface NutrientTableProps {
@@ -18,7 +17,7 @@ const NutrientTable = ({ nutrients, amount, baseUnit }: NutrientTableProps) => {
     <NutrientTableRow key={`${row.name}-${row.level}`} row={row} />
   ));
 
-  return <><EnergyRow energy={nutrients.energy} amount={amount} /> {rowElements}</>;
+  return <><EnergyRow energy={nutrients.energy} amount={amount} baseUnit={baseUnit} /> {rowElements}</>;
 };
 
 
