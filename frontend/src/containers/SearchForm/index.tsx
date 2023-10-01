@@ -60,7 +60,6 @@ const SearchForm = ({
 
   const onSelect = (event: { suggestion: any }) => {
     const selected = confirmProduct(event.suggestion, sug.original);
-    console.log(event.suggestion)
     setState({
       ...state,
       value: event.suggestion,
@@ -74,6 +73,7 @@ const SearchForm = ({
   return (
     <Box width="large">
       <TextInput
+        aria-label={fieldName}
         name={fieldName}
         icon={<Search />}
         value={state.value}

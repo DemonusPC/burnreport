@@ -1,26 +1,25 @@
 import React from 'react'
 
-
-
 import { Heading, Box } from "grommet";
-import useSWR from "swr";
 import useQuery from '../../../util/useQuery';
-import { fetcher, ResultList } from '../../../util/data/requests';
 import ProductSearchForm, { SearchSuggestion } from '../../../containers/ProductSearchForm';
 import RecipieCell from '../../../components/RecipieCell';
 import { getRecipieSearchSuggestions, recipieListUrl } from '../Search';
+import { UseRecipieSearch, useRecipieSearch } from '../recipieAPi/recipieApi';
 
-const RecipieList = () => {
+type RecipieListProps = {
+    useRecipie?: UseRecipieSearch
+}
+
+const RecipieList = ({ useRecipie = useRecipieSearch }: RecipieListProps) => {
     const toSearch = useQuery().get("p") || "";
-    const { data, error } = useSWR<ResultList<SearchSuggestion>>(
-        encodeURI(`/api/search?p=${toSearch}&e=recipie`),
-        fetcher
-    );
+
+    const { recipie, error } = useRecipie(toSearch);
 
     if (error) return <div>An error occured</div>;
-    if (!data) return <div>loading...</div>;
+    if (!recipie) return <div>loading...</div>;
 
-    const productResult = data.result.map((p: SearchSuggestion) => {
+    const productResult = recipie.map((p: SearchSuggestion) => {
         return <RecipieCell {...p} key={`${p.text}${p.subText}`} />;
     });
 

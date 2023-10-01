@@ -1,9 +1,9 @@
 import React from "react";
 import { Box, Button, Form, TextInput } from "grommet";
 import { Search } from "grommet-icons";
-import { getProductSearchSuggestions } from "../../util/data/requests";
 import { useHistory } from "react-router";
 import { ProductEntity } from "../../report/report";
+import { getProductSearchSuggestions } from "../../pages/product/productApi";
 
 export enum SearchEntity {
   Product = "product",

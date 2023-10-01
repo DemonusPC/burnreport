@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 use std::ops::{Add, Div, Mul};
 
-use super::{add_options, divide_option_by_constant, multiply_option_by_constant, Fat};
+use super::{add_options, divide_option_by_constant, multiply_option_by_constant};
 
 pub trait FatSolubleApi {
     fn a(&self) -> Option<f64>;

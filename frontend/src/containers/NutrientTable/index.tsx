@@ -1,8 +1,8 @@
 import React from "react";
-import { emptyProduct } from "../../product/product";
 import { extractTabularNutrients } from "../../util/data/calculations";
 import NutrientTableRow from "../../components/NutrientTableRow";
 import { Nutrients } from "../../nutrients/nutrients";
+import EnergyRow from "./energy";
 
 interface NutrientTableProps {
   nutrients: Nutrients;
@@ -17,13 +17,8 @@ const NutrientTable = ({ nutrients, amount, baseUnit }: NutrientTableProps) => {
     <NutrientTableRow key={`${row.name}-${row.level}`} row={row} />
   ));
 
-  return <>{rowElements}</>;
+  return <><EnergyRow energy={nutrients.energy} amount={amount} baseUnit={baseUnit} /> {rowElements}</>;
 };
 
-// TODO: that needs removal
-NutrientTable.defaultProps = {
-  product: emptyProduct(),
-  amount: 100,
-};
 
 export default NutrientTable;

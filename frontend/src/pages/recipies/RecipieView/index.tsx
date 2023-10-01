@@ -1,49 +1,50 @@
-import { Accordion, AccordionPanel, Anchor, Box, Button, Heading, PageHeader } from 'grommet';
+import { Accordion, AccordionPanel, Box, Button, PageHeader } from 'grommet';
 import React from 'react'
 import { useHistory, useParams } from 'react-router-dom';
-import useSWR from 'swr';
 import AdditionalTable from '../../../containers/AdditionalTable';
 import Bar from '../../../containers/Bar';
 import NutrientTable from '../../../containers/NutrientTable';
 import { nutrientsToBarTotal, nutrientsToBarValues } from '../../../nutrients/nutrients';
 import { vitaminsToRow } from '../../../nutrients/vitamins';
-import { Recipie } from '../../../recipie/recipie';
-import { deleteRecipie, fetcher } from '../../../util/data/requests';
+import { deleteRecipie } from '../../../util/data/requests';
+import { GetRecipie, fetchRecipie } from './recipieApi';
 
 interface IdParams {
     id: string;
 }
 
-const RecipieView = () => {
+type RecipieViewProps = {
+    recipieFetcher?: GetRecipie;
+}
+
+const RecipieView = ({ recipieFetcher = fetchRecipie }: RecipieViewProps) => {
     const history = useHistory();
     const params: IdParams = useParams<IdParams>();
     const parsed = Number.parseInt(params.id);
 
-    const { data, error } = useSWR<Recipie | null>(
-        encodeURI(`/api/recipies/${parsed}`),
-        fetcher
-    );
+    const { recipie, error } = recipieFetcher(parsed);
+
 
 
     if (error) return <div>Error</div>;
-    if (!data) return <div>loading...</div>;
+    if (!recipie) return <div>loading...</div>;
 
     return (
         <Box pad="large" gridArea='main'>
             <PageHeader
-                title={data.name}
+                title={recipie.name}
                 subtitle="Recipie"
             />
-            <Bar data={data.total} mapToBarValues={nutrientsToBarValues} calculateTotal={nutrientsToBarTotal} />
+            <Bar data={recipie.total} mapToBarValues={nutrientsToBarValues} calculateTotal={nutrientsToBarTotal} />
             <NutrientTable
-                nutrients={data.total}
+                nutrients={recipie.total}
                 amount={100}
                 baseUnit={1}
             />
             <Accordion animate={true} multiple={false}>
                 <AccordionPanel label="Vitamins">
                     <AdditionalTable
-                        entity={data.total.vitamins}
+                        entity={recipie.total.vitamins}
                         mapper={vitaminsToRow}
                         unit={"mg"}
                     />
@@ -62,7 +63,7 @@ const RecipieView = () => {
                     type="button"
                     label="Delete Recipie"
                     onClick={async () => {
-                        await deleteRecipie(data.id);
+                        await deleteRecipie(recipie.id);
                         history.push("/products");
                     }}
                 />

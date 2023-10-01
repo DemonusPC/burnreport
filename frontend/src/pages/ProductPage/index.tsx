@@ -10,11 +10,9 @@ import {
 import React from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import useSWR from "swr";
 import NutrientTable from "../../containers/NutrientTable";
-import { calculateToDisplay } from "../../util/data/calculations";
-import { deleteProduct, fetcher, ResultList } from "../../util/data/requests";
-import { Product, Portion } from "../../product/product";
+import { deleteProduct } from "../../util/data/requests";
+import { Portion } from "../../product/product";
 import { Return } from "grommet-icons";
 import AdditionalTable from "../../containers/AdditionalTable";
 import { vitaminsToRow } from "../../nutrients/vitamins";
@@ -25,6 +23,7 @@ import {
   nutrientsToBarValues,
 } from "../../nutrients/nutrients";
 import Bar from "../../containers/Bar";
+import { UseProduct, UseProductPortions, useProduct, useProductPortions } from "../product/productApi";
 
 const PerWrapper = styled(Box)`
   align-items: center;
@@ -45,7 +44,12 @@ interface ProductParams {
   id: string;
 }
 
-const ProductPage = () => {
+type ProductPageProps = {
+  productFetcher?: UseProduct
+  portionFetcher?: UseProductPortions
+}
+
+const ProductPage = ({ productFetcher = useProduct, portionFetcher = useProductPortions }: ProductPageProps) => {
   const history = useHistory();
   const params: ProductParams = useParams<ProductParams>();
   const parsed = Number.parseInt(params.id);
@@ -55,19 +59,15 @@ const ProductPage = () => {
     unitOptions: [base],
   });
 
-  const { data, error } = useSWR<Product | null>(
-    encodeURI(`/api/products/${parsed}`),
-    fetcher
-  );
-  const portions = useSWR<ResultList<Portion>>(
-    encodeURI(`/api/products/${parsed}/portions`),
-    fetcher
-  );
+  const { data, error } = productFetcher(parsed);
+
+  const portions = portionFetcher(parsed);
+
 
   if (error || portions.error) return <div>Error</div>;
-  if (!data || !portions.data) return <div>loading...</div>;
+  if (!data || !portions.portions) return <div>loading...</div>;
 
-  const availablePortions = [base].concat(portions.data.result);
+  const availablePortions = portions.portions;
 
   return (
     <Box pad="large" gridArea="main">
@@ -95,21 +95,6 @@ const ProductPage = () => {
           mapToBarValues={nutrientsToBarValues}
           calculateTotal={nutrientsToBarTotal}
         />
-        <Heading level={4}>
-          {calculateToDisplay(
-            data.nutrients.energy.kcal,
-            state.per,
-            state.unit.grams
-          )}
-          kcal /
-          {calculateToDisplay(
-            data.nutrients.energy.kj,
-            state.per,
-            state.unit.grams
-          )}
-          kJ
-        </Heading>
-
         <PerWrapper
           fill={false}
           direction="row"
@@ -120,6 +105,7 @@ const ProductPage = () => {
             Per
           </Heading>
           <TextInput
+            aria-label="per-input"
             placeholder="100"
             value={state.per}
             onChange={(event: { target: { value: any } }) => {
@@ -135,6 +121,7 @@ const ProductPage = () => {
             name="select"
             placeholder="Select"
             labelKey="name"
+            aria-label="select-unit"
             value={state.unit}
             options={availablePortions}
             onChange={({ option }) => {

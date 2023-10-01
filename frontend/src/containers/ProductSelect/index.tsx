@@ -4,7 +4,6 @@ import SearchForm from "../SearchForm";
 import { Portion } from "../../product/product";
 import {
   getProductSizesById,
-  getProductSearchSuggestions,
 } from "../../util/data/requests";
 import { ReportItem, ConsumedRaw } from "../../report/report";
 import ProductItem from "../ProductItem";
@@ -12,6 +11,7 @@ import {
   SearchSuggestion,
   searchSuggestionToProductEntity,
 } from "../ProductSearchForm";
+import { GetSearch, getProductSearchSuggestions } from "../../pages/product/productApi";
 
 export type ProductSelectState = Map<number, ConsumedRaw>;
 
@@ -149,9 +149,10 @@ const mapProductItems = (state: any, setState: any) => {
 interface ReportFormProps {
   state: ProductSelectState;
   setState: (state: ProductSelectState) => void;
+  search?: GetSearch
 }
 
-const ProductSelect = ({ state, setState }: ReportFormProps) => {
+const ProductSelect = ({ state, setState, search = getProductSearchSuggestions }: ReportFormProps) => {
   return (
     <Box>
       <Box pad={{ bottom: "large" }}>{mapProductItems(state, setState)}</Box>
@@ -162,7 +163,7 @@ const ProductSelect = ({ state, setState }: ReportFormProps) => {
             addConsumedProduct(suggestion, setState);
             getProductUnitOptions(suggestion.id, setState);
           }}
-          suggestFunction={getProductSearchSuggestions}
+          suggestFunction={search}
         />
       </Box>
     </Box>

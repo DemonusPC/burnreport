@@ -14,7 +14,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "test": "jest",
+    "test": "jest --env=jsdom",
     "lint": "eslint src/** --fix"
   },
   "eslintConfig": {

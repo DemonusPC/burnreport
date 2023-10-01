@@ -24,15 +24,6 @@ export const fetcher = async (url: string) =>
     return await r.json();
   });
 
-export const getProductSearchSuggestions = async (
-  suggestion: string
-): Promise<SearchSuggestion[]> => {
-  const request = await fetch(encodeURI(`/api/search?p=${suggestion}`));
-
-  const result: ResultList<SearchSuggestion> = await request.json();
-
-  return result.result.filter((se) => se.entity !== SearchEntity.Recipie);
-};
 export const getSpiSearchSuggestions = async (
   suggestion: string
 ): Promise<SearchSuggestion[]> => {
