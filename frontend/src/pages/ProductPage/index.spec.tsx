@@ -1,13 +1,14 @@
 import { MemoryRouter, Route } from "react-router-dom";
 import ProductPage from ".";
 import { RenderResult, render } from "@testing-library/react";
-import { GetProduct, GetProductPortions } from "./productApi";
+import { UseProduct, UseProductPortions } from "../product/productApi";
 import { Unit } from "../../product/product";
 import { Nutrients } from "../../nutrients/nutrients";
 import userEvent from "@testing-library/user-event";
+import { nutrientsAreShown } from "../../containers/NutrientTable/index.spec";
 
 
-const TEST_100G_NUTRIENTS: Nutrients =
+export const TEST_100G_NUTRIENTS: Nutrients =
 {
     energy: {
         kcal: 74,
@@ -57,7 +58,7 @@ const TEST_SERVING_NUTRIENTS: Nutrients =
     }
 };
 
-const renderPage = (productFetcher: GetProduct, portionFetcher: GetProductPortions): RenderResult => {
+const renderPage = (productFetcher: UseProduct, portionFetcher: UseProductPortions): RenderResult => {
     const result = render(
         <MemoryRouter initialEntries={['/products/1']}>
             <Route path="/products/:id">
@@ -69,36 +70,11 @@ const renderPage = (productFetcher: GetProduct, portionFetcher: GetProductPortio
     return result;
 }
 
-const nutrientsAreShown = (page: RenderResult, nutrients: Nutrients) => {
-
-    const { getByText } = page;
-
-    const { energy, carbohydrates, fat, protein, salt } = nutrients;
-
-    const toFind = [
-        { label: "Energy", value: `${energy.kj} kJ / ${energy.kcal} kcal` },
-        { label: "carbohydrates", value: `${carbohydrates.total || 0} g` },
-        { label: "sugar", value: `${carbohydrates.sugar || 0} g` },
-        { label: "fiber", value: `${carbohydrates.fiber || 0} g` },
-        { label: "addedSugar", value: `${carbohydrates.addedSugar || 0} g` },
-        { label: "starch", value: `${carbohydrates.starch || 0} g` },
-        { label: "fat", value: `${fat.total || 0} g` },
-        { label: "saturated", value: `${fat.saturated || 0} g` },
-        { label: "protein", value: `${protein.total} g` },
-        { label: "salt", value: `${salt.total} g` },
-    ];
-
-    toFind.forEach(({ label, value }) => {
-        expect(getByText(label)).toBeInTheDocument();
-        expect(getByText(value)).toBeInTheDocument();
-    });
-}
-
 describe("Given I render the product page", () => {
     describe("when a product exists", () => {
         it("displays the product and allows the calculation per gram and per specified portion", async () => {
             const user = userEvent.setup();
-            const exampleProduct: GetProduct = () => {
+            const exampleProduct: UseProduct = () => {
                 return {
                     data: {
                         id: 1,
@@ -109,7 +85,7 @@ describe("Given I render the product page", () => {
                     }
                 }
             };
-            const examplePortions: GetProductPortions = () => {
+            const examplePortions: UseProductPortions = () => {
                 return {
                     portions: [
                         {

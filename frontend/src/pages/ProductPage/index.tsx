@@ -23,7 +23,7 @@ import {
   nutrientsToBarValues,
 } from "../../nutrients/nutrients";
 import Bar from "../../containers/Bar";
-import { GetProduct, GetProductPortions, fetchProduct, fetchProductPortions } from "./productApi";
+import { UseProduct, UseProductPortions, useProduct, useProductPortions } from "../product/productApi";
 
 const PerWrapper = styled(Box)`
   align-items: center;
@@ -45,11 +45,11 @@ interface ProductParams {
 }
 
 type ProductPageProps = {
-  productFetcher?: GetProduct
-  portionFetcher?: GetProductPortions
+  productFetcher?: UseProduct
+  portionFetcher?: UseProductPortions
 }
 
-const ProductPage = ({ productFetcher = fetchProduct, portionFetcher = fetchProductPortions }: ProductPageProps) => {
+const ProductPage = ({ productFetcher = useProduct, portionFetcher = useProductPortions }: ProductPageProps) => {
   const history = useHistory();
   const params: ProductParams = useParams<ProductParams>();
   const parsed = Number.parseInt(params.id);

@@ -3,8 +3,9 @@ import React from 'react'
 import AnchorLink from '../../../components/AnchorLink'
 import ProductSearchForm, { SearchSuggestion } from '../../../containers/ProductSearchForm'
 import { ResultList } from '../../../util/data/requests'
+import { GetSearch } from '../../product/productApi'
 
-export const getRecipieSearchSuggestions = async (
+export const getRecipieSearchSuggestions: GetSearch = async (
   suggestion: string
 ): Promise<SearchSuggestion[]> => {
   const request = await fetch(
@@ -20,7 +21,11 @@ export const recipieListUrl = (value: string) => {
   return `/recipies/list?p=${encodeURI(value)}`;
 }
 
-const RecipieSearch = (): JSX.Element => {
+type RecipieSearchProps = {
+  recipieSearch?: GetSearch
+}
+
+const RecipieSearch = ({ recipieSearch = getRecipieSearchSuggestions }: RecipieSearchProps): JSX.Element => {
   return (
     <Box pad="large" gridArea='main'>
       <AnchorLink to="/recipies/add" label="Add Recipies" />
@@ -33,7 +38,7 @@ const RecipieSearch = (): JSX.Element => {
         }}
         width="large"
       >
-        <ProductSearchForm getSuggestions={getRecipieSearchSuggestions} getSubmitUrl={recipieListUrl} />
+        <ProductSearchForm getSuggestions={recipieSearch} getSubmitUrl={recipieListUrl} />
       </Box>
     </Box>
   )

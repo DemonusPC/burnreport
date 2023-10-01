@@ -1,5 +1,6 @@
 import { fireEvent, render } from "@testing-library/react"
 import AddRecipie from "."
+import userEvent from "@testing-library/user-event"
 
 
 describe("Given I render the AddRecipie page", () => {
@@ -13,8 +14,7 @@ describe("Given I render the AddRecipie page", () => {
 
             const nameInput = getByLabelText("recipie-name")
 
-            fireEvent.change(nameInput, { target: { value: 'Cool new recipie' } })
-
+            userEvent.type(nameInput, "Cool new recipie");
 
         })
     })
