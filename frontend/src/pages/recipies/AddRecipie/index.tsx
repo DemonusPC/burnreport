@@ -1,13 +1,13 @@
 import { Box, Button, Form, FormField, Heading, TextInput } from "grommet";
 import React from "react";
 import { Redirect } from "react-router-dom";
-import { SearchSuggestion } from "../../../containers/ProductSearchForm";
 import ProductSelect, {
   emptyState,
   ProductSelectState,
   selectStateToConsumed,
 } from "../../../containers/ProductSelect";
 import { postRecipie } from "../../../util/data/requests";
+import { GetSearch, getProductSearchSuggestions } from "../../product/productApi";
 
 type IngredientCreateCommand = {
   amount: number;
@@ -19,7 +19,12 @@ export type RecipieCreateCommand = {
   ingredients: IngredientCreateCommand[];
 };
 
-const AddRecipie = () => {
+type AddRecipieProps = {
+  productSearch?: GetSearch,
+  addRecipie?: (data: RecipieCreateCommand) => Promise<void>
+}
+
+const AddRecipie = ({ productSearch = getProductSearchSuggestions, addRecipie = postRecipie }: AddRecipieProps) => {
   const [sent, setSent] = React.useState(false);
 
   const [ingredients, setIngredients] = React.useState<ProductSelectState>(
@@ -37,7 +42,7 @@ const AddRecipie = () => {
       })),
     };
 
-    postRecipie(payload).then(() => setSent(true));
+    addRecipie(payload).then(() => setSent(true));
   };
 
   return (
@@ -47,9 +52,9 @@ const AddRecipie = () => {
         <Box>
           <Form onSubmit={send}>
             <FormField name={"name"} label={"Recipie name"} required={true}>
-              <TextInput name={"name"} />
+              <TextInput aria-label="recipie-name" name={"name"} />
             </FormField>
-            <ProductSelect state={ingredients} setState={setIngredients} />
+            <ProductSelect state={ingredients} setState={setIngredients} search={productSearch} />
             <Box direction="row" gap="medium">
               <Button type="submit" primary label="Submit" />
               <Button

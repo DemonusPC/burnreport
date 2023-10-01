@@ -10,6 +10,9 @@ import { handlers } from "./mocks";
 // Setup requests interception using the given handlers.
 const server = setupServer(...handlers);
 
+// This removes a lot of annying scrollTo errors when running the tests
+window.scrollTo = jest.fn();
+
 beforeAll(() => {
   // Enable the mocking in tests.
   server.listen();

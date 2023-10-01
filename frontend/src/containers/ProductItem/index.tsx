@@ -61,6 +61,7 @@ const ProductItem = ({
           mask={standardMask}
           defaultValue={100.0}
           onChange={changeFunc}
+          aria-label={`${name}-amount-select`}
         />
 
         <Select
